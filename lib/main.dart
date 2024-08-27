@@ -3,22 +3,29 @@ import 'package:flutter/services.dart';
 import 'package:quoridouble/screens/intro_screen.dart';
 import 'screens/home_screen.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  // 위젯 시스템이 초기화되었는지 보장
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set portrait orientation
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // 상단바 숨기기
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+      overlays: [SystemUiOverlay.bottom]);
+
+  // Run app
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 상단바 숨기기
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.bottom]);
-
-    // Set portrait orientation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
     return MaterialApp(
         // Remove the debug banner
         debugShowCheckedModeBanner: false,
