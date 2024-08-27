@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:quoridouble/screens/game_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,6 +35,83 @@ class DraggableContainersState extends State<HomeScreen> {
     });
   }
 
+  Widget _buildContainer(int index) {
+    switch (index) {
+      case 0:
+        return GestureDetector(
+          // 비어있는 영역도 터치가 가능하도록 함
+          behavior: HitTestBehavior.opaque,
+          onTap: () {},
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/solo.svg',
+                semanticsLabel: 'Solo Game Icon',
+              ),
+              Text(
+                'Solo Game',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case 1:
+        return GestureDetector(
+          // 비어있는 영역도 터치가 가능하도록 함
+          behavior: HitTestBehavior.opaque,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/4_way.svg',
+                semanticsLabel: '4 Way Game Icon',
+              ),
+              Text(
+                '4-Way Game',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case 2:
+        return GestureDetector(
+          // 비어있는 영역도 터치가 가능하도록 함
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Quoridouble()),
+            );
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/ai_solo.svg',
+                semanticsLabel: 'AI Game Icon',
+              ),
+              Text(
+                'AI Solo Game',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      default:
+        return Container();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -42,7 +120,7 @@ class DraggableContainersState extends State<HomeScreen> {
       Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/background.png"),
+            image: AssetImage("assets/images/background-red.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -56,12 +134,7 @@ class DraggableContainersState extends State<HomeScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.settings),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Quoridouble()),
-                );
-              },
+              onPressed: () {},
             )
           ],
         ),
@@ -91,15 +164,7 @@ class DraggableContainersState extends State<HomeScreen> {
                         ),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Center(
-                        child: Text(
-                          'Container ${index + 1}',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      child: _buildContainer(index),
                     ),
                   ),
                 );
