@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/screens/game_screen.dart';
 
 class HomeScreen extends StatefulWidget {
