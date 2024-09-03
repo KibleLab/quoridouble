@@ -22,18 +22,48 @@ class GameState {
     }
   }
 
+  List<int> user1Pos(int first) {
+    List<int> player = depth % 2 == first ? pieces : enemyPieces;
+    int pos = player.indexOf(1);
+    return [(pos ~/ 17) ~/ 2, (pos % 17) ~/ 2];
+  }
+
+  List<int> user2Pos(int first) {
+    List<int> player = depth % 2 == first
+        ? enemyPieces.reversed.toList()
+        : pieces.reversed.toList();
+    int pos = player.indexOf(1);
+    return [(pos ~/ 17) ~/ 2, (pos % 17) ~/ 2];
+  }
+
+  bool isCurrentTurn(int first) {
+    return depth % 2 == first;
+  }
+
+  int getUser1WallCount(int first) {
+    List<int> player = depth % 2 == first ? pieces : enemyPieces;
+    // 벽 얼마나 설치 가능한지
+    return 10 - (player.where((p) => p == 2).length ~/ 3);
+  }
+
+  int getUser2WallCount(int first) {
+    List<int> player = depth % 2 == first ? enemyPieces : pieces;
+    // 벽 얼마나 설치 가능한지
+    return 10 - (player.where((p) => p == 2).length ~/ 3);
+  }
+
   // x y 위치를 입력하면 1차원 보드판 인덱스로 반환
-  int _convertXY(int x, int y) {
+  int convertXY(int x, int y) {
     return x * 17 + y;
   }
 
-  List<List<int>> _convertBoard() {
+  List<List<int>> convertBoard() {
     const int wall = -1;
     List<List<int>> board = List.generate(17, (_) => List.filled(17, 0));
 
     for (int x = 0; x < 17; x++) {
       for (int y = 0; y < 17; y++) {
-        int index = _convertXY(x, y);
+        int index = convertXY(x, y);
         int piece = pieces[index];
         int enemyPiece = enemyPieces[288 - index];
 
@@ -50,7 +80,7 @@ class GameState {
     return board;
   }
 
-  int _xyToWallAction(int x, int y) {
+  int xyToWallAction(int x, int y) {
     int action;
 
     // 세로
@@ -109,111 +139,117 @@ class GameState {
     return [piecesArrayOf(pieces), piecesArrayOf(enemyPieces)];
   }
 
-  // 합법적인 수의 리스트 얻기
-  List<int> legalActions() {
-    const wall = -1;
-    final Set<int> actions = {};
-    final board = _convertBoard();
+  List<List<int>> legalMoves() {
+    bool isOutOfBounds(int x, int y) {
+      return !(0 <= x && x < 17 && 0 <= y && y < 17);
+    }
 
-    // 플레이어 1의 현재 위치
-    final pos = [
-      for (int i = 0; i < 17; i++)
-        for (int j = 0; j < 17; j++)
-          if (board[i][j] == 1) [i, j]
-    ][0];
+    bool isWall(int x, int y) {
+      int index = convertXY(x, y);
+      int piece = pieces[index];
+      int enemyPiece = enemyPieces.reversed.toList()[index];
+      return piece == 2 || enemyPiece == 2;
+    }
 
-    final east = pos[1] + 2;
-    final eeast = pos[1] + 4;
-    final west = pos[1] - 2;
-    final wwest = pos[1] - 4;
-    final north = pos[0] - 2;
-    final nnorth = pos[0] - 4;
-    final south = pos[0] + 2;
-    final ssouth = pos[0] + 4;
+    bool isInvalidPosition(int x, int y) {
+      return isOutOfBounds(x, y) || isWall(x, y);
+    }
 
-    const N = 0;
-    const ne = 1;
-    const E = 2;
-    const se = 3;
-    const S = 4;
-    const sw = 5;
-    const W = 6;
-    const nw = 7;
-    const nn = 8;
-    const ee = 9;
-    const ss = 10;
-    const ww = 11;
+    int piecesIdx = pieces.indexOf(1);
+    List<int> p1Pos = [(piecesIdx ~/ 17), (piecesIdx % 17)];
 
-    final dxy = [
+    int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
+    List<int> p2Pos = [(enemyIdx ~/ 17), (enemyIdx % 17)];
+
+    List<List<int>> dxy = [
       [0, 2],
       [0, -2],
       [-2, 0],
-      [2, 0],
+      [2, 0]
     ];
 
-    final conditions = [
-      [
-        [east, 16, 0, 1],
-        [0, west, 0, -1],
-        [0, north, -1, 0],
-        [south, 16, 1, 0],
-      ],
-      [
-        [eeast, 16, 0, 3],
-        [0, wwest, 0, -3],
-        [0, nnorth, -3, 0],
-        [ssouth, 16, 3, 0],
-      ],
-      [
-        [0, -1, 2],
-        [0, -1, -2],
-        [1, -2, -1],
-        [1, 2, -1],
-      ],
-      [
-        [0, 1, 2],
-        [0, 1, -2],
-        [1, -2, 1],
-        [1, 2, 1],
-      ],
-    ];
+    // 플레이어 1이 이동할 수 없는 방향을 제거
+    dxy.removeWhere((direction) {
+      int newX = p1Pos[0] + direction[0] ~/ 2;
+      int newY = p1Pos[1] + direction[1] ~/ 2;
+      return isInvalidPosition(newX, newY);
+    });
 
-    final direction = [
-      [E, W, N, S],
-      [ee, ww, nn, ss],
-      [ne, nw, nw, sw],
-      [se, sw, ne, se],
-    ];
+    int deltaX = p2Pos[0] - p1Pos[0];
+    int deltaY = p2Pos[1] - p1Pos[1];
 
-    for (int i = 0; i < 4; i++) {
-      // 도착지가 보드를 이탈하지 않고 이동경로에 벽이 없을 때
-      if (conditions[0][i][0] <= conditions[0][i][1] &&
-          board[pos[0] + conditions[0][i][2]][pos[1] + conditions[0][i][3]] !=
-              wall) {
-        // 도착지(dxy)로 이동
-        if (board[pos[0] + dxy[i][0]][pos[1] + dxy[i][1]] == 0) {
-          actions.add(direction[0][i]);
-        } else if (conditions[1][i][0] <= conditions[1][i][1] &&
-            board[pos[0] + conditions[1][i][2]][pos[1] + conditions[1][i][3]] !=
-                wall) {
-          // 도착지에 플레이어가 있을 때
-          // 해당 방향으로 두칸 이동 (도착지가 보드를 이탈하지 않고 이동경로에 벽에 없을 때)
-          actions.add(direction[1][i]);
-        } else {
-          // 대각선 이동1 (도착지가 보드를 이탈하지 않고 이동경로에 벽이 없을 때)
-          if (pos[conditions[2][i][0]] - 2 >= 0 &&
-              board[pos[0] + conditions[2][i][1]]
-                      [pos[1] + conditions[2][i][2]] !=
-                  wall) {
-            actions.add(direction[2][i]);
+    bool containsList(List<List<int>> listOfLists, List<int> target) {
+      for (List<int> list in listOfLists) {
+        if (list.length == target.length &&
+            list
+                .asMap()
+                .entries
+                .every((entry) => entry.value == target[entry.key])) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (!containsList(dxy, [deltaX, deltaY])) {
+      return dxy;
+    } else {
+      dxy.removeWhere(
+          (element) => element[0] == deltaX && element[1] == deltaY);
+
+      int checkX = p2Pos[0] + deltaX ~/ 2;
+      int checkY = p2Pos[1] + deltaY ~/ 2;
+
+      // 조회한 위치가 보드 범위를 벗어나거나, 벽인지 확인
+      if (!isInvalidPosition(checkX, checkY)) {
+        dxy.add([deltaX * 2, deltaY * 2]);
+        return dxy;
+      } else {
+        int dX = deltaX == 0 ? -1 : 0;
+        int dY = deltaY == 0 ? -1 : 0;
+
+        for (int i = 1; i < 3; i++) {
+          checkX = p2Pos[0] + pow(dX, i).toInt();
+          checkY = p2Pos[1] + pow(dY, i).toInt();
+
+          if (!isInvalidPosition(checkX, checkY)) {
+            dxy.add([
+              deltaX + pow(dX, i).toInt() * 2,
+              deltaY + pow(dY, i).toInt() * 2
+            ]);
           }
-          // 대각선 이동2 (도착지가 보드를 이탈하지 않고 이동경로에 벽이 없을 때)
-          if (pos[conditions[3][i][0]] + 2 <= 16 &&
-              board[pos[0] + conditions[3][i][1]]
-                      [pos[1] + conditions[3][i][2]] !=
-                  wall) {
-            actions.add(direction[3][i]);
-          }
+        }
+
+        return dxy;
+      }
+    }
+  }
+
+  // 합법적인 수의 리스트 얻기
+  List<int> legalActions() {
+    final Set<int> actions = {};
+    final board = convertBoard();
+
+    List<List<int>> moves = [
+      [-2, 0], // N (인덱스 0)
+      [-2, 2], // NE (인덱스 1)
+      [0, 2], // E (인덱스 2)
+      [2, 2], // SE (인덱스 3)
+      [2, 0], // S (인덱스 4)
+      [2, -2], // SW (인덱스 5)
+      [0, -2], // W (인덱스 6)
+      [-2, -2], // NW (인덱스 7)
+      [-4, 0], // NN (인덱스 8)
+      [0, 4], // EE (인덱스 9)
+      [4, 0], // SS (인덱스 10)
+      [0, -4], // WW (인덱스 11)
+    ];
+
+    for (List<int> target in legalMoves()) {
+      for (int k = 0; k < moves.length; k++) {
+        if (moves[k][0] == target[0] && moves[k][1] == target[1]) {
+          actions.add(k);
+          break;
         }
       }
     }
@@ -230,14 +266,14 @@ class GameState {
             // V(세로) 벽 가능 여부 조사
             if (board[i - 1][j] == 0 && board[i + 1][j] == 0) {
               if (isPathAvailable(board, i - 1, j)) {
-                int act = _xyToWallAction(i - 1, j);
+                int act = xyToWallAction(i - 1, j);
                 actions.add(act);
               }
             }
             // H(가로) 벽 가능 여부 조사
             if (board[i][j - 1] == 0 && board[i][j + 1] == 0) {
               if (isPathAvailable(board, i, j - 1)) {
-                int act = _xyToWallAction(i, j - 1);
+                int act = xyToWallAction(i, j - 1);
                 actions.add(act);
               }
             }
@@ -270,8 +306,8 @@ class GameState {
   }
 
   double reward() {
-    List<List<int>> board = _convertBoard();
-    List<List<dynamic>> mat = board.map((item) => List.from(item)).toList();
+    List<List<int>> board = convertBoard();
+    List<List<int>> mat = board.map((item) => List<int>.from(item)).toList();
     int wall = -1;
 
     // 플레이어가 이동할 수 없는 교차로 구간 막기
@@ -281,15 +317,11 @@ class GameState {
       }
     }
 
-    // 플레이어 1 플레이어 2 위치 구하기
-    List<int> p1Pos = [];
-    List<int> p2Pos = [];
-    for (int i = 0; i < 17; i++) {
-      for (int j = 0; j < 17; j++) {
-        if (mat[i][j] == 1) p1Pos = [i, j];
-        if (mat[i][j] == 2) p2Pos = [i, j];
-      }
-    }
+    int piecesIdx = pieces.indexOf(1);
+    List p1Pos = [(piecesIdx ~/ 17), (piecesIdx % 17)];
+
+    int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
+    List p2Pos = [(enemyIdx ~/ 17), (enemyIdx % 17)];
 
     // mat에 표시되어 있는 플레이어 제거
     mat[p1Pos[0]][p1Pos[1]] = 0;
@@ -347,10 +379,8 @@ class GameState {
     List<int> p2NonZero = p2PathLenArray.where((number) => number > 0).toList();
 
     // 가장 낮은 값 찾기
-    int minP1 =
-        p1NonZero.isNotEmpty ? p1NonZero.reduce((a, b) => a < b ? a : b) : 0;
-    int minP2 =
-        p2NonZero.isNotEmpty ? p2NonZero.reduce((a, b) => a < b ? a : b) : 0;
+    int minP1 = p1NonZero.reduce((a, b) => a < b ? a : b);
+    int minP2 = p2NonZero.reduce((a, b) => a < b ? a : b);
 
     // 두 값의 차이 계산
     int difference = minP2 - minP1;
@@ -360,10 +390,7 @@ class GameState {
 
   bool isPathAvailable(List<List<int>> board, int actX, int actY) {
     const int wall = -1;
-    List<List<int>> mat = List.generate(
-      board.length,
-      (i) => List.from(board[i]),
-    );
+    List<List<int>> mat = board.map((item) => List<int>.from(item)).toList();
 
     // 벽 2개 나란히 세웠을 때 틈새 막기
     for (int i = 1; i < mat.length; i += 2) {
@@ -376,14 +403,11 @@ class GameState {
     mat[actX][actY] = wall;
     mat[actX + (actX % 2 == 0 ? 2 : 0)][actY + (actX % 2 != 0 ? 2 : 0)] = wall;
 
-    List<int> p1Pos = [];
-    List<int> p2Pos = [];
-    for (int i = 0; i < 17; i++) {
-      for (int j = 0; j < 17; j++) {
-        if (mat[i][j] == 1) p1Pos = [i, j];
-        if (mat[i][j] == 2) p2Pos = [i, j];
-      }
-    }
+    int piecesIdx = pieces.indexOf(1);
+    List p1Pos = [(piecesIdx ~/ 17), (piecesIdx % 17)];
+
+    int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
+    List p2Pos = [(enemyIdx ~/ 17), (enemyIdx % 17)];
 
     // mat에 표시되어 있는 플레이어 제거
     mat[p1Pos[0]][p1Pos[1]] = 0;
@@ -457,22 +481,26 @@ class GameState {
       newState.pieces[pos] = 0;
       newState.pieces[pos + dxy[action]] = player;
     } else if (action >= 12 && action <= 139) {
-      // H(가로)의 벽
-      if (action > 75) {
-        action -= 75;
-        x = (action % 8 != 0) ? 2 * (action ~/ 8) + 1 : 2 * (action ~/ 8) - 1;
-        y = (action % 8 != 0) ? 2 * (action % 8) - 2 : 14;
-        newState.pieces[_convertXY(x, y)] = wall;
-        newState.pieces[_convertXY(x, y + 1)] = wall;
-        newState.pieces[_convertXY(x, y + 2)] = wall;
+      bool isHorizontalWall = action > 75;
+      action -= isHorizontalWall ? 75 : 11;
+
+      int quotient = action ~/ 8;
+      int remainder = action % 8;
+
+      x = 2 * quotient + (remainder != 0 ? 1 : -1);
+      y = (remainder != 0) ? 2 * remainder - 2 : 14;
+
+      if (isHorizontalWall) {
+        newState.pieces[convertXY(x, y)] = wall;
+        newState.pieces[convertXY(x, y + 1)] = wall;
+        newState.pieces[convertXY(x, y + 2)] = wall;
       } else {
-        // V(세로)의 벽
-        action -= 11;
-        x = (action % 8 != 0) ? 2 * (action % 8) - 2 : 14;
-        y = (action % 8 != 0) ? 2 * (action ~/ 8) + 1 : 2 * (action ~/ 8) - 1;
-        newState.pieces[_convertXY(x, y)] = wall;
-        newState.pieces[_convertXY(x + 1, y)] = wall;
-        newState.pieces[_convertXY(x + 2, y)] = wall;
+        int temp = x;
+        x = y;
+        y = temp;
+        newState.pieces[convertXY(x, y)] = wall;
+        newState.pieces[convertXY(x + 1, y)] = wall;
+        newState.pieces[convertXY(x + 2, y)] = wall;
       }
     }
 
