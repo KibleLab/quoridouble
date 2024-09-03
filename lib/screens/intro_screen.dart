@@ -54,9 +54,9 @@ class AnimatedWidgetState extends State<IntroScreen> {
                 GridView.count(
                   physics: NeverScrollableScrollPhysics(), // 스크롤 비활성화
                   crossAxisCount: 3,
-                  padding: EdgeInsets.all(8.0),
-                  mainAxisSpacing: 8.0,
-                  crossAxisSpacing: 8.0,
+                  padding: EdgeInsets.all(spacing),
+                  mainAxisSpacing: spacing,
+                  crossAxisSpacing: spacing,
                   children: List.generate(9, (index) {
                     return Container(
                       decoration: BoxDecoration(
@@ -82,7 +82,7 @@ class AnimatedWidgetState extends State<IntroScreen> {
                     )),
                 Positioned(
                     top: 2 * (cellSize + spacing) + spacing,
-                    left: 1 * ((180 - 42) / 3 + 8) + 8,
+                    left: 1 * (cellSize + spacing) + spacing,
                     width: cellSize,
                     height: cellSize,
                     child: Transform.rotate(
