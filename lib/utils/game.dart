@@ -288,21 +288,104 @@ class GameState {
   List<int> pruningAction() {
     List<int> action = legalActions();
 
-    // 0부터 11까지의 숫자를 포함하는 리스트
-    List<int> fixedActions1 = action.where((x) => x < 12).toList();
+    List<int> fixedActions1 = [];
+    List<int> fixedActions2 = [];
 
-    // 76부터 139까지의 숫자를 포함하는 리스트
-    List<int> fixedActions2 = action.where((x) => x >= 76).toList();
+    for (int x in action) {
+      if (x < 12) {
+        // 0부터 11까지의 숫자를 포함하는 리스트
+        fixedActions1.add(x);
+      } else if (x >= 12 && x <= 139) {
+        // 12부터 139까지의 숫자를 포함하는 리스트
+        fixedActions2.add(x);
+      }
+    }
 
-    List<int> shuffleActions = action.where((x) => x >= 12 && x <= 75).toList();
+    void addCandidateActions(Set<int> candidateActs, int x, int y) {
+      // 세로 방향으로 좌표 추가
+      List<List<int>> verticalOffsets = [
+        [-1, 0],
+        [1, 0],
+        [-1, -2],
+        [1, -2],
+        [-3, 0],
+        [3, 0],
+        [-3, -2],
+        [3, -2]
+      ];
 
-    // shuffle_actions 절반 랜덤하게 선택
-    shuffleActions.shuffle();
-    List<int> selectedActions =
-        shuffleActions.sublist(0, shuffleActions.length ~/ 2);
+      // 가로 방향으로 좌표 추가
+      List<List<int>> horizontalOffsets = [
+        [0, -1],
+        [0, 1],
+        [-2, -1],
+        [-2, 1],
+        [0, -3],
+        [0, 3],
+        [-2, -3],
+        [-2, 3]
+      ];
+
+      // 세로 및 가로 추가
+      for (List<int> offset in verticalOffsets) {
+        candidateActs.add(xyToWallAction(x + offset[0], y + offset[1]));
+      }
+      for (List<int> offset in horizontalOffsets) {
+        candidateActs.add(xyToWallAction(x + offset[0], y + offset[1]));
+      }
+    }
+
+    final Set<int> candidateActs = {};
+
+    // pieces의 좌표에 대해 후보 행동 추가
+    int piecesIdx = pieces.indexOf(1);
+    int x = piecesIdx ~/ 17;
+    int y = piecesIdx % 17;
+    addCandidateActions(candidateActs, x, y);
+
+    // enemyPieces의 좌표에 대해 후보 행동 추가
+    int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
+    x = enemyIdx ~/ 17;
+    y = enemyIdx % 17;
+    addCandidateActions(candidateActs, x, y);
+
+    final board = convertBoard();
+
+    for (int i = 1; i < board.length; i += 2) {
+      for (int j = 1; j < board[i].length; j += 2) {
+        // 벽 설치 되어있는 곳 근처에 대해 후보 행동 추가
+        if (board[i][j] == 1) {
+          // 근처 테두리를 후보에 넣음
+          candidateActs.add(xyToWallAction(j - 1, i - 2));
+          candidateActs.add(xyToWallAction(j - 1, i + 2));
+          candidateActs.add(xyToWallAction(j - 2, i - 1));
+          candidateActs.add(xyToWallAction(j + 2, i - 1));
+
+          // 가로로 설치하면 세로를 후보에 넣음
+          // 세로로 설치하면 가로를 후보에 넣음
+          candidateActs.add(xyToWallAction(j - 3, i));
+          candidateActs.add(xyToWallAction(j + 1, i));
+          candidateActs.add(xyToWallAction(j, i - 3));
+          candidateActs.add(xyToWallAction(j, i + 1));
+        }
+      }
+    }
+
+    // 상대쪽 수평벽
+    for (int i = 76; i <= 83; i++) {
+      candidateActs.add(i);
+    }
+
+    // 자신쪽 수평벽
+    for (int i = 132; i <= 139; i++) {
+      candidateActs.add(i);
+    }
+
+    // List를 Set으로 변환하여 교집합을 구함
+    Set<int> intersection = candidateActs.intersection(fixedActions2.toSet());
 
     // 두 리스트를 합쳐서 반환
-    return [...fixedActions1, ...fixedActions2, ...selectedActions];
+    return [...fixedActions1, ...intersection];
   }
 
   double reward() {
@@ -379,8 +462,11 @@ class GameState {
     List<int> p2NonZero = p2PathLenArray.where((number) => number > 0).toList();
 
     // 가장 낮은 값 찾기
-    int minP1 = p1NonZero.reduce((a, b) => a < b ? a : b);
-    int minP2 = p2NonZero.reduce((a, b) => a < b ? a : b);
+    // 원래는 조건 설정 안해도 됌. 혹시 모를 예외처리임
+    int minP1 =
+        p1NonZero.isNotEmpty ? p1NonZero.reduce((a, b) => a < b ? a : b) : 0;
+    int minP2 =
+        p2NonZero.isNotEmpty ? p2NonZero.reduce((a, b) => a < b ? a : b) : 0;
 
     // 두 값의 차이 계산
     int difference = minP2 - minP1;
@@ -554,10 +640,6 @@ int randomAction(GameState state) {
 
 // 알파베타법을 활용한 상태 가치 계산
 double alphaBeta(GameState state, double alpha, double beta, int depth) {
-  if (depth == 0) {
-    return state.reward();
-  }
-
   // 패배 시, 상태 가치 -1000
   if (state.isLose()) {
     return -1000;
@@ -566,6 +648,10 @@ double alphaBeta(GameState state, double alpha, double beta, int depth) {
   // 무승부 시, 상태 가치 0
   if (state.isDraw()) {
     return 0;
+  }
+
+  if (depth == 0) {
+    return state.reward();
   }
 
   // 합법적인 수의 상태 가치 계산
