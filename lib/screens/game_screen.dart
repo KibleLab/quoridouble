@@ -417,7 +417,7 @@ class QuoridoubleState extends State<Quoridouble> {
                         );
                       }),
                     AnimatedPositioned(
-                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
+                        duration: Duration(seconds: 1), // 애니메이션 지속 시간
                         curve: Curves.easeInOut, // 애니메이션 곡선
                         top: user1[0] * (cellSize + spacing),
                         left: user1[1] * (cellSize + spacing),
@@ -430,7 +430,7 @@ class QuoridoubleState extends State<Quoridouble> {
                           ),
                         )),
                     AnimatedPositioned(
-                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
+                        duration: Duration(seconds: 1), // 애니메이션 지속 시간
                         curve: Curves.easeInOut, // 애니메이션 곡선
                         top: user2[0] * (cellSize + spacing),
                         left: user2[1] * (cellSize + spacing),
@@ -470,10 +470,12 @@ class QuoridoubleState extends State<Quoridouble> {
                           ? leftCon * (cellSize + spacing)
                           : (leftCon + 1) * cellSize + spacing * leftCon;
 
+                      double touchMargin = cellSize / 2;
+
                       return Positioned(
                           // 터치 영역을 넓히는 마진만큼 제외
-                          top: top - cellSize,
-                          left: left - cellSize,
+                          top: top - (isHorizontalWall ? touchMargin : 0),
+                          left: left - (isHorizontalWall ? 0 : touchMargin),
                           child: GestureDetector(
                             // 비어있는 영역도 터치가 가능하도록 함
                             behavior: HitTestBehavior.opaque,
@@ -492,8 +494,12 @@ class QuoridoubleState extends State<Quoridouble> {
                                     .withOpacity(0.5),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              margin:
-                                  EdgeInsets.all(cellSize), // 터치 영역을 넓히는 마진 추가
+                              margin: EdgeInsets.only(
+                                top: isHorizontalWall ? touchMargin : 0,
+                                bottom: isHorizontalWall ? touchMargin : 0,
+                                left: isHorizontalWall ? 0 : touchMargin,
+                                right: isHorizontalWall ? 0 : touchMargin,
+                              ),
                             ),
                           ));
                     }),
