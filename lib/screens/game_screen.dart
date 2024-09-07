@@ -64,7 +64,8 @@ class QuoridoubleState extends State<Quoridouble> {
     /// game 핵심 기능
     /// ********************************************
 
-    if (gameState.isCurrentTurn(1 - first)) {
+    // AI의 turn
+    if (!gameState.isLose() && gameState.isCurrentTurn(1 - first)) {
       setState(() {
         int action = alphaBetaAction(gameState, 1);
         gameState = gameState.next(action);
@@ -103,73 +104,11 @@ class QuoridoubleState extends State<Quoridouble> {
             wall.add(row + col);
           }
         }
-
-        if (gameState.isLose()) {
-          print("Game END");
-        }
       });
     }
 
-    void setPlayer(Offset event) {
-      // 클릭 위치를 행동으로 변환
-      double boundary = cellSize + spacing;
-      int x = 2 * (event.dx ~/ boundary); // 가로
-      int y = 2 * (event.dy ~/ boundary); // 세로
-
-      if (boundary * ((event.dx ~/ boundary) + 1) - event.dx < 20) {
-        x = 2 * (event.dx ~/ boundary) + 1; // 가로
-      }
-
-      if (boundary * ((event.dy ~/ boundary) + 1) - event.dy < 20) {
-        y = 2 * (event.dy ~/ boundary) + 1; // 세로
-      }
-
-      setState(() {
-        if (gameState.isCurrentTurn(first)) {
-          List legalMove = gameState.legalMoves();
-
-          List<int> target = [y - (user1[0] * 2), x - (user1[1] * 2)];
-
-          bool exists = legalMove.any(
-              (element) => element[0] == target[0] && element[1] == target[1]);
-
-          if (exists) {
-            List<List<int>> moves = [
-              [-2, 0], // N (인덱스 0)
-              [-2, 2], // NE (인덱스 1)
-              [0, 2], // E (인덱스 2)
-              [2, 2], // SE (인덱스 3)
-              [2, 0], // S (인덱스 4)
-              [2, -2], // SW (인덱스 5)
-              [0, -2], // W (인덱스 6)
-              [-2, -2], // NW (인덱스 7)
-              [-4, 0], // NN (인덱스 8)
-              [0, 4], // EE (인덱스 9)
-              [4, 0], // SS (인덱스 10)
-              [0, -4], // WW (인덱스 11)
-            ];
-
-            int? findIndex(List<List<int>> moves, List<int> target) {
-              for (int i = 0; i < moves.length; i++) {
-                if (moves[i][0] == target[0] && moves[i][1] == target[1]) {
-                  return i;
-                }
-              }
-              return null; // 찾지 못한 경우
-            }
-
-            int? action = findIndex(moves, target);
-
-            gameState = gameState.next(action!);
-            user1 = gameState.user1Pos(first);
-            user2 = gameState.user2Pos((first));
-
-            if (gameState.isLose()) {
-              print("Game END");
-            }
-          }
-        }
-      });
+    if (gameState.isLose()) {
+      print("Game END");
     }
 
     List<int> eventToIndex(Offset event) {
@@ -188,64 +127,108 @@ class QuoridoubleState extends State<Quoridouble> {
       return [x, y];
     }
 
-    void setWallTemp(Offset start, Offset end) {
-      if (gameState.isCurrentTurn(first)) {
-        List<int> startPos = eventToIndex(start);
-        List<int> endPos = eventToIndex(end);
-        if (endPos[1] >= 0 && endPos[1] <= 16) {
-          List<int> resultPos = [
-            endPos[0] - startPos[0],
-            endPos[1] - startPos[1]
+    void setPlayer(Offset event) {
+      // 클릭 위치를 행동으로 변환
+      List<int> pos = eventToIndex(event);
+
+      List legalMove = gameState.legalMoves();
+
+      List<int> target = [pos[1] - (user1[0] * 2), pos[0] - (user1[1] * 2)];
+
+      bool exists = legalMove
+          .any((element) => element[0] == target[0] && element[1] == target[1]);
+
+      setState(() {
+        if (exists) {
+          List<List<int>> moves = [
+            [-2, 0], // N (인덱스 0)
+            [-2, 2], // NE (인덱스 1)
+            [0, 2], // E (인덱스 2)
+            [2, 2], // SE (인덱스 3)
+            [2, 0], // S (인덱스 4)
+            [2, -2], // SW (인덱스 5)
+            [0, -2], // W (인덱스 6)
+            [-2, -2], // NW (인덱스 7)
+            [-4, 0], // NN (인덱스 8)
+            [0, 4], // EE (인덱스 9)
+            [4, 0], // SS (인덱스 10)
+            [0, -4], // WW (인덱스 11)
           ];
-          if (resultPos[0] == 0) {
-            // 세로
-            if (resultPos[1] == 3) {
-              int action = gameState.xyToWallAction(startPos[1], startPos[0]);
 
-              if (gameState.legalActions().contains(action)) {
-                String row = String.fromCharCode(
-                    64 + startPos[0] ~/ 2 + startPos[0] % 2);
-                String col = (startPos[1] ~/ 2 + 1).toString();
-
-                wallTemp = row + col;
+          int? findIndex(List<List<int>> moves, List<int> target) {
+            for (int i = 0; i < moves.length; i++) {
+              if (moves[i][0] == target[0] && moves[i][1] == target[1]) {
+                return i;
               }
             }
-            if (resultPos[1] == -3) {
-              int action = gameState.xyToWallAction(endPos[1], endPos[0]);
+            return null; // 찾지 못한 경우
+          }
 
-              if (gameState.legalActions().contains(action)) {
-                String row =
-                    String.fromCharCode(64 + endPos[0] ~/ 2 + endPos[0] % 2);
+          int? action = findIndex(moves, target);
 
-                String col = (endPos[1] ~/ 2 + 1).toString();
+          gameState = gameState.next(action!);
+          user1 = gameState.user1Pos(first);
+          user2 = gameState.user2Pos((first));
+        }
+      });
+    }
 
-                wallTemp = row + col;
-              }
+    void setWallTemp(Offset start, Offset end) {
+      List<int> startPos = eventToIndex(start);
+      List<int> endPos = eventToIndex(end);
+      if (endPos[1] >= 0 && endPos[1] <= 16) {
+        List<int> resultPos = [
+          endPos[0] - startPos[0],
+          endPos[1] - startPos[1]
+        ];
+        if (resultPos[0] == 0) {
+          // 세로
+          if (resultPos[1] == 3) {
+            int action = gameState.xyToWallAction(startPos[1], startPos[0]);
+
+            if (gameState.legalActions().contains(action)) {
+              String row =
+                  String.fromCharCode(64 + startPos[0] ~/ 2 + startPos[0] % 2);
+              String col = (startPos[1] ~/ 2 + 1).toString();
+
+              wallTemp = row + col;
             }
           }
-          if (resultPos[1] == 0) {
-            // 가로
-            if (resultPos[0] == 3) {
-              int action = gameState.xyToWallAction(startPos[1], startPos[0]);
+          if (resultPos[1] == -3) {
+            int action = gameState.xyToWallAction(endPos[1], endPos[0]);
 
-              if (gameState.legalActions().contains(action)) {
-                setState(() {
-                  String col = (startPos[1] ~/ 2 + startPos[1] % 2).toString();
-                  String row = String.fromCharCode(65 + startPos[0] ~/ 2);
-                  wallTemp = col + row;
-                });
-              }
+            if (gameState.legalActions().contains(action)) {
+              String row =
+                  String.fromCharCode(64 + endPos[0] ~/ 2 + endPos[0] % 2);
+
+              String col = (endPos[1] ~/ 2 + 1).toString();
+
+              wallTemp = row + col;
             }
-            if (resultPos[0] == -3) {
-              int action = gameState.xyToWallAction(startPos[1], startPos[0]);
+          }
+        }
+        if (resultPos[1] == 0) {
+          // 가로
+          if (resultPos[0] == 3) {
+            int action = gameState.xyToWallAction(startPos[1], startPos[0]);
 
-              if (gameState.legalActions().contains(action)) {
-                setState(() {
-                  String col = (endPos[1] ~/ 2 + endPos[1] % 2).toString();
-                  String row = String.fromCharCode(65 + endPos[0] ~/ 2);
-                  wallTemp = col + row;
-                });
-              }
+            if (gameState.legalActions().contains(action)) {
+              setState(() {
+                String col = (startPos[1] ~/ 2 + startPos[1] % 2).toString();
+                String row = String.fromCharCode(65 + startPos[0] ~/ 2);
+                wallTemp = col + row;
+              });
+            }
+          }
+          if (resultPos[0] == -3) {
+            int action = gameState.xyToWallAction(startPos[1], startPos[0]);
+
+            if (gameState.legalActions().contains(action)) {
+              setState(() {
+                String col = (endPos[1] ~/ 2 + endPos[1] % 2).toString();
+                String row = String.fromCharCode(65 + endPos[0] ~/ 2);
+                wallTemp = col + row;
+              });
             }
           }
         }
@@ -266,8 +249,9 @@ class QuoridoubleState extends State<Quoridouble> {
             ? 2 * (wallTemp[1].codeUnitAt(0) - 'A'.codeUnitAt(0))
             : 2 * (wallTemp[0].codeUnitAt(0) - 'A'.codeUnitAt(0)) + 1;
 
+        int action = gameState.xyToWallAction(x, y);
+
         setState(() {
-          int action = gameState.xyToWallAction(x, y);
           gameState = gameState.next(action);
           wall.add(wallTemp);
           wallTemp = ""; // wallTemp를 빈 문자열로 지우기
@@ -339,8 +323,9 @@ class QuoridoubleState extends State<Quoridouble> {
                     CustomPaint(
                       painter: LinePainter(startPoint, endPoint),
                     ),
-                    // 전체 영역에 대한 GestureDetector
-                    GestureDetector(
+                    // 조건에 따라 GestureDetector 설정
+                    if (!gameState.isLose() && gameState.isCurrentTurn(first))
+                      GestureDetector(
                         // 비어있는 영역도 터치가 가능하도록 함
                         behavior: HitTestBehavior.opaque,
                         onTapUp: wallTemp.isEmpty
@@ -366,9 +351,10 @@ class QuoridoubleState extends State<Quoridouble> {
                         onPanEnd: wallTemp.isEmpty
                             ? (details) {
                                 if (endPoint == null) {
-                                  setPlayer(startPoint!);
+                                  setPlayer(startPoint!); // 플레이어 설정
                                 } else {
-                                  setWallTemp(startPoint!, endPoint!);
+                                  setWallTemp(
+                                      startPoint!, endPoint!); // 벽 임시 설정
                                 }
 
                                 setState(() {
@@ -376,7 +362,8 @@ class QuoridoubleState extends State<Quoridouble> {
                                   endPoint = null;
                                 });
                               }
-                            : null),
+                            : null,
+                      ),
                     for (String wallInfo in wall)
                       Builder(builder: (BuildContext context) {
                         // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
