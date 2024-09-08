@@ -361,12 +361,36 @@ class GameState {
           candidateActs.add(xyToWallAction(j - 2, i - 1));
           candidateActs.add(xyToWallAction(j + 2, i - 1));
 
-          // 가로로 설치하면 세로를 후보에 넣음
-          // 세로로 설치하면 가로를 후보에 넣음
+          // 가로로 설치하면 인근 세로를 후보에 넣음
+          // 세로로 설치하면 인근 가로를 후보에 넣음
           candidateActs.add(xyToWallAction(j - 3, i));
           candidateActs.add(xyToWallAction(j + 1, i));
           candidateActs.add(xyToWallAction(j, i - 3));
           candidateActs.add(xyToWallAction(j, i + 1));
+
+          // 가로 기준 다음 칸
+          candidateActs.add(xyToWallAction(j + 3, i));
+          candidateActs.add(xyToWallAction(j - 3, i));
+          candidateActs.add(xyToWallAction(j + 4, i - 1));
+          candidateActs.add(xyToWallAction(j - 4, i - 1));
+
+          // 세로 기준 다음 칸
+          candidateActs.add(xyToWallAction(j, i - 3));
+          candidateActs.add(xyToWallAction(j, i + 3));
+          candidateActs.add(xyToWallAction(j - 1, i - 4));
+          candidateActs.add(xyToWallAction(j - 1, i + 4));
+
+          // 가로 기준 코너
+          candidateActs.add(xyToWallAction(j - 2, i - 3));
+          candidateActs.add(xyToWallAction(j - 2, i + 1));
+          candidateActs.add(xyToWallAction(j + 2, i - 3));
+          candidateActs.add(xyToWallAction(j + 2, i + 1));
+
+          // 세로 기준 코너
+          candidateActs.add(xyToWallAction(j + 1, i - 2));
+          candidateActs.add(xyToWallAction(j - 3, i - 2));
+          candidateActs.add(xyToWallAction(j + 1, i + 2));
+          candidateActs.add(xyToWallAction(j - 3, i + 2));
         }
       }
     }
@@ -378,6 +402,16 @@ class GameState {
 
     // 자신쪽 수평벽
     for (int i = 132; i <= 139; i++) {
+      candidateActs.add(i);
+    }
+
+    // 왼쪽 수평벽
+    for (int i = 76; i <= 132; i += 8) {
+      candidateActs.add(i);
+    }
+
+    // 오른쪽 수평벽
+    for (int i = 83; i <= 139; i += 8) {
       candidateActs.add(i);
     }
 
