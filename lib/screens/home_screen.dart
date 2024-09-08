@@ -3,19 +3,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/screens/game_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int? page;
 
+  const HomeScreen({super.key, this.page});
   @override
   DraggableContainersState createState() => DraggableContainersState();
 }
 
 class DraggableContainersState extends State<HomeScreen> {
-  // 0.6은 각 페이지가 뷰포트의 60%를 차지한다는 의미
-  // 양옆으로 이전/다음 페이지의 20%씩이 보이게 된다
-  final PageController _pageController = PageController(viewportFraction: 0.6);
+  late PageController _pageController;
 
   // 현재 페이지 값 추적
-  double _currentPageValue = 0.0;
+  late double _currentPageValue;
 
   // PageController는 내부적으로 리소스를 사용하므로,
   // 위젯이 제거될 때 이를 명시적으로 해제해야 함.
@@ -28,6 +27,17 @@ class DraggableContainersState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    // page가 null일 경우 0으로 초기화
+    _currentPageValue = (widget.page ?? 0).toDouble();
+
+    // 0.6은 각 페이지가 뷰포트의 60%를 차지한다는 의미
+    // 양옆으로 이전/다음 페이지의 20%씩이 보이게 된다
+    _pageController = PageController(
+      viewportFraction: 0.6,
+      initialPage: widget.page ?? 0, // 초기 페이지 설정
+    );
+
     _pageController.addListener(() {
       setState(() {
         _currentPageValue = _pageController.page!;
