@@ -66,49 +66,55 @@ class QuoridoubleState extends State<Quoridouble> {
 
     // AI의 turn
     if (!gameState.isLose() && gameState.isCurrentTurn(1 - first)) {
-      setState(() {
-        int action = alphaBetaAction(gameState, 1);
-        gameState = gameState.next(action);
-        user1 = gameState.user1Pos(first);
-        user2 = gameState.user2Pos((first));
+      Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          int action = alphaBetaAction(gameState, 1);
+          gameState = gameState.next(action);
+          user1 = gameState.user1Pos(first);
+          user2 = gameState.user2Pos((first));
 
-        if (action >= 12 && action <= 139) {
-          bool isHorizontalWall = action > 75;
-          action -= isHorizontalWall ? 75 : 11;
+          if (action >= 12 && action <= 139) {
+            bool isHorizontalWall = action > 75;
+            action -= isHorizontalWall ? 75 : 11;
 
-          int quotient = action ~/ 8;
-          int remainder = action % 8;
+            int quotient = action ~/ 8;
+            int remainder = action % 8;
 
-          int x = (remainder != 0) ? 2 * remainder - 2 : 14;
-          int y = 2 * quotient + (remainder != 0 ? 1 : -1);
+            int x = (remainder != 0) ? 2 * remainder - 2 : 14;
+            int y = 2 * quotient + (remainder != 0 ? 1 : -1);
 
-          if (isHorizontalWall) {
-            int temp = x;
-            x = y;
-            y = temp;
+            if (isHorizontalWall) {
+              int temp = x;
+              x = y;
+              y = temp;
 
-            y += 2;
-            x = 16 - x;
-            y = 16 - y;
+              y += 2;
+              x = 16 - x;
+              y = 16 - y;
 
-            String col = (x ~/ 2 + x % 2).toString();
-            String row = String.fromCharCode(65 + y ~/ 2);
-            wall.add(col + row);
-          } else {
-            x += 2;
-            x = 16 - x;
-            y = 16 - y;
+              String col = (x ~/ 2 + x % 2).toString();
+              String row = String.fromCharCode(65 + y ~/ 2);
+              wall.add(col + row);
+            } else {
+              x += 2;
+              x = 16 - x;
+              y = 16 - y;
 
-            String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
-            String col = (x ~/ 2 + 1).toString();
-            wall.add(row + col);
+              String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
+              String col = (x ~/ 2 + 1).toString();
+              wall.add(row + col);
+            }
           }
-        }
+        });
       });
     }
 
     if (gameState.isLose()) {
-      print("Game END");
+      if (gameState.isCurrentTurn(first)) {
+        print("You are Lose");
+      } else {
+        print("You are Win");
+      }
     }
 
     List<int> eventToIndex(Offset event) {
@@ -221,7 +227,7 @@ class QuoridoubleState extends State<Quoridouble> {
             }
           }
           if (resultPos[0] == -3) {
-            int action = gameState.xyToWallAction(startPos[1], startPos[0]);
+            int action = gameState.xyToWallAction(endPos[1], endPos[0]);
 
             if (gameState.legalActions().contains(action)) {
               setState(() {
@@ -283,7 +289,8 @@ class QuoridoubleState extends State<Quoridouble> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => HomeScreen(page: 2)),
                   );
                 },
               )
@@ -323,6 +330,25 @@ class QuoridoubleState extends State<Quoridouble> {
                     CustomPaint(
                       painter: LinePainter(startPoint, endPoint),
                     ),
+                    if (!gameState.isLose() && gameState.isCurrentTurn(first))
+                      for (List<int> target in gameState.legalMoves())
+                        Positioned(
+                            top: (target[0] ~/ 2 + user1[0]) *
+                                (cellSize + spacing),
+                            left: (target[1] ~/ 2 + user1[1]) *
+                                (cellSize + spacing),
+                            width: cellSize,
+                            height: cellSize,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Opacity(
+                                opacity: 0.5, // 투명도를 설정 (0.0에서 1.0까지)
+                                child: SvgPicture.asset(
+                                  'assets/images/white_pin.svg',
+                                ),
+                              ),
+                            )),
+
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(first))
                       GestureDetector(
@@ -404,7 +430,7 @@ class QuoridoubleState extends State<Quoridouble> {
                         );
                       }),
                     AnimatedPositioned(
-                        duration: Duration(seconds: 1), // 애니메이션 지속 시간
+                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
                         curve: Curves.easeInOut, // 애니메이션 곡선
                         top: user1[0] * (cellSize + spacing),
                         left: user1[1] * (cellSize + spacing),
@@ -417,7 +443,7 @@ class QuoridoubleState extends State<Quoridouble> {
                           ),
                         )),
                     AnimatedPositioned(
-                        duration: Duration(seconds: 1), // 애니메이션 지속 시간
+                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
                         curve: Curves.easeInOut, // 애니메이션 곡선
                         top: user2[0] * (cellSize + spacing),
                         left: user2[1] * (cellSize + spacing),
@@ -497,7 +523,7 @@ class QuoridoubleState extends State<Quoridouble> {
             // 좌측 상단
             Positioned(
               left: 10,
-              top: (screenHeight - screenWidth) / 2 - 21 - cellSize - 18 - 12,
+              top: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
               child: Text(
                 'Walls ${gameState.getUser2WallCount((first))}',
                 style: TextStyle(
@@ -509,7 +535,7 @@ class QuoridoubleState extends State<Quoridouble> {
             // 우측 상단
             Positioned(
               right: 10,
-              top: (screenHeight - screenWidth) / 2 - 21 - cellSize - 18 - 12,
+              top: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
               child: Text(
                 '00:10',
                 style: TextStyle(
@@ -521,8 +547,7 @@ class QuoridoubleState extends State<Quoridouble> {
             // 좌측 하단
             Positioned(
               left: 10,
-              bottom:
-                  (screenHeight - screenWidth) / 2 - 21 - cellSize - 18 - 12,
+              bottom: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
               child: Text(
                 '00:10',
                 style: TextStyle(
@@ -534,8 +559,7 @@ class QuoridoubleState extends State<Quoridouble> {
             //  좌측 상단
             Positioned(
               right: 10,
-              bottom:
-                  (screenHeight - screenWidth) / 2 - 21 - cellSize - 18 - 12,
+              bottom: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
               child: Text(
                 'Walls ${gameState.getUser1WallCount(first)}',
                 style: TextStyle(
