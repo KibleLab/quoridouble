@@ -60,6 +60,25 @@ class QuoridoubleState extends State<Quoridouble> {
     final double cellSize = (screenWidth - 100) / 9;
     const double spacing = 8;
 
+    // 회전 각도를 계산하는 함수를 추가함.
+    double getRotationAngle(List<int> target) {
+      final int x = target[0];
+      final int y = target[1];
+
+      // 기본 8방향 처리
+      if (x != 0 || y != 0) {
+        return (atan2(y, -x) + 2 * pi) % (2 * pi);
+      }
+
+      // x2 움직임 처리
+      if (x == -4 && y == 0) return 0; // Northx2
+      if (x == 0 && y == 4) return pi / 2; // Eastx2
+      if (x == 4 && y == 0) return pi; // Southx2
+      if (x == 0 && y == -4) return 3 * pi / 2; // Westx2
+
+      return 0; // 기본값
+    }
+
     /// ********************************************
     /// game 핵심 기능
     /// ********************************************
@@ -330,6 +349,7 @@ class QuoridoubleState extends State<Quoridouble> {
                     CustomPaint(
                       painter: LinePainter(startPoint, endPoint),
                     ),
+                    // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() && gameState.isCurrentTurn(first))
                       for (List<int> target in gameState.legalMoves())
                         Positioned(
@@ -341,10 +361,10 @@ class QuoridoubleState extends State<Quoridouble> {
                             height: cellSize,
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Opacity(
-                                opacity: 0.5, // 투명도를 설정 (0.0에서 1.0까지)
+                              child: Transform.rotate(
+                                angle: getRotationAngle(target),
                                 child: SvgPicture.asset(
-                                  'assets/images/white_pin.svg',
+                                  'assets/images/up_circle.svg',
                                 ),
                               ),
                             )),
