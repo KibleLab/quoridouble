@@ -239,7 +239,12 @@ class QuoridoubleState extends State<Quoridouble> {
               String row = (wallOtherIndex - 1).toString();
 
               if (wallOtherIndex != 0) {
-                wallTemp = col + row;
+                int action = gameState.xyToWallAction(
+                    2 * (wallOtherIndex - 2), 2 * wallIndex - 1);
+
+                if (gameState.legalActions().contains(action)) {
+                  wallTemp = col + row;
+                }
               }
             } else if (start.dy < end.dy) {
               // print('세로: 위에서 아래로');
@@ -247,7 +252,12 @@ class QuoridoubleState extends State<Quoridouble> {
               String row = wallOtherIndex.toString();
 
               if (wallOtherIndex != 0) {
-                wallTemp = col + row;
+                int action = gameState.xyToWallAction(
+                    2 * (wallOtherIndex - 1), 2 * wallIndex - 1);
+
+                if (gameState.legalActions().contains(action)) {
+                  wallTemp = col + row;
+                }
               }
             }
           }
@@ -268,7 +278,12 @@ class QuoridoubleState extends State<Quoridouble> {
               String col = String.fromCharCode(64 + wallOtherIndex - 1);
 
               if (wallOtherIndex != 0) {
-                wallTemp = row + col;
+                int action = gameState.xyToWallAction(
+                    2 * wallIndex - 1, 2 * (wallOtherIndex - 2));
+
+                if (gameState.legalActions().contains(action)) {
+                  wallTemp = row + col;
+                }
               }
             } else if (start.dx < end.dx) {
               // print('가로: 왼쪽에서 오른쪽으로');
@@ -276,7 +291,12 @@ class QuoridoubleState extends State<Quoridouble> {
               String col = String.fromCharCode(64 + wallOtherIndex);
 
               if (wallOtherIndex != 0) {
-                wallTemp = row + col;
+                int action = gameState.xyToWallAction(
+                    2 * wallIndex - 1, 2 * (wallOtherIndex - 1));
+
+                if (gameState.legalActions().contains(action)) {
+                  wallTemp = row + col;
+                }
               }
             }
           }
