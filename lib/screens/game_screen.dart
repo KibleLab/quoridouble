@@ -15,8 +15,6 @@ class Quoridouble extends StatefulWidget {
 class QuoridoubleState extends State<Quoridouble> {
   Offset? startPoint;
   Offset? endPoint;
-  bool isHorizontalMove = false;
-  bool isVerticalMove = false;
 
   final String _result = '1 vs 1 Game';
   final int _blockCounter = 9;
@@ -223,7 +221,7 @@ class QuoridoubleState extends State<Quoridouble> {
       double distance = (start - end).distance;
 
       // 길이가 일정이상 이여야 동작함.
-      if (distance >= cellSize * 2 - 8) {
+      if (distance >= cellSize + spacing) {
         // 세로 직선
         if (start.dx == end.dx) {
           int wallIndex = locationToWallIndex(start.dx);
@@ -440,34 +438,7 @@ class QuoridoubleState extends State<Quoridouble> {
                               details.localPosition.dy >= 0 &&
                               details.localPosition.dy <= screenWidth - 36) {
                             setState(() {
-                              // 시작 후 첫 이동에 따라 방향을 결정
-                              if (startPoint != null &&
-                                  !isHorizontalMove &&
-                                  !isVerticalMove) {
-                                final dx =
-                                    (details.localPosition.dx - startPoint!.dx)
-                                        .abs();
-                                final dy =
-                                    (details.localPosition.dy - startPoint!.dy)
-                                        .abs();
-
-                                if (dx > dy) {
-                                  isHorizontalMove = true; // 가로 방향 이동
-                                } else {
-                                  isVerticalMove = true; // 세로 방향 이동
-                                }
-                              }
-
-                              // 방향이 가로로 고정된 경우 세로 좌표 변경 없음
-                              if (isHorizontalMove) {
-                                endPoint = Offset(
-                                    details.localPosition.dx, startPoint!.dy);
-                              }
-                              // 방향이 세로로 고정된 경우 가로 좌표 변경 없음
-                              else if (isVerticalMove) {
-                                endPoint = Offset(
-                                    startPoint!.dx, details.localPosition.dy);
-                              }
+                              endPoint = details.localPosition;
                             });
                           }
                         },
@@ -496,8 +467,6 @@ class QuoridoubleState extends State<Quoridouble> {
                                 setState(() {
                                   startPoint = null;
                                   endPoint = null;
-                                  isHorizontalMove = false;
-                                  isVerticalMove = false;
                                 });
                               }
                             : null,
