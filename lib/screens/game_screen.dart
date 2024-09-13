@@ -15,6 +15,8 @@ class Quoridouble extends StatefulWidget {
 class QuoridoubleState extends State<Quoridouble> {
   Offset? startPoint;
   Offset? endPoint;
+  bool isHorizontalMove = false;
+  bool isVerticalMove = false;
 
   final String _result = '1 vs 1 Game';
   final int _blockCounter = 9;
@@ -60,23 +62,14 @@ class QuoridoubleState extends State<Quoridouble> {
     final double cellSize = (screenWidth - 100) / 9;
     const double spacing = 8;
 
+    LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
+
     // 회전 각도를 계산하는 함수를 추가함.
     double getRotationAngle(List<int> target) {
       final int x = target[0];
       final int y = target[1];
 
-      // 기본 8방향 처리
-      if (x != 0 || y != 0) {
-        return (atan2(y, -x) + 2 * pi) % (2 * pi);
-      }
-
-      // x2 움직임 처리
-      if (x == -4 && y == 0) return 0; // Northx2
-      if (x == 0 && y == 4) return pi / 2; // Eastx2
-      if (x == 4 && y == 0) return pi; // Southx2
-      if (x == 0 && y == -4) return 3 * pi / 2; // Westx2
-
-      return 0; // 기본값
+      return (atan2(y, -x) + 2 * pi) % (2 * pi);
     }
 
     /// ********************************************
@@ -141,12 +134,12 @@ class QuoridoubleState extends State<Quoridouble> {
       int x = 2 * (event.dx ~/ boundary); // 가로
       int y = 2 * (event.dy ~/ boundary); // 세로
 
-      if (boundary * ((event.dx ~/ boundary) + 1) - event.dx < 20) {
-        x = 2 * (event.dx ~/ boundary) + 1; // 가로
+      if (boundary * ((event.dx ~/ boundary) + 1) - event.dx < spacing) {
+        x += 1; // 가로
       }
 
-      if (boundary * ((event.dy ~/ boundary) + 1) - event.dy < 20) {
-        y = 2 * (event.dy ~/ boundary) + 1; // 세로
+      if (boundary * ((event.dy ~/ boundary) + 1) - event.dy < spacing) {
+        y += 1; // 세로
       }
 
       return [x, y];
@@ -198,62 +191,93 @@ class QuoridoubleState extends State<Quoridouble> {
       });
     }
 
+    int locationToWallIndex(double location) {
+      double padding = cellSize / 2;
+      int index = 0;
+
+      for (int i = 1; i <= 8; i++) {
+        if (i * cellSize + (i - 1) * spacing - padding <= location &&
+            location <= i * (cellSize + spacing) + padding) {
+          index = i;
+        }
+      }
+
+      return index;
+    }
+
+    int locationToWallOtherIndex(double location) {
+      int index = 0;
+
+      for (int i = 1; i <= 9; i++) {
+        if ((i - 1) * (cellSize + spacing) <= location &&
+            location <= (i - 1) * (cellSize + spacing) + cellSize) {
+          index = i;
+        }
+      }
+
+      return index;
+    }
+
     void setWallTemp(Offset start, Offset end) {
-      List<int> startPos = eventToIndex(start);
-      List<int> endPos = eventToIndex(end);
-      if (endPos[1] >= 0 && endPos[1] <= 16) {
-        List<int> resultPos = [
-          endPos[0] - startPos[0],
-          endPos[1] - startPos[1]
-        ];
-        if (resultPos[0] == 0) {
-          // 세로
-          if (resultPos[1] == 3) {
-            int action = gameState.xyToWallAction(startPos[1], startPos[0]);
+      // 두 점 사이의 거리 계산
+      double distance = (start - end).distance;
 
-            if (gameState.legalActions().contains(action)) {
-              String row =
-                  String.fromCharCode(64 + startPos[0] ~/ 2 + startPos[0] % 2);
-              String col = (startPos[1] ~/ 2 + 1).toString();
+      // 길이가 일정이상 이여야 동작함.
+      if (distance >= cellSize * 2 - 8) {
+        // 세로 직선
+        if (start.dx == end.dx) {
+          int wallIndex = locationToWallIndex(start.dx);
 
-              wallTemp = row + col;
-            }
-          }
-          if (resultPos[1] == -3) {
-            int action = gameState.xyToWallAction(endPos[1], endPos[0]);
+          // X가 범위내에 들어와 있는지 확인
+          if (wallIndex != 0) {
+            String col = String.fromCharCode(64 + wallIndex);
+            // print("vertical index : $col");
 
-            if (gameState.legalActions().contains(action)) {
-              String row =
-                  String.fromCharCode(64 + endPos[0] ~/ 2 + endPos[0] % 2);
+            if (start.dy > end.dy) {
+              // print('세로: 아래에서 위로');
+              int wallOtherIndex = locationToWallOtherIndex(start.dy - spacing);
+              String row = (wallOtherIndex - 1).toString();
 
-              String col = (endPos[1] ~/ 2 + 1).toString();
+              if (wallOtherIndex != 0) {
+                wallTemp = col + row;
+              }
+            } else if (start.dy < end.dy) {
+              // print('세로: 위에서 아래로');
+              int wallOtherIndex = locationToWallOtherIndex(start.dy + spacing);
+              String row = wallOtherIndex.toString();
 
-              wallTemp = row + col;
+              if (wallOtherIndex != 0) {
+                wallTemp = col + row;
+              }
             }
           }
         }
-        if (resultPos[1] == 0) {
-          // 가로
-          if (resultPos[0] == 3) {
-            int action = gameState.xyToWallAction(startPos[1], startPos[0]);
 
-            if (gameState.legalActions().contains(action)) {
-              setState(() {
-                String col = (startPos[1] ~/ 2 + startPos[1] % 2).toString();
-                String row = String.fromCharCode(65 + startPos[0] ~/ 2);
-                wallTemp = col + row;
-              });
-            }
-          }
-          if (resultPos[0] == -3) {
-            int action = gameState.xyToWallAction(endPos[1], endPos[0]);
+        // 가로 직선
+        if (start.dy == end.dy) {
+          int wallIndex = locationToWallIndex(start.dy);
 
-            if (gameState.legalActions().contains(action)) {
-              setState(() {
-                String col = (endPos[1] ~/ 2 + endPos[1] % 2).toString();
-                String row = String.fromCharCode(65 + endPos[0] ~/ 2);
-                wallTemp = col + row;
-              });
+          // Y가 범위내에 들어와 있는지 확인
+          if (wallIndex != 0) {
+            String row = wallIndex.toString();
+            // print("horizontal index : $wallIndex");
+
+            if (start.dx > end.dx) {
+              // print('가로: 오른쪽에서 왼쪽으로');
+              int wallOtherIndex = locationToWallOtherIndex(start.dx - spacing);
+              String col = String.fromCharCode(64 + wallOtherIndex - 1);
+
+              if (wallOtherIndex != 0) {
+                wallTemp = row + col;
+              }
+            } else if (start.dx < end.dx) {
+              // print('가로: 왼쪽에서 오른쪽으로');
+              int wallOtherIndex = locationToWallOtherIndex(start.dx + spacing);
+              String col = String.fromCharCode(64 + wallOtherIndex);
+
+              if (wallOtherIndex != 0) {
+                wallTemp = row + col;
+              }
             }
           }
         }
@@ -346,8 +370,9 @@ class QuoridoubleState extends State<Quoridouble> {
                         );
                       }),
                     ),
+
                     CustomPaint(
-                      painter: LinePainter(startPoint, endPoint),
+                      painter: painter,
                     ),
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() && gameState.isCurrentTurn(first))
@@ -390,22 +415,69 @@ class QuoridoubleState extends State<Quoridouble> {
                               }
                             : null,
                         onPanUpdate: (details) {
-                          setState(() {
-                            endPoint = details.localPosition;
-                          });
+                          if (details.localPosition.dx >= 0 &&
+                              details.localPosition.dx <= screenWidth - 36 &&
+                              details.localPosition.dy >= 0 &&
+                              details.localPosition.dy <= screenWidth - 36) {
+                            setState(() {
+                              // 시작 후 첫 이동에 따라 방향을 결정
+                              if (startPoint != null &&
+                                  !isHorizontalMove &&
+                                  !isVerticalMove) {
+                                final dx =
+                                    (details.localPosition.dx - startPoint!.dx)
+                                        .abs();
+                                final dy =
+                                    (details.localPosition.dy - startPoint!.dy)
+                                        .abs();
+
+                                if (dx > dy) {
+                                  isHorizontalMove = true; // 가로 방향 이동
+                                } else {
+                                  isVerticalMove = true; // 세로 방향 이동
+                                }
+                              }
+
+                              // 방향이 가로로 고정된 경우 세로 좌표 변경 없음
+                              if (isHorizontalMove) {
+                                endPoint = Offset(
+                                    details.localPosition.dx, startPoint!.dy);
+                              }
+                              // 방향이 세로로 고정된 경우 가로 좌표 변경 없음
+                              else if (isVerticalMove) {
+                                endPoint = Offset(
+                                    startPoint!.dx, details.localPosition.dy);
+                              }
+                            });
+                          }
                         },
                         onPanEnd: wallTemp.isEmpty
                             ? (details) {
-                                if (endPoint == null) {
-                                  setPlayer(startPoint!); // 플레이어 설정
+                                // startPoint가 null이 아닌지 확인
+                                if (startPoint != null) {
+                                  if (endPoint == null) {
+                                    setPlayer(startPoint!); // 플레이어 설정
+                                  } else {
+                                    Offset? finalEndPoint =
+                                        painter.restrictedEnd;
+
+                                    // finalEndPoint가 null이 아닌지 확인
+                                    if (finalEndPoint != null) {
+                                      setWallTemp(startPoint!,
+                                          finalEndPoint); // 벽 임시 설정
+                                    } else {
+                                      print('finalEndPoint가 null입니다.');
+                                    }
+                                  }
                                 } else {
-                                  setWallTemp(
-                                      startPoint!, endPoint!); // 벽 임시 설정
+                                  print('startPoint가 null입니다.');
                                 }
 
                                 setState(() {
                                   startPoint = null;
                                   endPoint = null;
+                                  isHorizontalMove = false;
+                                  isVerticalMove = false;
                                 });
                               }
                             : null,
@@ -596,17 +668,36 @@ class QuoridoubleState extends State<Quoridouble> {
 class LinePainter extends CustomPainter {
   final Offset? start;
   final Offset? end;
+  final double cellSize;
+  Offset? restrictedEnd;
 
-  LinePainter(this.start, this.end);
+  LinePainter(this.start, this.end, this.cellSize);
 
   @override
   void paint(Canvas canvas, Size size) {
     if (start != null && end != null) {
       final paint = Paint()
         ..color = Color.fromARGB(255, 255, 127, 80).withOpacity(0.5)
-        ..strokeWidth = 4
+        ..strokeWidth = 8
         ..strokeCap = StrokeCap.round;
-      canvas.drawLine(start!, end!, paint);
+
+      // maxLength
+      final maxLength = cellSize * 2;
+
+      final dx = end!.dx - start!.dx;
+      final dy = end!.dy - start!.dy;
+
+      if (dx.abs() > dy.abs()) {
+        // 가로 방향
+        double length = min(dx.abs(), maxLength);
+        restrictedEnd = Offset(start!.dx + length * dx.sign, start!.dy);
+      } else {
+        // 세로 방향
+        double length = min(dy.abs(), maxLength);
+        restrictedEnd = Offset(start!.dx, start!.dy + length * dy.sign);
+      }
+
+      canvas.drawLine(start!, restrictedEnd!, paint);
     }
   }
 
