@@ -286,140 +286,186 @@ class GameState {
   }
 
   List<int> pruningAction() {
-    List<int> action = legalActions();
-
-    List<int> fixedActions1 = [];
-    List<int> fixedActions2 = [];
-
-    for (int x in action) {
-      if (x < 12) {
-        // 0부터 11까지의 숫자를 포함하는 리스트
-        fixedActions1.add(x);
-      } else if (x >= 12 && x <= 139) {
-        // 12부터 139까지의 숫자를 포함하는 리스트
-        fixedActions2.add(x);
-      }
-    }
-
-    void addCandidateActions(Set<int> candidateActs, int x, int y) {
-      // 세로 방향으로 좌표 추가
-      List<List<int>> verticalOffsets = [
-        [-1, 0],
-        [1, 0],
-        [-1, -2],
-        [1, -2],
-        [-3, 0],
-        [3, 0],
-        [-3, -2],
-        [3, -2]
-      ];
-
-      // 가로 방향으로 좌표 추가
-      List<List<int>> horizontalOffsets = [
-        [0, -1],
-        [0, 1],
-        [-2, -1],
-        [-2, 1],
-        [0, -3],
-        [0, 3],
-        [-2, -3],
-        [-2, 3]
-      ];
-
-      // 세로 및 가로 추가
-      for (List<int> offset in verticalOffsets) {
-        candidateActs.add(xyToWallAction(x + offset[0], y + offset[1]));
-      }
-      for (List<int> offset in horizontalOffsets) {
-        candidateActs.add(xyToWallAction(x + offset[0], y + offset[1]));
-      }
-    }
-
-    final Set<int> candidateActs = {};
-
-    // pieces의 좌표에 대해 후보 행동 추가
-    int piecesIdx = pieces.indexOf(1);
-    int x = piecesIdx ~/ 17;
-    int y = piecesIdx % 17;
-    addCandidateActions(candidateActs, x, y);
-
-    // enemyPieces의 좌표에 대해 후보 행동 추가
-    int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
-    x = enemyIdx ~/ 17;
-    y = enemyIdx % 17;
-    addCandidateActions(candidateActs, x, y);
-
+    final Set<int> actions = {};
     final board = convertBoard();
 
-    for (int i = 1; i < board.length; i += 2) {
-      for (int j = 1; j < board[i].length; j += 2) {
-        // 벽 설치 되어있는 곳 근처에 대해 후보 행동 추가
-        if (board[i][j] == 1) {
-          // 근처 테두리를 후보에 넣음
-          candidateActs.add(xyToWallAction(j - 1, i - 2));
-          candidateActs.add(xyToWallAction(j - 1, i + 2));
-          candidateActs.add(xyToWallAction(j - 2, i - 1));
-          candidateActs.add(xyToWallAction(j + 2, i - 1));
+    List<List<int>> moves = [
+      [-2, 0], // N (인덱스 0)
+      [-2, 2], // NE (인덱스 1)
+      [0, 2], // E (인덱스 2)
+      [2, 2], // SE (인덱스 3)
+      [2, 0], // S (인덱스 4)
+      [2, -2], // SW (인덱스 5)
+      [0, -2], // W (인덱스 6)
+      [-2, -2], // NW (인덱스 7)
+      [-4, 0], // NN (인덱스 8)
+      [0, 4], // EE (인덱스 9)
+      [4, 0], // SS (인덱스 10)
+      [0, -4], // WW (인덱스 11)
+    ];
 
-          // 가로로 설치하면 인근 세로를 후보에 넣음
-          // 세로로 설치하면 인근 가로를 후보에 넣음
-          candidateActs.add(xyToWallAction(j - 3, i));
-          candidateActs.add(xyToWallAction(j + 1, i));
-          candidateActs.add(xyToWallAction(j, i - 3));
-          candidateActs.add(xyToWallAction(j, i + 1));
-
-          // 가로 기준 다음 칸
-          candidateActs.add(xyToWallAction(j + 3, i));
-          candidateActs.add(xyToWallAction(j - 3, i));
-          candidateActs.add(xyToWallAction(j + 4, i - 1));
-          candidateActs.add(xyToWallAction(j - 4, i - 1));
-
-          // 세로 기준 다음 칸
-          candidateActs.add(xyToWallAction(j, i - 3));
-          candidateActs.add(xyToWallAction(j, i + 3));
-          candidateActs.add(xyToWallAction(j - 1, i - 4));
-          candidateActs.add(xyToWallAction(j - 1, i + 4));
-
-          // 가로 기준 코너
-          candidateActs.add(xyToWallAction(j - 2, i - 3));
-          candidateActs.add(xyToWallAction(j - 2, i + 1));
-          candidateActs.add(xyToWallAction(j + 2, i - 3));
-          candidateActs.add(xyToWallAction(j + 2, i + 1));
-
-          // 세로 기준 코너
-          candidateActs.add(xyToWallAction(j + 1, i - 2));
-          candidateActs.add(xyToWallAction(j - 3, i - 2));
-          candidateActs.add(xyToWallAction(j + 1, i + 2));
-          candidateActs.add(xyToWallAction(j - 3, i + 2));
+    for (List<int> target in legalMoves()) {
+      for (int k = 0; k < moves.length; k++) {
+        if (moves[k][0] == target[0] && moves[k][1] == target[1]) {
+          actions.add(k);
+          break;
         }
       }
     }
 
-    // 상대쪽 수평벽
-    for (int i = 76; i <= 83; i++) {
-      candidateActs.add(i);
+    // 벽 얼마나 설치 가능한지
+    final wallCount = 10 - (pieces.where((p) => p == 2).length ~/ 3);
+
+    // 벽 사용가능 여부
+    if (wallCount > 0) {
+      /// ********************************************
+      /// candidateActs
+      /// ********************************************
+
+      void addCandidateActions(Set<int> candidateActs, int x, int y) {
+        // 세로 방향으로 좌표 추가
+        List<List<int>> verticalOffsets = [
+          [-1, 0],
+          [1, 0],
+          [-1, -2],
+          [1, -2],
+          [-3, 0],
+          [3, 0],
+          [-3, -2],
+          [3, -2]
+        ];
+
+        // 가로 방향으로 좌표 추가
+        List<List<int>> horizontalOffsets = [
+          [0, -1],
+          [0, 1],
+          [-2, -1],
+          [-2, 1],
+          [0, -3],
+          [0, 3],
+          [-2, -3],
+          [-2, 3]
+        ];
+
+        // 세로 및 가로 추가
+        for (List<int> offset in verticalOffsets) {
+          candidateActs.add(xyToWallAction(x + offset[0], y + offset[1]));
+        }
+        for (List<int> offset in horizontalOffsets) {
+          candidateActs.add(xyToWallAction(x + offset[0], y + offset[1]));
+        }
+      }
+
+      final Set<int> candidateActs = {};
+
+      // pieces의 좌표에 대해 후보 행동 추가
+      int piecesIdx = pieces.indexOf(1);
+      int x = piecesIdx ~/ 17;
+      int y = piecesIdx % 17;
+      addCandidateActions(candidateActs, x, y);
+
+      // enemyPieces의 좌표에 대해 후보 행동 추가
+      int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
+      x = enemyIdx ~/ 17;
+      y = enemyIdx % 17;
+      addCandidateActions(candidateActs, x, y);
+
+      for (int i = 1; i < board.length; i += 2) {
+        for (int j = 1; j < board[i].length; j += 2) {
+          // 벽 설치 되어있는 곳 근처에 대해 후보 행동 추가
+          if (board[i][j] == 1) {
+            // 근처 테두리를 후보에 넣음
+            candidateActs.add(xyToWallAction(j - 1, i - 2));
+            candidateActs.add(xyToWallAction(j - 1, i + 2));
+            candidateActs.add(xyToWallAction(j - 2, i - 1));
+            candidateActs.add(xyToWallAction(j + 2, i - 1));
+
+            // 가로로 설치하면 인근 세로를 후보에 넣음
+            // 세로로 설치하면 인근 가로를 후보에 넣음
+            candidateActs.add(xyToWallAction(j - 3, i));
+            candidateActs.add(xyToWallAction(j + 1, i));
+            candidateActs.add(xyToWallAction(j, i - 3));
+            candidateActs.add(xyToWallAction(j, i + 1));
+
+            // 가로 기준 다음 칸
+            candidateActs.add(xyToWallAction(j + 3, i));
+            candidateActs.add(xyToWallAction(j - 3, i));
+            candidateActs.add(xyToWallAction(j + 4, i - 1));
+            candidateActs.add(xyToWallAction(j - 4, i - 1));
+
+            // 세로 기준 다음 칸
+            candidateActs.add(xyToWallAction(j, i - 3));
+            candidateActs.add(xyToWallAction(j, i + 3));
+            candidateActs.add(xyToWallAction(j - 1, i - 4));
+            candidateActs.add(xyToWallAction(j - 1, i + 4));
+
+            // 가로 기준 코너
+            candidateActs.add(xyToWallAction(j - 2, i - 3));
+            candidateActs.add(xyToWallAction(j - 2, i + 1));
+            candidateActs.add(xyToWallAction(j + 2, i - 3));
+            candidateActs.add(xyToWallAction(j + 2, i + 1));
+
+            // 세로 기준 코너
+            candidateActs.add(xyToWallAction(j + 1, i - 2));
+            candidateActs.add(xyToWallAction(j - 3, i - 2));
+            candidateActs.add(xyToWallAction(j + 1, i + 2));
+            candidateActs.add(xyToWallAction(j - 3, i + 2));
+          }
+        }
+      }
+
+      // 상대쪽 수평벽
+      for (int i = 76; i <= 83; i++) {
+        candidateActs.add(i);
+      }
+
+      // 자신쪽 수평벽
+      for (int i = 132; i <= 139; i++) {
+        candidateActs.add(i);
+      }
+
+      // 왼쪽 수평벽
+      for (int i = 76; i <= 132; i += 8) {
+        candidateActs.add(i);
+      }
+
+      // 오른쪽 수평벽
+      for (int i = 83; i <= 139; i += 8) {
+        candidateActs.add(i);
+      }
+
+      /// ********************************************
+
+      for (int i = 1; i < board.length; i += 2) {
+        for (int j = 1; j < board[i].length; j += 2) {
+          // 벽 설치 가능한 부분 조사
+          if (board[i][j] == 0) {
+            // V(세로) 벽 가능 여부 조사
+            if (board[i - 1][j] == 0 && board[i + 1][j] == 0) {
+              int act = xyToWallAction(i - 1, j);
+
+              if (candidateActs.contains(act)) {
+                if (isPathAvailable(board, i - 1, j)) {
+                  actions.add(act);
+                }
+              }
+            }
+            // H(가로) 벽 가능 여부 조사
+            if (board[i][j - 1] == 0 && board[i][j + 1] == 0) {
+              int act = xyToWallAction(i, j - 1);
+
+              if (candidateActs.contains(act)) {
+                if (isPathAvailable(board, i, j - 1)) {
+                  actions.add(act);
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
-    // 자신쪽 수평벽
-    for (int i = 132; i <= 139; i++) {
-      candidateActs.add(i);
-    }
-
-    // 왼쪽 수평벽
-    for (int i = 76; i <= 132; i += 8) {
-      candidateActs.add(i);
-    }
-
-    // 오른쪽 수평벽
-    for (int i = 83; i <= 139; i += 8) {
-      candidateActs.add(i);
-    }
-
-    // List를 Set으로 변환하여 교집합을 구함
-    Set<int> intersection = candidateActs.intersection(fixedActions2.toSet());
-
-    // 두 리스트를 합쳐서 반환
-    return [...fixedActions1, ...intersection];
+    return actions.toList()..sort();
   }
 
   double reward() {
