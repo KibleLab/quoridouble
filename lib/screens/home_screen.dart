@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quoridouble/screens/game_screen.dart';
+import 'package:quoridouble/screens/ai_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int? page;
@@ -97,7 +97,7 @@ class DraggableContainersState extends State<HomeScreen> {
           onTap: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => Quoridouble()),
+              MaterialPageRoute(builder: (context) => QuoridoubleAIScreen()),
             );
           },
           child: Column(

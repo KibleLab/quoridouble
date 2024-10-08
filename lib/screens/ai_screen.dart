@@ -5,14 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'home_screen.dart';
 
-class Quoridouble extends StatefulWidget {
-  const Quoridouble({super.key});
+class QuoridoubleAIScreen extends StatefulWidget {
+  const QuoridoubleAIScreen({super.key});
 
   @override
-  QuoridoubleState createState() => QuoridoubleState();
+  QuoridoubleAIScreenState createState() => QuoridoubleAIScreenState();
 }
 
-class QuoridoubleState extends State<Quoridouble> {
+class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
