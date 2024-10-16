@@ -2,6 +2,20 @@ import 'dart:math';
 import 'package:pathfinding/core/grid.dart';
 import 'package:pathfinding/core/util.dart';
 import 'package:pathfinding/finders/jps.dart';
+import 'package:pathfinding/finders/astar.dart';
+
+bool containsList(List<List<int>> listOfLists, List<int> target) {
+  for (List<int> list in listOfLists) {
+    if (list.length == target.length &&
+        list
+            .asMap()
+            .entries
+            .every((entry) => entry.value == target[entry.key])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 class GameState {
   List<int> pieces;
@@ -178,19 +192,6 @@ class GameState {
     int deltaX = p2Pos[0] - p1Pos[0];
     int deltaY = p2Pos[1] - p1Pos[1];
 
-    bool containsList(List<List<int>> listOfLists, List<int> target) {
-      for (List<int> list in listOfLists) {
-        if (list.length == target.length &&
-            list
-                .asMap()
-                .entries
-                .every((entry) => entry.value == target[entry.key])) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     if (!containsList(dxy, [deltaX, deltaY])) {
       return dxy;
     } else {
@@ -284,6 +285,24 @@ class GameState {
 
     return actions.toList()..sort();
   }
+
+  // List<int> pruningAction() {
+  //   List<int> action = legalActions();
+
+  //   // 0부터 11까지의 숫자를 포함하는 리스트
+  //   List<int> fixedActions1 = action.where((x) => x < 12).toList();
+
+  //   List<int> shuffleActions =
+  //       action.where((x) => x >= 12 && x <= 139).toList();
+
+  //   // shuffle_actions 랜덤하게 선택
+  //   shuffleActions.shuffle();
+  //   List<int> selectedActions =
+  //       shuffleActions.sublist(0, shuffleActions.length ~/ 4);
+
+  //   // 두 리스트를 합쳐서 반환
+  //   return [...fixedActions1, ...selectedActions];
+  // }
 
   List<int> pruningAction() {
     final Set<int> actions = {};
@@ -466,6 +485,82 @@ class GameState {
     }
 
     return actions.toList()..sort();
+  }
+
+  int findShotPathAction() {
+    List<List<int>> board = convertBoard();
+    List<List<int>> mat = board.map((item) => List<int>.from(item)).toList();
+    int wall = -1;
+
+    // 플레이어가 이동할 수 없는 교차로 구간 막기
+    for (int i = 1; i < mat.length; i += 2) {
+      for (int j = 1; j < mat[mat.length - 1].length; j += 2) {
+        mat[i][j] = wall;
+      }
+    }
+
+    int piecesIdx = pieces.indexOf(1);
+    List p1Pos = [(piecesIdx ~/ 17), (piecesIdx % 17)];
+
+    int enemyIdx = enemyPieces.reversed.toList().indexOf(1);
+    List p2Pos = [(enemyIdx ~/ 17), (enemyIdx % 17)];
+
+    // mat에 표시되어 있는 플레이어 제거
+    mat[p1Pos[0]][p1Pos[1]] = 0;
+    mat[p2Pos[0]][p2Pos[1]] = 0;
+
+    // pathfinding 패키지를 위해 -1을 1로 변환
+    for (int i = 0; i < mat.length; i++) {
+      for (int j = 0; j < mat[i].length; j++) {
+        if (mat[i][j] == -1) {
+          mat[i][j] = 1;
+        }
+      }
+    }
+
+    List<int> endArray = List.generate(9, (index) => index * 2);
+    List<int> pathLenArray = List.filled(9, 0);
+
+    // 각 목표당 걸리는 거리 측정
+    for (int i = 0; i < endArray.length; i++) {
+      Grid grid = Grid(17, 17, mat);
+      List<dynamic> path =
+          AStarFinder().findPath(p1Pos[1], p1Pos[0], endArray[i], 0, grid);
+
+      pathLenArray[i] = path.length ~/ 2;
+    }
+
+    int minIndex = -1;
+    int minValue = double.maxFinite.toInt(); // 매우 큰 값으로 초기화
+
+    for (int i = 0; i < pathLenArray.length; i++) {
+      if (pathLenArray[i] != 0 && pathLenArray[i] < minValue) {
+        minValue = pathLenArray[i];
+        minIndex = i;
+      }
+    }
+
+    Grid grid = Grid(17, 17, mat);
+    List<dynamic> path =
+        AStarFinder().findPath(p1Pos[1], p1Pos[0], endArray[minIndex], 0, grid);
+
+    int dx = path[2][0] - path[0][0];
+    int dy = path[2][1] - path[0][1];
+
+    List<List<int>> moves = [
+      [-2, 0], // N (action 0)
+      [0, 2], // E (action 2)
+      [2, 0], // S (action 4)
+      [0, -2], // W (action 6)
+    ];
+
+    for (int i = 0; i < moves.length; i++) {
+      if (moves[i][0] == dy && moves[i][1] == dx) {
+        return i * 2;
+      }
+    }
+
+    return -1;
   }
 
   double reward() {
@@ -753,6 +848,30 @@ double alphaBeta(GameState state, double alpha, double beta, int depth) {
 
 // 알파베타법을 활용한 행동 선택
 int alphaBetaAction(GameState state, int depth) {
+  final wallCount = 10 - (state.pieces.where((p) => p == 2).length ~/ 3);
+
+  if (wallCount == 0) {
+    int piecesIdx = state.pieces.indexOf(1);
+    List<int> p1Pos = [(piecesIdx ~/ 17), (piecesIdx % 17)];
+
+    int enemyIdx = state.enemyPieces.reversed.toList().indexOf(1);
+    List<int> p2Pos = [(enemyIdx ~/ 17), (enemyIdx % 17)];
+
+    List<List<int>> dxy = [
+      [0, 2],
+      [0, -2],
+      [-2, 0],
+      [2, 0]
+    ];
+
+    int deltaX = p2Pos[0] - p1Pos[0];
+    int deltaY = p2Pos[1] - p1Pos[1];
+
+    if (!containsList(dxy, [deltaX, deltaY])) {
+      return state.findShotPathAction();
+    }
+  }
+
   // 합법적인 수의 상태 가치 계산
   int bestAction = 0;
   double alpha = double.negativeInfinity;

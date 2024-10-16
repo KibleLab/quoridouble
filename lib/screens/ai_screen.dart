@@ -613,30 +613,6 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                 ),
               ),
             ),
-            // 우측 상단
-            Positioned(
-              right: 10,
-              top: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
-              child: Text(
-                '00:10',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: const Color.fromARGB(255, 255, 0, 0),
-                ),
-              ),
-            ),
-            // 좌측 하단
-            Positioned(
-              left: 10,
-              bottom: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
-              child: Text(
-                '00:10',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: const Color.fromARGB(255, 255, 0, 0),
-                ),
-              ),
-            ),
             //  좌측 상단
             Positioned(
               right: 10,
