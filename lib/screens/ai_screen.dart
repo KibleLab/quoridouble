@@ -56,6 +56,8 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     // 화면의 전체 높이를 가져오기
     double screenHeight = MediaQuery.of(context).size.height;
+    // 상태바 높이
+    double statusBarHeight = MediaQuery.of(context).padding.top;
 
     final double cellSize = (screenWidth - 100) / 9;
     const double spacing = 8;
@@ -436,9 +438,14 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                           if (details.localPosition.dx >= 0 &&
                               details.localPosition.dx <= screenWidth - 36 &&
                               details.localPosition.dy >= 0 &&
-                              details.localPosition.dy <= screenWidth - 36) {
+                              details.localPosition.dy <= screenWidth - 36 &&
+                              gameState.getUser1WallCount((first)) > 0) {
+                            double distance =
+                                (startPoint! - details.localPosition).distance;
                             setState(() {
-                              endPoint = details.localPosition;
+                              if (distance > 5) {
+                                endPoint = details.localPosition;
+                              }
                             });
                           }
                         },
@@ -601,28 +608,39 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                 ),
               ),
             ),
+
             // 좌측 상단
             Positioned(
+              top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
+                  25 -
+                  (screenWidth - 10) / 2 -
+                  20, // 중앙에서 위로 배치
               left: 10,
-              top: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
-              child: Text(
-                'Walls ${gameState.getUser2WallCount((first))}',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: const Color.fromARGB(255, 255, 0, 0),
-                ),
+              child: Container(
+                height: 50, // 위젯 높이
+                alignment: Alignment.center,
+                child: Text('Walls ${gameState.getUser2WallCount((first))}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: const Color.fromARGB(255, 255, 0, 0),
+                    )),
               ),
             ),
             //  좌측 상단
             Positioned(
+              top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
+                  25 +
+                  (screenWidth - 10) / 2 +
+                  20, // 중앙에서 아래로 배치
               right: 10,
-              bottom: (screenHeight - screenWidth) / 2 - 18 - cellSize - 33,
-              child: Text(
-                'Walls ${gameState.getUser1WallCount(first)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: const Color.fromARGB(255, 255, 0, 0),
-                ),
+              child: Container(
+                height: 50, // 위젯 높이
+                alignment: Alignment.center,
+                child: Text('Walls ${gameState.getUser1WallCount((first))}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: const Color.fromARGB(255, 255, 0, 0),
+                    )),
               ),
             ),
           ])),
