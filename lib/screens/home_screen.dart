@@ -138,7 +138,7 @@ class DraggableContainersState extends State<HomeScreen> {
       Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text("Quoridoble"),
+          title: Text("Quoridouble"),
           backgroundColor: Colors.transparent,
           centerTitle: false, // 타이틀을 좌측에 정렬
           actions: [
