@@ -24,7 +24,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   /// ********************************************
 
   late GameState gameState;
-  late int first;
+  late int isFirst;
   late List<int> user1;
   late List<int> user2;
 
@@ -42,10 +42,10 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
     Random random = Random();
 
     // 랜덤으로 0 또는 1를 선택
-    first = random.nextInt(2);
+    isFirst = random.nextInt(2);
 
-    user1 = gameState.user1Pos(first);
-    user2 = gameState.user2Pos(first);
+    user1 = gameState.user1Pos(isFirst);
+    user2 = gameState.user2Pos(isFirst);
   }
 
   /// ********************************************
@@ -77,13 +77,13 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
     /// ********************************************
 
     // AI의 turn
-    if (!gameState.isLose() && gameState.isCurrentTurn(1 - first)) {
+    if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
       Future.delayed(Duration(seconds: 1), () {
         setState(() {
           int action = alphaBetaAction(gameState, 1);
           gameState = gameState.next(action);
-          user1 = gameState.user1Pos(first);
-          user2 = gameState.user2Pos((first));
+          user1 = gameState.user1Pos(isFirst);
+          user2 = gameState.user2Pos((isFirst));
 
           if (action >= 12 && action <= 139) {
             bool isHorizontalWall = action > 75;
@@ -122,7 +122,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
     }
 
     if (gameState.isLose()) {
-      if (gameState.isCurrentTurn(first)) {
+      if (gameState.isCurrentTurn(isFirst)) {
         print("You are Lose");
       } else {
         print("You are Win");
@@ -185,8 +185,8 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
           int? action = findIndex(moves, target);
 
           gameState = gameState.next(action!);
-          user1 = gameState.user1Pos(first);
-          user2 = gameState.user2Pos((first));
+          user1 = gameState.user1Pos(isFirst);
+          user2 = gameState.user2Pos((isFirst));
         }
       });
     }
@@ -394,90 +394,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                     CustomPaint(
                       painter: painter,
                     ),
-                    // 플레이어 이동 가능 방향을 보여줌
-                    if (!gameState.isLose() && gameState.isCurrentTurn(first))
-                      for (List<int> target in gameState.legalMoves())
-                        Positioned(
-                            top: (target[0] ~/ 2 + user1[0]) *
-                                (cellSize + spacing),
-                            left: (target[1] ~/ 2 + user1[1]) *
-                                (cellSize + spacing),
-                            width: cellSize,
-                            height: cellSize,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Transform.rotate(
-                                angle: getRotationAngle(target),
-                                child: SvgPicture.asset(
-                                  'assets/images/up_circle.svg',
-                                ),
-                              ),
-                            )),
 
-                    // 조건에 따라 GestureDetector 설정
-                    if (!gameState.isLose() && gameState.isCurrentTurn(first))
-                      GestureDetector(
-                        // 비어있는 영역도 터치가 가능하도록 함
-                        behavior: HitTestBehavior.opaque,
-                        onTapUp: wallTemp.isEmpty
-                            ? null
-                            : (details) {
-                                setState(() {
-                                  wallTemp = ""; // wallTemp를 빈 문자열로 지우기
-                                });
-                              },
-                        onPanStart: wallTemp.isEmpty
-                            ? (details) {
-                                setState(() {
-                                  startPoint = details.localPosition;
-                                  endPoint = null;
-                                });
-                              }
-                            : null,
-                        onPanUpdate: (details) {
-                          if (details.localPosition.dx >= 0 &&
-                              details.localPosition.dx <= screenWidth - 36 &&
-                              details.localPosition.dy >= 0 &&
-                              details.localPosition.dy <= screenWidth - 36 &&
-                              gameState.getUser1WallCount((first)) > 0) {
-                            double distance =
-                                (startPoint! - details.localPosition).distance;
-                            setState(() {
-                              if (distance > 5) {
-                                endPoint = details.localPosition;
-                              }
-                            });
-                          }
-                        },
-                        onPanEnd: wallTemp.isEmpty
-                            ? (details) {
-                                // startPoint가 null이 아닌지 확인
-                                if (startPoint != null) {
-                                  if (endPoint == null) {
-                                    setPlayer(startPoint!); // 플레이어 설정
-                                  } else {
-                                    Offset? finalEndPoint =
-                                        painter.restrictedEnd;
-
-                                    // finalEndPoint가 null이 아닌지 확인
-                                    if (finalEndPoint != null) {
-                                      setWallTemp(startPoint!,
-                                          finalEndPoint); // 벽 임시 설정
-                                    } else {
-                                      print('finalEndPoint가 null입니다.');
-                                    }
-                                  }
-                                } else {
-                                  print('startPoint가 null입니다.');
-                                }
-
-                                setState(() {
-                                  startPoint = null;
-                                  endPoint = null;
-                                });
-                              }
-                            : null,
-                      ),
                     for (String wallInfo in wall)
                       Builder(builder: (BuildContext context) {
                         // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
@@ -517,6 +434,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                           ),
                         );
                       }),
+
                     AnimatedPositioned(
                         duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
                         curve: Curves.easeInOut, // 애니메이션 곡선
@@ -543,6 +461,93 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                             'assets/images/black_pin.svg',
                           ),
                         )),
+
+                    // 플레이어 이동 가능 방향을 보여줌
+                    if (!gameState.isLose() &&
+                        gameState.isCurrentTurn(isFirst) &&
+                        wallTemp.isEmpty)
+                      for (List<int> target in gameState.legalMoves())
+                        Positioned(
+                            top: (target[0] ~/ 2 + user1[0]) *
+                                (cellSize + spacing),
+                            left: (target[1] ~/ 2 + user1[1]) *
+                                (cellSize + spacing),
+                            width: cellSize,
+                            height: cellSize,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Transform.rotate(
+                                angle: getRotationAngle(target),
+                                child: SvgPicture.asset(
+                                  'assets/images/up_circle.svg',
+                                ),
+                              ),
+                            )),
+
+                    // 조건에 따라 GestureDetector 설정
+                    if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
+                      GestureDetector(
+                        // 비어있는 영역도 터치가 가능하도록 함
+                        behavior: HitTestBehavior.opaque,
+                        onTapUp: wallTemp.isEmpty
+                            ? null
+                            : (details) {
+                                setState(() {
+                                  wallTemp = ""; // wallTemp를 빈 문자열로 지우기
+                                });
+                              },
+                        onPanStart: wallTemp.isEmpty
+                            ? (details) {
+                                setState(() {
+                                  startPoint = details.localPosition;
+                                  endPoint = null;
+                                });
+                              }
+                            : null,
+                        onPanUpdate: (details) {
+                          if (details.localPosition.dx >= 0 &&
+                              details.localPosition.dx <= screenWidth - 36 &&
+                              details.localPosition.dy >= 0 &&
+                              details.localPosition.dy <= screenWidth - 36 &&
+                              gameState.getUser1WallCount((isFirst)) > 0) {
+                            double distance =
+                                (startPoint! - details.localPosition).distance;
+                            setState(() {
+                              if (distance > 5) {
+                                endPoint = details.localPosition;
+                              }
+                            });
+                          }
+                        },
+                        onPanEnd: wallTemp.isEmpty
+                            ? (details) {
+                                // startPoint가 null이 아닌지 확인
+                                if (startPoint != null) {
+                                  if (endPoint == null) {
+                                    setPlayer(startPoint!); // 플레이어 설정
+                                  } else {
+                                    Offset? finalEndPoint =
+                                        painter.restrictedEnd;
+
+                                    // finalEndPoint가 null이 아닌지 확인
+                                    if (finalEndPoint != null) {
+                                      setWallTemp(startPoint!,
+                                          finalEndPoint); // 벽 임시 설정
+                                    } else {
+                                      print('finalEndPoint가 null입니다.');
+                                    }
+                                  }
+                                } else {
+                                  print('startPoint가 null입니다.');
+                                }
+
+                                setState(() {
+                                  startPoint = null;
+                                  endPoint = null;
+                                });
+                              }
+                            : null,
+                      ),
 
                     // wall temp 영역
                     Builder(builder: (BuildContext context) {
@@ -619,7 +624,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
-                child: Text('Walls ${gameState.getUser2WallCount((first))}',
+                child: Text('Walls ${gameState.getUser2WallCount((isFirst))}',
                     style: TextStyle(
                       fontSize: 18,
                       color: const Color.fromARGB(255, 255, 0, 0),
@@ -636,7 +641,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
-                child: Text('Walls ${gameState.getUser1WallCount((first))}',
+                child: Text('Walls ${gameState.getUser1WallCount((isFirst))}',
                     style: TextStyle(
                       fontSize: 18,
                       color: const Color.fromARGB(255, 255, 0, 0),

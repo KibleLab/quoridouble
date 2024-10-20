@@ -36,32 +36,32 @@ class GameState {
     }
   }
 
-  List<int> user1Pos(int first) {
-    List<int> player = depth % 2 == first ? pieces : enemyPieces;
+  List<int> user1Pos(int isFirst) {
+    List<int> player = depth % 2 == isFirst ? pieces : enemyPieces;
     int pos = player.indexOf(1);
     return [(pos ~/ 17) ~/ 2, (pos % 17) ~/ 2];
   }
 
-  List<int> user2Pos(int first) {
-    List<int> player = depth % 2 == first
+  List<int> user2Pos(int isFirst) {
+    List<int> player = depth % 2 == isFirst
         ? enemyPieces.reversed.toList()
         : pieces.reversed.toList();
     int pos = player.indexOf(1);
     return [(pos ~/ 17) ~/ 2, (pos % 17) ~/ 2];
   }
 
-  bool isCurrentTurn(int first) {
-    return depth % 2 == first;
+  bool isCurrentTurn(int isFirst) {
+    return depth % 2 == isFirst;
   }
 
-  int getUser1WallCount(int first) {
-    List<int> player = depth % 2 == first ? pieces : enemyPieces;
+  int getUser1WallCount(int isFirst) {
+    List<int> player = depth % 2 == isFirst ? pieces : enemyPieces;
     // 벽 얼마나 설치 가능한지
     return 10 - (player.where((p) => p == 2).length ~/ 3);
   }
 
-  int getUser2WallCount(int first) {
-    List<int> player = depth % 2 == first ? enemyPieces : pieces;
+  int getUser2WallCount(int isFirst) {
+    List<int> player = depth % 2 == isFirst ? enemyPieces : pieces;
     // 벽 얼마나 설치 가능한지
     return 10 - (player.where((p) => p == 2).length ~/ 3);
   }
