@@ -2,11 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:quoridouble/utils/ai.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'home_screen.dart';
 
 class QuoridoubleAIScreen extends StatefulWidget {
-  const QuoridoubleAIScreen({super.key});
+  final int level;
+
+  const QuoridoubleAIScreen({super.key, required this.level});
 
   @override
   QuoridoubleAIScreenState createState() => QuoridoubleAIScreenState();
@@ -16,8 +19,9 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
-  final String _result = '1 vs 1 Game';
+  final String title = 'CPU Level';
   final int _blockCounter = 9;
+  late int level;
 
   /// ********************************************
   /// game 핵심 속성
@@ -34,6 +38,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   @override
   void initState() {
     super.initState();
+    level = widget.level;
     initializeGame();
   }
 
@@ -80,7 +85,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
     if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
       Future.delayed(Duration(seconds: 1), () {
         setState(() {
-          int action = alphaBetaAction(gameState, 1);
+          int action = actionLevel(gameState, level);
           gameState = gameState.next(action);
           user1 = gameState.user1Pos(isFirst);
           user2 = gameState.user2Pos((isFirst));
@@ -119,14 +124,6 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
           }
         });
       });
-    }
-
-    if (gameState.isLose()) {
-      if (gameState.isCurrentTurn(isFirst)) {
-        print("You are Lose");
-      } else {
-        print("You are Win");
-      }
     }
 
     List<int> eventToIndex(Offset event) {
@@ -343,7 +340,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
           // 배경색을 투명으로 설정
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            title: Text(_result),
+            title: Text("$title $level"),
             backgroundColor: Colors.transparent,
             centerTitle: false, // 타이틀을 좌측에 정렬
             actions: [
@@ -353,7 +350,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen(page: 2)),
+                        builder: (context) => HomeScreen(page: level - 1)),
                   );
                 },
               )
@@ -445,7 +442,9 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(8.0),
                           child: SvgPicture.asset(
-                            'assets/images/white_pin.svg',
+                            isFirst == 0
+                                ? 'assets/images/white_pin.svg'
+                                : 'assets/images/black_pin.svg',
                           ),
                         )),
                     AnimatedPositioned(
@@ -458,7 +457,9 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(8.0),
                           child: SvgPicture.asset(
-                            'assets/images/black_pin.svg',
+                            isFirst == 1
+                                ? 'assets/images/white_pin.svg'
+                                : 'assets/images/black_pin.svg',
                           ),
                         )),
 
@@ -647,6 +648,29 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                       color: const Color.fromARGB(255, 255, 0, 0),
                     )),
               ),
+            ),
+
+            Center(
+              child: gameState.isLose()
+                  ? Container(
+                      padding: EdgeInsets.all(16), // 텍스트 주위에 패딩을 추가
+                      decoration: BoxDecoration(
+                        color: Colors.black, // 직사각형의 배경색
+                        borderRadius: BorderRadius.circular(8), // 모서리를 둥글게
+                      ),
+                      child: Text(
+                        gameState.isCurrentTurn(isFirst)
+                            ? 'You LOSE'
+                            : 'You WIN',
+                        style: TextStyle(
+                          color: Colors.white, // 텍스트 색상을 흰색으로 설정
+                          fontSize: 24, // 텍스트 크기 설정
+                          fontWeight: FontWeight.bold, // 텍스트 굵기 설정
+                        ),
+                        textAlign: TextAlign.center, // 텍스트를 중앙 정렬
+                      ),
+                    )
+                  : Container(), // 아무것도 띄우지 않음
             ),
           ])),
     ]);

@@ -3,6 +3,7 @@ import 'package:pathfinding/core/grid.dart';
 import 'package:pathfinding/core/util.dart';
 import 'package:pathfinding/finders/jps.dart';
 import 'package:pathfinding/finders/astar.dart';
+import 'package:quoridouble/utils/dfs.dart';
 
 bool containsList(List<List<int>> listOfLists, List<int> target) {
   for (List<int> list in listOfLists) {
@@ -285,24 +286,6 @@ class GameState {
 
     return actions.toList()..sort();
   }
-
-  // List<int> pruningAction() {
-  //   List<int> action = legalActions();
-
-  //   // 0부터 11까지의 숫자를 포함하는 리스트
-  //   List<int> fixedActions1 = action.where((x) => x < 12).toList();
-
-  //   List<int> shuffleActions =
-  //       action.where((x) => x >= 12 && x <= 139).toList();
-
-  //   // shuffle_actions 랜덤하게 선택
-  //   shuffleActions.shuffle();
-  //   List<int> selectedActions =
-  //       shuffleActions.sublist(0, shuffleActions.length ~/ 4);
-
-  //   // 두 리스트를 합쳐서 반환
-  //   return [...fixedActions1, ...selectedActions];
-  // }
 
   List<int> pruningAction() {
     final Set<int> actions = {};
@@ -688,9 +671,9 @@ class GameState {
     bool p2Path = false;
 
     for (int i = 0; i < endArray.length; i++) {
-      Grid grid = Grid(17, 17, mat);
+      DFSPathFinder dfsFinder = DFSPathFinder(mat);
       List<dynamic> path =
-          JumpPointFinder().findPath(p1Pos[1], p1Pos[0], endArray[i], 0, grid);
+          dfsFinder.findPath(p1Pos[1], p1Pos[0], endArray[i], 0);
 
       if (path.isNotEmpty) {
         p1Path = true;
@@ -704,9 +687,9 @@ class GameState {
     }
 
     for (int i = 0; i < endArray.length; i++) {
-      Grid grid = Grid(17, 17, mat);
+      DFSPathFinder dfsFinder = DFSPathFinder(mat);
       List<dynamic> path =
-          JumpPointFinder().findPath(p2Pos[1], p2Pos[0], endArray[i], 16, grid);
+          dfsFinder.findPath(p2Pos[1], p2Pos[0], endArray[i], 16);
 
       if (path.isNotEmpty) {
         p2Path = true;
@@ -805,100 +788,5 @@ class GameState {
     // 선 수 플레이어가 갖고 있는 벽
     resultStr.write('[${10 - pieces0.where((p) => p == 2).length ~/ 3}]\n');
     return resultStr.toString();
-  }
-}
-
-int randomAction(GameState state) {
-  List<int> legalActions = state.legalActions();
-  return legalActions[Random().nextInt(legalActions.length)];
-}
-
-// 알파베타법을 활용한 상태 가치 계산
-double alphaBeta(GameState state, double alpha, double beta, int depth) {
-  // 패배 시, 상태 가치 -1000
-  if (state.isLose()) {
-    return -1000;
-  }
-
-  // 무승부 시, 상태 가치 0
-  if (state.isDraw()) {
-    return 0;
-  }
-
-  if (depth == 0) {
-    return state.reward();
-  }
-
-  // 합법적인 수의 상태 가치 계산
-  for (int action in state.pruningAction()) {
-    double score = -alphaBeta(state.next(action), -beta, -alpha, depth - 1);
-    if (score > alpha) {
-      alpha = score;
-    }
-
-    // 현재 노드의 베스트 스코어가 새로운 노드보다 크면 탐색 종료
-    if (alpha >= beta) {
-      return alpha;
-    }
-  }
-
-  // 합법적인 수의 상태 가치의 최대값을 반환
-  return alpha;
-}
-
-// 알파베타법을 활용한 행동 선택
-int alphaBetaAction(GameState state, int depth) {
-  final wallCount = 10 - (state.pieces.where((p) => p == 2).length ~/ 3);
-
-  if (wallCount == 0) {
-    int piecesIdx = state.pieces.indexOf(1);
-    List<int> p1Pos = [(piecesIdx ~/ 17), (piecesIdx % 17)];
-
-    int enemyIdx = state.enemyPieces.reversed.toList().indexOf(1);
-    List<int> p2Pos = [(enemyIdx ~/ 17), (enemyIdx % 17)];
-
-    List<List<int>> dxy = [
-      [0, 2],
-      [0, -2],
-      [-2, 0],
-      [2, 0]
-    ];
-
-    int deltaX = p2Pos[0] - p1Pos[0];
-    int deltaY = p2Pos[1] - p1Pos[1];
-
-    if (!containsList(dxy, [deltaX, deltaY])) {
-      return state.findShotPathAction();
-    }
-  }
-
-  // 합법적인 수의 상태 가치 계산
-  int bestAction = 0;
-  double alpha = double.negativeInfinity;
-  double beta = double.infinity;
-
-  for (int action in state.pruningAction()) {
-    double score = -alphaBeta(state.next(action), -beta, -alpha, depth);
-    if (score > alpha) {
-      bestAction = action;
-      alpha = score;
-    }
-  }
-
-  // 합법적인 수의 상태 가치값 중 최대값을 선택하는 행동 반환
-  return bestAction;
-}
-
-void main() {
-  GameState state = GameState();
-
-  while (true) {
-    if (state.isDone()) {
-      break;
-    }
-
-    state = state.next(alphaBetaAction(state, 1));
-
-    print('$state\n');
   }
 }

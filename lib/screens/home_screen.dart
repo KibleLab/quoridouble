@@ -51,16 +51,22 @@ class DraggableContainersState extends State<HomeScreen> {
         return GestureDetector(
           // 비어있는 영역도 터치가 가능하도록 함
           behavior: HitTestBehavior.opaque,
-          onTap: () {},
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => QuoridoubleAIScreen(level: 1)),
+            );
+          },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 'assets/images/solo.svg',
-                semanticsLabel: 'Solo Game Icon',
+                semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'Solo Game',
+                'CPU Level 1',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -73,15 +79,22 @@ class DraggableContainersState extends State<HomeScreen> {
         return GestureDetector(
           // 비어있는 영역도 터치가 가능하도록 함
           behavior: HitTestBehavior.opaque,
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => QuoridoubleAIScreen(level: 2)),
+            );
+          },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/4_way.svg',
-                semanticsLabel: '4 Way Game Icon',
+                'assets/images/solo.svg',
+                semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                '4-Way Game',
+                'CPU Level 2',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -97,18 +110,19 @@ class DraggableContainersState extends State<HomeScreen> {
           onTap: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => QuoridoubleAIScreen()),
+              MaterialPageRoute(
+                  builder: (context) => QuoridoubleAIScreen(level: 3)),
             );
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/ai_solo.svg',
+                'assets/images/solo.svg',
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'AI Solo Game',
+                'CPU Level 3',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -143,7 +157,7 @@ class DraggableContainersState extends State<HomeScreen> {
           centerTitle: false, // 타이틀을 좌측에 정렬
           actions: [
             IconButton(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.help_outline_rounded),
               onPressed: () {},
             )
           ],
