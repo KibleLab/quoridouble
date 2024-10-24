@@ -655,7 +655,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                   ? Container(
                       padding: EdgeInsets.all(16), // 텍스트 주위에 패딩을 추가
                       decoration: BoxDecoration(
-                        color: Colors.black, // 직사각형의 배경색
+                        color: Colors.black.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(8), // 모서리를 둥글게
                       ),
                       child: Text(
