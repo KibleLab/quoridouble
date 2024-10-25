@@ -56,11 +56,6 @@ double alphaBeta(GameState state, double alpha, double beta, int depth,
     return -1000;
   }
 
-  // 무승부 시, 상태 가치 0
-  if (state.isDraw()) {
-    return 0;
-  }
-
   if (depth == 0) {
     return state.reward();
   }
@@ -152,11 +147,11 @@ void main() {
   GameState state = GameState();
 
   while (true) {
-    if (state.isDone()) {
+    if (state.isLose()) {
       break;
     }
 
-    state = state.next(randomAction(state));
+    state = state.next(alphaBetaAction(state, 1));
 
     print('$state\n');
   }

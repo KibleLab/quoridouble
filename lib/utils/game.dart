@@ -118,40 +118,9 @@ class GameState {
         .any((line) => enemyPieces[line] == 1);
   }
 
-  // 무승부 여부 판정
-  bool isDraw() {
-    return depth >= 200;
-  }
-
-  // 게임 종료 여부 판정
-  bool isDone() {
-    return isLose() || isDraw();
-  }
-
   // 선 수 여부 판정
   bool isFirstPlayer() {
     return depth % 2 == 0;
-  }
-
-  // 듀얼 네트워크 입력 배열 얻기
-  List<List<List<int>>> piecesArray() {
-    // 플레이어 별 듀얼 네트워크 입력 배열 얻기
-    List<List<int>> piecesArrayOf(List<int> pieces) {
-      List<int> table1 = List.filled(289, 0);
-      List<int> table2 = List.filled(289, 0);
-
-      for (int i = 0; i < 289; i++) {
-        if (pieces[i] == 1) {
-          table1[i] = 1;
-        } else if (pieces[i] == 2) {
-          table2[i] = 1;
-        }
-      }
-
-      return [table1, table2];
-    }
-
-    return [piecesArrayOf(pieces), piecesArrayOf(enemyPieces)];
   }
 
   List<List<int>> legalMoves() {
@@ -423,16 +392,6 @@ class GameState {
 
       // 자신쪽 수평벽
       for (int i = 132; i <= 139; i++) {
-        candidateActs.add(i);
-      }
-
-      // 왼쪽 수평벽
-      for (int i = 76; i <= 132; i += 8) {
-        candidateActs.add(i);
-      }
-
-      // 오른쪽 수평벽
-      for (int i = 83; i <= 139; i += 8) {
         candidateActs.add(i);
       }
 
