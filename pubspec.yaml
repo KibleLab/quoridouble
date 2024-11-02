@@ -36,6 +36,8 @@ dependencies:
   provider: ^6.0.0
   flutter_svg: ^2.0.0
   pathfinding: ^3.0.1
+  socket_io_client: ^2.0.0
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -47,3 +49,4 @@ flutter:
 
   assets:
     - assets/images/
+    - .env

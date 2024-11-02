@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:quoridouble/screens/intro_screen.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
+  await dotenv.load(fileName: ".env");
+
   // 위젯 시스템이 초기화되었는지 보장
   WidgetsFlutterBinding.ensureInitialized();
 

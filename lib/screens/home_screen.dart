@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/screens/ai_screen.dart';
+import 'package:quoridouble/screens/room_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int? page;
@@ -131,6 +132,33 @@ class DraggableContainersState extends State<HomeScreen> {
             ],
           ),
         );
+      case 3:
+        return GestureDetector(
+          // 비어있는 영역도 터치가 가능하도록 함
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => RoomScreen()),
+            );
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/solo.svg',
+                semanticsLabel: 'AI Game Icon',
+              ),
+              Text(
+                'PvP Game',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
       default:
         return Container();
     }
@@ -168,7 +196,7 @@ class DraggableContainersState extends State<HomeScreen> {
             height: screenWidth,
             child: PageView.builder(
               controller: _pageController,
-              itemCount: 3,
+              itemCount: 4,
               itemBuilder: (context, index) {
                 double diff = (index - _currentPageValue).abs();
                 double scale = 1 - (diff * 0.3).clamp(0.0, 0.3);
