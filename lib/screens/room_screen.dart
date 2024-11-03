@@ -21,11 +21,13 @@ class RoomScreenState extends State<RoomScreen> {
   final String title = 'PVP Game';
   final int _blockCounter = 9;
 
+  late io.Socket socket;
+  String? waitingMessage;
+
   /// ********************************************
   /// game 핵심 속성
   /// ********************************************
 
-  late io.Socket socket;
   late GameState gameState;
   late int isFirst;
   late List<int> user1;
@@ -34,12 +36,23 @@ class RoomScreenState extends State<RoomScreen> {
   List<String> wall = [];
   String wallTemp = "";
 
+  void initializeGame() {
+    gameState = GameState();
+
+    isFirst = 1;
+
+    user1 = gameState.user1Pos(isFirst);
+    user2 = gameState.user2Pos(isFirst);
+  }
+
   @override
   void initState() {
     super.initState();
     initSocket();
     initializeGame();
   }
+
+  /// ********************************************
 
   void initSocket() {
     socket = io.io('${dotenv.env['SERVER_URL']}/room', <String, dynamic>{
@@ -56,6 +69,25 @@ class RoomScreenState extends State<RoomScreen> {
     // 소켓 연결 해제 이벤트 처리
     socket.onDisconnect((_) {
       print('소켓이 연결 해제됨');
+    });
+
+    // 대기 중 메시지 수신
+    socket.on('waiting', (message) {
+      setState(() {
+        waitingMessage = message;
+      });
+    });
+
+    // 게임 시작 알림 수신
+    socket.on('startGame', (data) {
+      int isFirst = data['isFirst'];
+      // isFirst :0 이면 선수, :1이면 후수
+      print("게임 시작: 방 ID - ${data['roomId']}, isFirst - $isFirst");
+
+      setState(() {
+        this.isFirst = isFirst;
+        waitingMessage = null;
+      });
     });
 
     socket.on('gameData', (data) {
@@ -107,19 +139,6 @@ class RoomScreenState extends State<RoomScreen> {
       }
     });
   }
-
-  void initializeGame() {
-    gameState = GameState();
-    Random random = Random();
-
-    // 랜덤으로 0 또는 1를 선택
-    isFirst = random.nextInt(2);
-
-    user1 = gameState.user1Pos(isFirst);
-    user2 = gameState.user2Pos(isFirst);
-  }
-
-  /// ********************************************
 
   @override
   Widget build(BuildContext context) {
@@ -695,6 +714,21 @@ class RoomScreenState extends State<RoomScreen> {
                       ),
                     )
                   : Container(), // 아무것도 띄우지 않음
+            ),
+
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (waitingMessage != null) // 메시지가 있으면 표시
+                    Text(
+                      waitingMessage!,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  // 게임 화면의 나머지 UI 요소들
+                ],
+              ),
             ),
           ])),
     ]);

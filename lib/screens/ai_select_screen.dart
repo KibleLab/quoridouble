@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quoridouble/screens/ai_select_screen.dart';
-import 'package:quoridouble/screens/room_screen.dart';
+import 'package:quoridouble/screens/ai_screen.dart';
+import 'package:quoridouble/screens/home_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class AISelectScreen extends StatefulWidget {
   final int? page;
 
-  const HomeScreen({super.key, this.page});
+  const AISelectScreen({super.key, this.page});
   @override
   DraggableContainersState createState() => DraggableContainersState();
 }
 
-class DraggableContainersState extends State<HomeScreen> {
+class DraggableContainersState extends State<AISelectScreen> {
   late PageController _pageController;
 
   // 현재 페이지 값 추적
@@ -55,7 +55,8 @@ class DraggableContainersState extends State<HomeScreen> {
           onTap: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => AISelectScreen()),
+              MaterialPageRoute(
+                  builder: (context) => QuoridoubleAIScreen(level: 1)),
             );
           },
           child: Column(
@@ -66,7 +67,7 @@ class DraggableContainersState extends State<HomeScreen> {
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'AI Game',
+                'CPU Level 1',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -75,7 +76,6 @@ class DraggableContainersState extends State<HomeScreen> {
             ],
           ),
         );
-
       case 1:
         return GestureDetector(
           // 비어있는 영역도 터치가 가능하도록 함
@@ -83,7 +83,8 @@ class DraggableContainersState extends State<HomeScreen> {
           onTap: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => RoomScreen()),
+              MaterialPageRoute(
+                  builder: (context) => QuoridoubleAIScreen(level: 2)),
             );
           },
           child: Column(
@@ -94,7 +95,7 @@ class DraggableContainersState extends State<HomeScreen> {
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'PvP Game',
+                'CPU Level 2',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -103,7 +104,34 @@ class DraggableContainersState extends State<HomeScreen> {
             ],
           ),
         );
-
+      case 2:
+        return GestureDetector(
+          // 비어있는 영역도 터치가 가능하도록 함
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => QuoridoubleAIScreen(level: 3)),
+            );
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/solo.svg',
+                semanticsLabel: 'AI Game Icon',
+              ),
+              Text(
+                'CPU Level 3',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
       default:
         return Container();
     }
@@ -125,13 +153,18 @@ class DraggableContainersState extends State<HomeScreen> {
       Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text("Quoridouble"),
+          title: Text("Select CPU Level"),
           backgroundColor: Colors.transparent,
           centerTitle: false, // 타이틀을 좌측에 정렬
           actions: [
             IconButton(
-              icon: Icon(Icons.help_outline_rounded),
-              onPressed: () {},
+              icon: Icon(Icons.exit_to_app),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen(page: 0)),
+                );
+              },
             )
           ],
         ),
@@ -141,7 +174,7 @@ class DraggableContainersState extends State<HomeScreen> {
             height: screenWidth,
             child: PageView.builder(
               controller: _pageController,
-              itemCount: 2,
+              itemCount: 3,
               itemBuilder: (context, index) {
                 double diff = (index - _currentPageValue).abs();
                 double scale = 1 - (diff * 0.3).clamp(0.0, 0.3);
