@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:quoridouble/screens/ai_select_screen.dart';
 import 'package:quoridouble/utils/ai.dart';
 import 'package:quoridouble/utils/game.dart';
-import 'home_screen.dart';
 
 class QuoridoubleAIScreen extends StatefulWidget {
   final int level;
@@ -350,7 +350,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen(page: level - 1)),
+                        builder: (context) => AISelectScreen(page: level - 1)),
                   );
                 },
               )

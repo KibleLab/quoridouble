@@ -22,7 +22,7 @@ class RoomScreenState extends State<RoomScreen> {
   final int _blockCounter = 9;
 
   late io.Socket socket;
-  String? waitingMessage;
+  String? socketMessage;
 
   /// ********************************************
   /// game 핵심 속성
@@ -59,7 +59,7 @@ class RoomScreenState extends State<RoomScreen> {
       'transports': ['websocket'],
       'path': '/socket.io',
       'autoConnect': true,
-      'reconnection': true,
+      'reconnection': false,
     });
 
     socket.onConnect((_) {
@@ -74,7 +74,14 @@ class RoomScreenState extends State<RoomScreen> {
     // 대기 중 메시지 수신
     socket.on('waiting', (message) {
       setState(() {
-        waitingMessage = message;
+        socketMessage = message;
+      });
+    });
+
+    socket.on('opponentDisconnected', (data) {
+      setState(() {
+        // 상대방이 연결을 끊었을 때 메시지를 표시
+        socketMessage = data['message'];
       });
     });
 
@@ -86,7 +93,7 @@ class RoomScreenState extends State<RoomScreen> {
 
       setState(() {
         this.isFirst = isFirst;
-        waitingMessage = null;
+        socketMessage = null;
       });
     });
 
@@ -393,7 +400,7 @@ class RoomScreenState extends State<RoomScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen(page: 4)),
+                        builder: (context) => HomeScreen(page: 1)),
                   );
                 },
               )
@@ -720,9 +727,9 @@ class RoomScreenState extends State<RoomScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (waitingMessage != null) // 메시지가 있으면 표시
+                  if (socketMessage != null) // 메시지가 있으면 표시
                     Text(
-                      waitingMessage!,
+                      socketMessage!,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
