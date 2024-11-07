@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/screens/ai_select_screen.dart';
 import 'package:quoridouble/screens/room_screen.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class HomeScreen extends StatefulWidget {
   final int? page;
@@ -52,11 +53,36 @@ class DraggableContainersState extends State<HomeScreen> {
         return GestureDetector(
           // 비어있는 영역도 터치가 가능하도록 함
           behavior: HitTestBehavior.opaque,
-          onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => AISelectScreen()),
-            );
+          onTap: () async {
+            final ConnectivityResult connectivityResult =
+                await (Connectivity().checkConnectivity());
+
+            if (connectivityResult == ConnectivityResult.wifi ||
+                connectivityResult == ConnectivityResult.mobile) {
+              // 네트워크에 연결되어 있으면 페이지 이동
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => RoomScreen()),
+              );
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('네트워크 오류'),
+                    content: Text('네트워크 연결이 되어 있지 않습니다. 연결 후 다시 시도하세요.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('확인'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +92,7 @@ class DraggableContainersState extends State<HomeScreen> {
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'AI Game',
+                'PvP Game',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -83,18 +109,18 @@ class DraggableContainersState extends State<HomeScreen> {
           onTap: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => RoomScreen()),
+              MaterialPageRoute(builder: (context) => AISelectScreen()),
             );
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/solo.svg',
+                'assets/images/ai_solo.svg',
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'PvP Game',
+                'AI Game',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

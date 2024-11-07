@@ -63,7 +63,7 @@ class DraggableContainersState extends State<AISelectScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/solo.svg',
+                'assets/images/ai_solo.svg',
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
@@ -91,7 +91,7 @@ class DraggableContainersState extends State<AISelectScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/solo.svg',
+                'assets/images/ai_solo.svg',
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
@@ -119,7 +119,7 @@ class DraggableContainersState extends State<AISelectScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/solo.svg',
+                'assets/images/ai_solo.svg',
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
@@ -162,7 +162,7 @@ class DraggableContainersState extends State<AISelectScreen> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => HomeScreen(page: 0)),
+                  MaterialPageRoute(builder: (context) => HomeScreen(page: 1)),
                 );
               },
             )

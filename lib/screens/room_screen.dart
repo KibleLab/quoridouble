@@ -400,7 +400,7 @@ class RoomScreenState extends State<RoomScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen(page: 1)),
+                        builder: (context) => HomeScreen(page: 0)),
                   );
                 },
               )
