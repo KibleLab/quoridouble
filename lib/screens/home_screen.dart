@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quoridouble/screens/ai_select_screen.dart';
-import 'package:quoridouble/screens/room_screen.dart';
+import 'package:quoridouble/screens/pvp_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:quoridouble/widgets/modals/show_game_setup_modal.dart';
+import 'package:quoridouble/widgets/modals/show_info.dart';
 
 class HomeScreen extends StatefulWidget {
   final int? page;
@@ -53,6 +54,30 @@ class DraggableContainersState extends State<HomeScreen> {
         return GestureDetector(
           // 비어있는 영역도 터치가 가능하도록 함
           behavior: HitTestBehavior.opaque,
+          onTap: () {
+            showGameSetupModal(context);
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/ai_solo.svg',
+                semanticsLabel: 'AI Game Icon',
+              ),
+              Text(
+                'AI 2-Way',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case 1:
+        return GestureDetector(
+          // 비어있는 영역도 터치가 가능하도록 함
+          behavior: HitTestBehavior.opaque,
           onTap: () async {
             final ConnectivityResult connectivityResult =
                 await (Connectivity().checkConnectivity());
@@ -62,11 +87,17 @@ class DraggableContainersState extends State<HomeScreen> {
               // 네트워크에 연결되어 있으면 페이지 이동
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => RoomScreen()),
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      RoomScreen(),
+                  transitionDuration: Duration.zero, // 전환 애니메이션 시간 설정
+                  reverseTransitionDuration: Duration.zero, // 뒤로가기 애니메이션 시간 설정
+                ),
               );
             } else {
               showDialog(
                 context: context,
+                barrierDismissible: false,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text('네트워크 오류'),
@@ -88,39 +119,11 @@ class DraggableContainersState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/solo.svg',
-                semanticsLabel: 'AI Game Icon',
+                'assets/images/pvp_2_way.svg',
+                semanticsLabel: 'PvP Game Icon',
               ),
               Text(
-                'PvP Game',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        );
-
-      case 1:
-        return GestureDetector(
-          // 비어있는 영역도 터치가 가능하도록 함
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => AISelectScreen()),
-            );
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/images/ai_solo.svg',
-                semanticsLabel: 'AI Game Icon',
-              ),
-              Text(
-                'AI Game',
+                'PvP 2-Way',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -151,13 +154,20 @@ class DraggableContainersState extends State<HomeScreen> {
       Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text("Quoridouble"),
+          title: Text(
+            "Quoridouble",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           backgroundColor: Colors.transparent,
           centerTitle: false, // 타이틀을 좌측에 정렬
           actions: [
             IconButton(
               icon: Icon(Icons.help_outline_rounded),
-              onPressed: () {},
+              onPressed: () {
+                showInfo(context);
+              },
             )
           ],
         ),

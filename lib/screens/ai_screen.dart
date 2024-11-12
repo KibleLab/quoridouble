@@ -2,14 +2,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quoridouble/screens/ai_select_screen.dart';
-import 'package:quoridouble/utils/ai.dart';
+import 'package:quoridouble/screens/home_screen.dart';
+import 'package:quoridouble/utils/ai/index.dart';
 import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/widgets/line_painter.dart';
+import 'package:quoridouble/widgets/modals/game_pause_modal.dart';
+import 'package:quoridouble/widgets/modals/game_result_dialog.dart';
 
 class QuoridoubleAIScreen extends StatefulWidget {
   final int level;
+  final int isOrder;
 
-  const QuoridoubleAIScreen({super.key, required this.level});
+  const QuoridoubleAIScreen(
+      {super.key, required this.level, required this.isOrder});
 
   @override
   QuoridoubleAIScreenState createState() => QuoridoubleAIScreenState();
@@ -19,16 +24,17 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
-  final String title = 'CPU Level';
+  final String title = 'AI 2-way Game';
   final int _blockCounter = 9;
   late int level;
+  late int isOrder;
+  late int isFirst;
 
   /// ********************************************
   /// game 핵심 속성
   /// ********************************************
 
   late GameState gameState;
-  late int isFirst;
   late List<int> user1;
   late List<int> user2;
 
@@ -39,15 +45,19 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   void initState() {
     super.initState();
     level = widget.level;
+    isOrder = widget.isOrder;
+
+    isFirst = isOrder == 0
+        ? (Random().nextBool() ? 0 : 1)
+        : isOrder == 1
+            ? 0
+            : 1;
+
     initializeGame();
   }
 
   void initializeGame() {
     gameState = GameState();
-    Random random = Random();
-
-    // 랜덤으로 0 또는 1를 선택
-    isFirst = random.nextInt(2);
 
     user1 = gameState.user1Pos(isFirst);
     user2 = gameState.user2Pos(isFirst);
@@ -340,20 +350,56 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
           // 배경색을 투명으로 설정
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            title: Text("$title $level"),
+            title: Text(title),
             backgroundColor: Colors.transparent,
             centerTitle: false, // 타이틀을 좌측에 정렬
             actions: [
               IconButton(
-                icon: Icon(Icons.exit_to_app),
+                icon: const Icon(Icons.menu_rounded),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AISelectScreen(page: level - 1)),
+                  showDialog(
+                    context: context,
+                    builder: (context) => Center(
+                      child: FractionallySizedBox(
+                        widthFactor: 0.8,
+                        child: GamePauseDialog(
+                          onRematch: () {
+                            // 재시작 로직
+                            Navigator.of(context).pop();
+                            Navigator.pushReplacement(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        QuoridoubleAIScreen(
+                                  level: widget.level,
+                                  isOrder: widget.isOrder,
+                                ),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
+                              ),
+                            );
+                          },
+                          onExit: () {
+                            // 종료 로직
+                            Navigator.of(context).pop();
+                            Navigator.pushReplacement(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        HomeScreen(page: 0),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   );
                 },
-              )
+              ),
             ],
           ),
           body: Stack(children: [
@@ -650,69 +696,63 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               ),
             ),
 
-            Center(
-              child: gameState.isLose()
-                  ? Container(
-                      padding: EdgeInsets.all(16), // 텍스트 주위에 패딩을 추가
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(8), // 모서리를 둥글게
-                      ),
-                      child: Text(
-                        gameState.isCurrentTurn(isFirst)
-                            ? 'You LOSE'
-                            : 'You WIN',
-                        style: TextStyle(
-                          color: Colors.white, // 텍스트 색상을 흰색으로 설정
-                          fontSize: 24, // 텍스트 크기 설정
-                          fontWeight: FontWeight.bold, // 텍스트 굵기 설정
+            if (gameState.isLose())
+              Builder(
+                builder: (context) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => Center(
+                        child: FractionallySizedBox(
+                          widthFactor: 0.8, // 화면 너비의 80%를 차지하도록 설정
+                          child: GameResultDialog(
+                            isWin:
+                                gameState.isCurrentTurn(isFirst) ? false : true,
+                            onRematch: () {
+                              // 재시작 로직
+                              Navigator.of(context).pop();
+                              Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      QuoridoubleAIScreen(
+                                    level: widget.level,
+                                    isOrder: widget.isOrder,
+                                  ),
+                                  transitionDuration:
+                                      Duration.zero, // 전환 애니메이션 시간 설정
+                                  reverseTransitionDuration:
+                                      Duration.zero, // 뒤로가기 애니메이션 시간 설정
+                                ),
+                              );
+                            },
+                            onExit: () {
+                              // 종료 로직
+                              Navigator.of(context).pop();
+                              Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      HomeScreen(page: 0),
+                                  transitionDuration:
+                                      Duration.zero, // 전환 애니메이션 시간 설정
+                                  reverseTransitionDuration:
+                                      Duration.zero, // 뒤로가기 애니메이션 시간 설정
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        textAlign: TextAlign.center, // 텍스트를 중앙 정렬
                       ),
-                    )
-                  : Container(), // 아무것도 띄우지 않음
-            ),
+                    );
+                  });
+                  return Container(); // Builder 내부에서 아무것도 렌더링하지 않음
+                },
+              ),
           ])),
     ]);
   }
-}
-
-class LinePainter extends CustomPainter {
-  final Offset? start;
-  final Offset? end;
-  final double cellSize;
-  Offset? restrictedEnd;
-
-  LinePainter(this.start, this.end, this.cellSize);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (start != null && end != null) {
-      final paint = Paint()
-        ..color = Color.fromARGB(255, 255, 127, 80).withOpacity(0.5)
-        ..strokeWidth = 8
-        ..strokeCap = StrokeCap.round;
-
-      // maxLength
-      final maxLength = cellSize * 2;
-
-      final dx = end!.dx - start!.dx;
-      final dy = end!.dy - start!.dy;
-
-      if (dx.abs() > dy.abs()) {
-        // 가로 방향
-        double length = min(dx.abs(), maxLength);
-        restrictedEnd = Offset(start!.dx + length * dx.sign, start!.dy);
-      } else {
-        // 세로 방향
-        double length = min(dy.abs(), maxLength);
-        restrictedEnd = Offset(start!.dx, start!.dy + length * dy.sign);
-      }
-
-      canvas.drawLine(start!, restrictedEnd!, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

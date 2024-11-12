@@ -1,54 +1,7 @@
-import 'dart:math';
-
+// 알파베타법을 활용한 상태 가치 계산
+import 'package:quoridouble/utils/ai/index.dart';
 import 'package:quoridouble/utils/game.dart';
 
-int actionLevel(GameState state, int level) {
-  if (level == 1) {
-    return alphaBetaAction(state, 1, pruningVersion: 1);
-  } else if (level == 2) {
-    return alphaBetaAction(state, 1, pruningVersion: 2);
-  } else if (level == 3) {
-    return alphaBetaAction(state, 1);
-  } else {
-    return alphaBetaAction(state, 1);
-  }
-}
-
-List<int> pruningActionVer1(GameState state) {
-  List<int> action = state.legalActions();
-
-  // 0부터 11까지의 숫자를 포함하는 리스트
-  List<int> fixedActions1 = action.where((x) => x < 12).toList();
-
-  List<int> shuffleActions = action.where((x) => x >= 12 && x <= 139).toList();
-
-  // shuffle_actions 랜덤하게 선택
-  shuffleActions.shuffle();
-  List<int> selectedActions =
-      shuffleActions.sublist(0, shuffleActions.length ~/ 4);
-
-  // 두 리스트를 합쳐서 반환
-  return [...fixedActions1, ...selectedActions];
-}
-
-List<int> pruningActionVer2(GameState state) {
-  List<int> action = state.legalActions();
-
-  // 0부터 11까지의 숫자를 포함하는 리스트
-  List<int> fixedActions1 = action.where((x) => x < 12).toList();
-
-  List<int> shuffleActions = action.where((x) => x >= 12 && x <= 139).toList();
-
-  // shuffle_actions 랜덤하게 선택
-  shuffleActions.shuffle();
-  List<int> selectedActions =
-      shuffleActions.sublist(0, shuffleActions.length ~/ 2);
-
-  // 두 리스트를 합쳐서 반환
-  return [...fixedActions1, ...selectedActions];
-}
-
-// 알파베타법을 활용한 상태 가치 계산
 double alphaBeta(GameState state, double alpha, double beta, int depth,
     [int pruningVersion = 0]) {
   // 패배 시, 상태 가치 -1000
@@ -115,6 +68,7 @@ int alphaBetaAction(GameState state, int depth, {int pruningVersion = 0}) {
   int bestAction = 0;
   double alpha = double.negativeInfinity;
   double beta = double.infinity;
+  double score = 0.0;
 
   List<int> pruningList = [];
   if (pruningVersion == 1) {
@@ -126,7 +80,7 @@ int alphaBetaAction(GameState state, int depth, {int pruningVersion = 0}) {
   }
 
   for (int action in pruningList) {
-    double score =
+    score =
         -alphaBeta(state.next(action), -beta, -alpha, depth, pruningVersion);
     if (score > alpha) {
       bestAction = action;
@@ -136,23 +90,4 @@ int alphaBetaAction(GameState state, int depth, {int pruningVersion = 0}) {
 
   // 합법적인 수의 상태 가치값 중 최대값을 선택하는 행동 반환
   return bestAction;
-}
-
-int randomAction(GameState state) {
-  List<int> legalActions = state.legalActions();
-  return legalActions[Random().nextInt(legalActions.length)];
-}
-
-void main() {
-  GameState state = GameState();
-
-  while (true) {
-    if (state.isLose()) {
-      break;
-    }
-
-    state = state.next(alphaBetaAction(state, 1));
-
-    print('$state\n');
-  }
 }

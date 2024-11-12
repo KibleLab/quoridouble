@@ -118,9 +118,40 @@ class GameState {
         .any((line) => enemyPieces[line] == 1);
   }
 
+  // 무승부 여부 판정
+  bool isDraw() {
+    return depth >= 200;
+  }
+
+  // 게임 종료 여부 판정
+  bool isDone() {
+    return isLose() || isDraw();
+  }
+
   // 선 수 여부 판정
   bool isFirstPlayer() {
     return depth % 2 == 0;
+  }
+
+  // 듀얼 네트워크 입력 배열 얻기
+  List<List<List<int>>> piecesArray() {
+    // 플레이어 별 듀얼 네트워크 입력 배열 얻기
+    List<List<int>> piecesArrayOf(List<int> pieces) {
+      List<int> table1 = List.filled(289, 0);
+      List<int> table2 = List.filled(289, 0);
+
+      for (int i = 0; i < 289; i++) {
+        if (pieces[i] == 1) {
+          table1[i] = 1;
+        } else if (pieces[i] == 2) {
+          table2[i] = 1;
+        }
+      }
+
+      return [table1, table2];
+    }
+
+    return [piecesArrayOf(pieces), piecesArrayOf(enemyPieces)];
   }
 
   List<List<int>> legalMoves() {
@@ -333,7 +364,11 @@ class GameState {
       int piecesIdx = pieces.indexOf(1);
       int x = piecesIdx ~/ 17;
       int y = piecesIdx % 17;
-      addCandidateActions(candidateActs, x, y);
+
+      final enemyWall = 10 - (enemyPieces.where((p) => p == 2).length ~/ 3);
+      if (enemyWall != 0) {
+        addCandidateActions(candidateActs, x, y);
+      }
 
       // enemyPieces의 좌표에 대해 후보 행동 추가
       int enemyIdx = enemyPieces.reversed.toList().indexOf(1);

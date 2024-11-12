@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/widgets/line_painter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_screen.dart';
@@ -399,8 +400,13 @@ class RoomScreenState extends State<RoomScreen> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => HomeScreen(page: 0)),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          HomeScreen(page: 1),
+                      transitionDuration: Duration.zero, // 전환 애니메이션 시간 설정
+                      reverseTransitionDuration:
+                          Duration.zero, // 뒤로가기 애니메이션 시간 설정
+                    ),
                   );
                 },
               )
@@ -746,44 +752,4 @@ class RoomScreenState extends State<RoomScreen> {
     socket.dispose(); // 소켓 연결 종료
     super.dispose(); // 부모 클래스의 dispose 호출
   }
-}
-
-class LinePainter extends CustomPainter {
-  final Offset? start;
-  final Offset? end;
-  final double cellSize;
-  Offset? restrictedEnd;
-
-  LinePainter(this.start, this.end, this.cellSize);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (start != null && end != null) {
-      final paint = Paint()
-        ..color = Color.fromARGB(255, 255, 127, 80).withOpacity(0.5)
-        ..strokeWidth = 8
-        ..strokeCap = StrokeCap.round;
-
-      // maxLength
-      final maxLength = cellSize * 2;
-
-      final dx = end!.dx - start!.dx;
-      final dy = end!.dy - start!.dy;
-
-      if (dx.abs() > dy.abs()) {
-        // 가로 방향
-        double length = min(dx.abs(), maxLength);
-        restrictedEnd = Offset(start!.dx + length * dx.sign, start!.dy);
-      } else {
-        // 세로 방향
-        double length = min(dy.abs(), maxLength);
-        restrictedEnd = Offset(start!.dx, start!.dy + length * dy.sign);
-      }
-
-      canvas.drawLine(start!, restrictedEnd!, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

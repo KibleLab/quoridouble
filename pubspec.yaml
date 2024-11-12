@@ -1,7 +1,5 @@
 name: quoridouble
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
@@ -34,12 +32,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   collection: ^1.18.0
   provider: ^6.0.0
-  flutter_svg: ^2.0.0
+  flutter_svg: ^2.0.14
   pathfinding: ^3.0.1
   socket_io_client: ^2.0.0
   flutter_dotenv: ^5.0.2
   connectivity_plus: ^5.0.0
-  lottie: ^2.1.0
+  lottie: ^3.1.3
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +46,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: Verdana
+      fonts:
+        - asset: assets/fonts/Verdana.ttf
 
   assets:
     - assets/images/
