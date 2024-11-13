@@ -4,9 +4,9 @@ import 'package:quoridouble/utils/game.dart';
 
 double alphaBeta(GameState state, double alpha, double beta, int depth,
     [int pruningVersion = 0]) {
-  // 패배 시, 상태 가치 -1000
+  // 패배 시, 상태 가치 -100
   if (state.isLose()) {
-    return -1000;
+    return -100;
   }
 
   if (depth == 0) {
