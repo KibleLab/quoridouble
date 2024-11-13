@@ -41,56 +41,71 @@ void showGameSetupModal(BuildContext context) {
                   ),
                   const SizedBox(height: 8),
                   Container(
+                    height: 44,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: Stack(
-                      children: [
-                        // 애니메이션되는 선택 배경
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          left: (isSelectedOrder * 82).toDouble(),
-                          top: 2,
-                          bottom: 2,
-                          width: 80,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.black, width: 2),
-                            ),
-                          ),
-                        ),
-                        // 버튼들
-                        Row(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final buttonWidth = constraints.maxWidth / 3;
+                        return Stack(
                           children: [
-                            _buildOrderButton(
-                                onTap: () =>
-                                    setState(() => isSelectedOrder = 0),
-                                value: 0,
-                                label: 'Random',
-                                groupValue: isSelectedOrder),
-                            Container(
-                                width: 1, height: 16, color: Colors.grey[400]),
-                            _buildOrderButton(
-                                onTap: () =>
-                                    setState(() => isSelectedOrder = 1),
-                                value: 1,
-                                label: 'First',
-                                groupValue: isSelectedOrder),
-                            Container(
-                                width: 1, height: 16, color: Colors.grey[400]),
-                            _buildOrderButton(
-                                onTap: () =>
-                                    setState(() => isSelectedOrder = 2),
-                                value: 2,
-                                label: 'Last',
-                                groupValue: isSelectedOrder),
+                            // 애니메이션되는 선택 배경
+                            AnimatedPositioned(
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeInOut,
+                              left: isSelectedOrder * buttonWidth,
+                              top: 2,
+                              bottom: 2,
+                              width: buttonWidth,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  border:
+                                      Border.all(color: Colors.black, width: 2),
+                                ),
+                              ),
+                            ),
+                            // 버튼들
+                            Align(
+                              alignment: Alignment.center, // 텍스트 세로 정렬
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildOrderButton(
+                                      onTap: () =>
+                                          setState(() => isSelectedOrder = 0),
+                                      value: 0,
+                                      label: 'Random',
+                                      groupValue: isSelectedOrder),
+                                  Container(
+                                      width: 1,
+                                      height: 16,
+                                      color: Colors.grey[400]),
+                                  _buildOrderButton(
+                                      onTap: () =>
+                                          setState(() => isSelectedOrder = 1),
+                                      value: 1,
+                                      label: 'First',
+                                      groupValue: isSelectedOrder),
+                                  Container(
+                                      width: 1,
+                                      height: 16,
+                                      color: Colors.grey[400]),
+                                  _buildOrderButton(
+                                      onTap: () =>
+                                          setState(() => isSelectedOrder = 2),
+                                      value: 2,
+                                      label: 'Last',
+                                      groupValue: isSelectedOrder),
+                                ],
+                              ),
+                            ),
                           ],
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -103,56 +118,70 @@ void showGameSetupModal(BuildContext context) {
                   ),
                   const SizedBox(height: 8),
                   Container(
+                    height: 44,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: Stack(
-                      children: [
-                        // 애니메이션되는 선택 배경
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          left: (isSelectedDifficulty * 82).toDouble(),
-                          top: 2,
-                          bottom: 2,
-                          width: 80,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.black, width: 2),
-                            ),
-                          ),
-                        ),
-                        // 버튼들
-                        Row(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final buttonWidth = constraints.maxWidth / 3;
+                        return Stack(
                           children: [
-                            _buildDifficultyButton(
-                                onTap: () =>
-                                    setState(() => isSelectedDifficulty = 0),
-                                value: 0,
-                                label: 'Basic',
-                                groupValue: isSelectedDifficulty),
-                            Container(
-                                width: 1, height: 16, color: Colors.grey[400]),
-                            _buildDifficultyButton(
-                                onTap: () =>
-                                    setState(() => isSelectedDifficulty = 1),
-                                value: 1,
-                                label: 'Normal',
-                                groupValue: isSelectedDifficulty),
-                            Container(
-                                width: 1, height: 16, color: Colors.grey[400]),
-                            _buildDifficultyButton(
-                                onTap: () =>
-                                    setState(() => isSelectedDifficulty = 2),
-                                value: 2,
-                                label: 'Hard',
-                                groupValue: isSelectedDifficulty),
+                            // 애니메이션되는 선택 배경
+                            AnimatedPositioned(
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeInOut,
+                              left: isSelectedDifficulty * buttonWidth,
+                              top: 2,
+                              bottom: 2,
+                              width: buttonWidth,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  border:
+                                      Border.all(color: Colors.black, width: 2),
+                                ),
+                              ),
+                            ),
+                            // 버튼들
+                            Align(
+                              alignment: Alignment.center, // 텍스트 세로 정렬
+                              child: Row(
+                                children: [
+                                  _buildDifficultyButton(
+                                      onTap: () => setState(
+                                          () => isSelectedDifficulty = 0),
+                                      value: 0,
+                                      label: 'Basic',
+                                      groupValue: isSelectedDifficulty),
+                                  Container(
+                                      width: 1,
+                                      height: 16,
+                                      color: Colors.grey[400]),
+                                  _buildDifficultyButton(
+                                      onTap: () => setState(
+                                          () => isSelectedDifficulty = 1),
+                                      value: 1,
+                                      label: 'Normal',
+                                      groupValue: isSelectedDifficulty),
+                                  Container(
+                                      width: 1,
+                                      height: 16,
+                                      color: Colors.grey[400]),
+                                  _buildDifficultyButton(
+                                      onTap: () => setState(
+                                          () => isSelectedDifficulty = 2),
+                                      value: 2,
+                                      label: 'Hard',
+                                      groupValue: isSelectedDifficulty),
+                                ],
+                              ),
+                            ),
                           ],
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
