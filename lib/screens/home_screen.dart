@@ -3,13 +3,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:quoridouble/widgets/ai_screen/show_game_setup_dialog.dart';
 import 'package:quoridouble/widgets/pvp_screen/match_dialog.dart';
+import 'package:quoridouble/widgets/pvp_screen/opponent_out_dialog.dart';
 import 'package:quoridouble/widgets/pvp_screen/show_network_dialog.dart';
 import 'package:quoridouble/widgets/show_info.dart';
 
 class HomeScreen extends StatefulWidget {
   final int? page;
+  final bool? opponentDisconnected;
 
-  const HomeScreen({super.key, this.page});
+  const HomeScreen({super.key, this.page, this.opponentDisconnected});
   @override
   DraggableContainersState createState() => DraggableContainersState();
 }
@@ -19,6 +21,7 @@ class DraggableContainersState extends State<HomeScreen> {
 
   // 현재 페이지 값 추적
   late double _currentPageValue;
+  late bool? opponentDisconnected = widget.opponentDisconnected;
 
   // PageController는 내부적으로 리소스를 사용하므로,
   // 위젯이 제거될 때 이를 명시적으로 해제해야 함.
@@ -31,6 +34,13 @@ class DraggableContainersState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (opponentDisconnected == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // 페이지가 로드된 후에 모달을 띄움
+        _showDisconnectedDialog();
+      });
+    }
 
     // page가 null일 경우 0으로 초기화
     _currentPageValue = (widget.page ?? 0).toDouble();
@@ -47,6 +57,18 @@ class DraggableContainersState extends State<HomeScreen> {
         _currentPageValue = _pageController.page!;
       });
     });
+  }
+
+  void _showDisconnectedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Center(
+        child: FractionallySizedBox(
+          widthFactor: 0.8, // 화면 너비의 80%를 차지하도록 설정
+          child: OpponentOutDialog(),
+        ),
+      ),
+    );
   }
 
   Widget _buildContainer(int index) {

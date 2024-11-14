@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/utils/socket_service.dart';
+import 'package:quoridouble/widgets/pvp_screen/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/line_painter.dart';
 import 'home_screen.dart';
 
@@ -25,12 +26,11 @@ class RoomScreenState extends State<RoomScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
-  final String title = 'PVP Game';
+  final String title = 'PVP 2-way Game';
   final int _blockCounter = 9;
 
   late int isFirst = widget.isFirst;
   late SocketService socketService = widget.socketService;
-  String? socketMessage;
 
   /// ********************************************
   /// game 핵심 속성
@@ -63,8 +63,30 @@ class RoomScreenState extends State<RoomScreen> {
   void initSocket() {
     socketService.socket?.on('opponentDisconnected', (data) {
       setState(() {
-        // 상대방이 연결을 끊었을 때 메시지를 표시
-        socketMessage = data['message'];
+        // 받은 메시지 출력 (디버깅 용)
+        print(data['message']);
+
+        bool opponentDisconnected = false;
+
+        // 메시지가 왔을 경우
+        if (data['message'] != null) {
+          setState(() {
+            opponentDisconnected = true; // 상대방이 연결을 끊었음을 표시
+          });
+        }
+
+        // 페이지 이동
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(
+              page: 1,
+              opponentDisconnected: opponentDisconnected,
+            ),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
       });
     });
 
@@ -366,16 +388,30 @@ class RoomScreenState extends State<RoomScreen> {
             centerTitle: false, // 타이틀을 좌측에 정렬
             actions: [
               IconButton(
-                icon: Icon(Icons.exit_to_app),
+                icon: Icon(Icons.menu_rounded),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          HomeScreen(page: 1),
-                      transitionDuration: Duration.zero, // 전환 애니메이션 시간 설정
-                      reverseTransitionDuration:
-                          Duration.zero, // 뒤로가기 애니메이션 시간 설정
+                  showDialog(
+                    context: context,
+                    builder: (context) => Center(
+                      child: FractionallySizedBox(
+                        widthFactor: 0.8,
+                        child: GamePauseDialog(
+                          onExit: () {
+                            // 종료 로직
+                            Navigator.of(context).pop();
+                            Navigator.pushReplacement(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        HomeScreen(page: 1),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -697,21 +733,6 @@ class RoomScreenState extends State<RoomScreen> {
                       ),
                     )
                   : Container(), // 아무것도 띄우지 않음
-            ),
-
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (socketMessage != null) // 메시지가 있으면 표시
-                    Text(
-                      socketMessage!,
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  // 게임 화면의 나머지 UI 요소들
-                ],
-              ),
             ),
           ])),
     ]);
