@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:quoridouble/screens/pvp_screen.dart';
+import 'package:quoridouble/utils/socket_service.dart';
 
 enum MatchDialogState {
   initial,
@@ -18,10 +20,57 @@ class MatchDialog extends StatefulWidget {
 class _MatchDialogState extends State<MatchDialog> {
   MatchDialogState _currentState = MatchDialogState.initial;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  final SocketService _socketService = SocketService();
+  bool isWaiting = false;
+
+  @override
+  void dispose() {
+    if (isWaiting) {
+      _socketService.disconnect();
+    }
+    super.dispose();
+  }
+
+  void startRandomMatch() {
+    setState(() => isWaiting = true);
+
+    _socketService.connect();
+
+    _socketService.socket?.on('waiting', (data) {
+      // 매칭 대기 중
+      print(data);
+    });
+
+    _socketService.socket?.on('startGame', (data) {
+      isWaiting = false;
+
+      int isFirst = data['isFirst'];
+      print("Room ID - ${data['roomId']}");
+      print("isFirst - $isFirst");
+
+      // 모달 닫기
+      Navigator.of(context).pop();
+
+      // 매칭 성공
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) =>
+              RoomScreen(isFirst: isFirst, socketService: _socketService),
+        ),
+      );
+    });
+  }
+
   void _handleRandomMatch() {
     setState(() {
       _currentState = MatchDialogState.loading;
     });
+    startRandomMatch();
   }
 
   @override
@@ -89,17 +138,17 @@ class _MatchDialogState extends State<MatchDialog> {
                 borderRadius: BorderRadius.circular(24),
               ),
               side: BorderSide(
-                color: Colors.grey.shade400, // 연한 회색 테두리
+                color: Colors.grey.shade400,
                 width: 2,
               ),
             ),
-            onPressed: null, // 비활성화 상태
+            onPressed: null,
             child: Text(
               'Invitation Code',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade400, // 텍스트 색상도 연하게
+                color: Colors.grey.shade400,
               ),
             ),
           ),

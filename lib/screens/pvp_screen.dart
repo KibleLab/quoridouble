@@ -3,13 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/utils/socket_service.dart';
 import 'package:quoridouble/widgets/line_painter.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_screen.dart';
 
 class RoomScreen extends StatefulWidget {
-  const RoomScreen({super.key});
+  final int isFirst;
+  final SocketService socketService;
+
+  const RoomScreen({
+    super.key,
+    required this.isFirst,
+    required this.socketService,
+  });
 
   @override
   RoomScreenState createState() => RoomScreenState();
@@ -22,7 +28,8 @@ class RoomScreenState extends State<RoomScreen> {
   final String title = 'PVP Game';
   final int _blockCounter = 9;
 
-  late io.Socket socket;
+  late int isFirst = widget.isFirst;
+  late SocketService socketService = widget.socketService;
   String? socketMessage;
 
   /// ********************************************
@@ -30,7 +37,7 @@ class RoomScreenState extends State<RoomScreen> {
   /// ********************************************
 
   late GameState gameState;
-  late int isFirst;
+
   late List<int> user1;
   late List<int> user2;
 
@@ -39,8 +46,6 @@ class RoomScreenState extends State<RoomScreen> {
 
   void initializeGame() {
     gameState = GameState();
-
-    isFirst = 1;
 
     user1 = gameState.user1Pos(isFirst);
     user2 = gameState.user2Pos(isFirst);
@@ -56,49 +61,14 @@ class RoomScreenState extends State<RoomScreen> {
   /// ********************************************
 
   void initSocket() {
-    socket = io.io('${dotenv.env['SERVER_URL']}/room', <String, dynamic>{
-      'transports': ['websocket'],
-      'path': '/socket.io',
-      'autoConnect': true,
-      'reconnection': false,
-    });
-
-    socket.onConnect((_) {
-      print('소켓에 연결됨');
-    });
-
-    // 소켓 연결 해제 이벤트 처리
-    socket.onDisconnect((_) {
-      print('소켓이 연결 해제됨');
-    });
-
-    // 대기 중 메시지 수신
-    socket.on('waiting', (message) {
-      setState(() {
-        socketMessage = message;
-      });
-    });
-
-    socket.on('opponentDisconnected', (data) {
+    socketService.socket?.on('opponentDisconnected', (data) {
       setState(() {
         // 상대방이 연결을 끊었을 때 메시지를 표시
         socketMessage = data['message'];
       });
     });
 
-    // 게임 시작 알림 수신
-    socket.on('startGame', (data) {
-      int isFirst = data['isFirst'];
-      // isFirst :0 이면 선수, :1이면 후수
-      print("게임 시작: 방 ID - ${data['roomId']}, isFirst - $isFirst");
-
-      setState(() {
-        this.isFirst = isFirst;
-        socketMessage = null;
-      });
-    });
-
-    socket.on('gameData', (data) {
+    socketService.socket?.on('gameData', (data) {
       Map<String, dynamic> parsedData = Map<String, dynamic>.from(data);
 
       // action 값 가져오기
@@ -233,7 +203,7 @@ class RoomScreenState extends State<RoomScreen> {
           user1 = gameState.user1Pos(isFirst);
           user2 = gameState.user2Pos((isFirst));
 
-          socket.emit('gameData', {'action': action});
+          socketService.socket?.emit('gameData', {'action': action});
         }
       });
     }
@@ -369,7 +339,7 @@ class RoomScreenState extends State<RoomScreen> {
 
         setState(() {
           gameState = gameState.next(action);
-          socket.emit('gameData', {'action': action});
+          socketService.socket?.emit('gameData', {'action': action});
           wall.add(wallTemp);
           wallTemp = ""; // wallTemp를 빈 문자열로 지우기
         });
@@ -749,7 +719,7 @@ class RoomScreenState extends State<RoomScreen> {
 
   @override
   void dispose() {
-    socket.dispose(); // 소켓 연결 종료
+    socketService.disconnect();
     super.dispose(); // 부모 클래스의 dispose 호출
   }
 }
