@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quoridouble/widgets/ai_screen/show_game_setup_dialog.dart';
 import 'package:quoridouble/widgets/pvp_screen/match_dialog.dart';
-import 'package:quoridouble/widgets/pvp_screen/opponent_out_dialog.dart';
 import 'package:quoridouble/widgets/pvp_screen/show_network_dialog.dart';
 import 'package:quoridouble/widgets/show_info.dart';
 
@@ -22,6 +22,7 @@ class DraggableContainersState extends State<HomeScreen> {
   // 현재 페이지 값 추적
   late double _currentPageValue;
   late bool? opponentDisconnected = widget.opponentDisconnected;
+  late FToast fToast;
 
   // PageController는 내부적으로 리소스를 사용하므로,
   // 위젯이 제거될 때 이를 명시적으로 해제해야 함.
@@ -35,10 +36,13 @@ class DraggableContainersState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    fToast = FToast();
+    fToast.init(context);
+
     if (opponentDisconnected == true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // 페이지가 로드된 후에 모달을 띄움
-        _showDisconnectedDialog();
+        showOpponentOutToast();
       });
     }
 
@@ -59,15 +63,28 @@ class DraggableContainersState extends State<HomeScreen> {
     });
   }
 
-  void _showDisconnectedDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Center(
-        child: FractionallySizedBox(
-          widthFactor: 0.8, // 화면 너비의 80%를 차지하도록 설정
-          child: OpponentOutDialog(),
-        ),
+  showOpponentOutToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.greenAccent,
       ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("Opponent is out!"),
+        ],
+      ),
+    );
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 3),
     );
   }
 
