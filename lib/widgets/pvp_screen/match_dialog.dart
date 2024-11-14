@@ -96,19 +96,7 @@ class _MatchDialogState extends State<MatchDialog> {
         ],
       ),
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            ),
-          );
-        },
+        duration: Duration.zero, // 애니메이션 없이 즉시 전환
         child: _currentState == MatchDialogState.initial
             ? _buildInitialDialog()
             : _buildLoadingDialog(),
