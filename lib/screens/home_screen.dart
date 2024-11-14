@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quoridouble/screens/pvp_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:quoridouble/widgets/modals/show_game_setup_modal.dart';
-import 'package:quoridouble/widgets/modals/show_info.dart';
+import 'package:quoridouble/widgets/ai_screen/show_game_setup_dialog.dart';
+import 'package:quoridouble/widgets/pvp_screen/match_dialog.dart';
+import 'package:quoridouble/widgets/pvp_screen/show_network_dialog.dart';
+import 'package:quoridouble/widgets/show_info.dart';
 
 class HomeScreen extends StatefulWidget {
   final int? page;
@@ -55,7 +56,7 @@ class DraggableContainersState extends State<HomeScreen> {
           // 비어있는 영역도 터치가 가능하도록 함
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            showGameSetupModal(context);
+            showGameSetupDialog(context);
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -84,35 +85,17 @@ class DraggableContainersState extends State<HomeScreen> {
 
             if (connectivityResult == ConnectivityResult.wifi ||
                 connectivityResult == ConnectivityResult.mobile) {
-              // 네트워크에 연결되어 있으면 페이지 이동
-              Navigator.pushReplacement(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      RoomScreen(),
-                  transitionDuration: Duration.zero, // 전환 애니메이션 시간 설정
-                  reverseTransitionDuration: Duration.zero, // 뒤로가기 애니메이션 시간 설정
+              showDialog(
+                context: context,
+                builder: (context) => Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.8,
+                    child: MatchDialog(),
+                  ),
                 ),
               );
             } else {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('네트워크 오류'),
-                    content: Text('네트워크 연결이 되어 있지 않습니다. 연결 후 다시 시도하세요.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('확인'),
-                      ),
-                    ],
-                  );
-                },
-              );
+              showNetworkDialog(context);
             }
           },
           child: Column(

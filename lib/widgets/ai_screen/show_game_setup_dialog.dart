@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quoridouble/screens/ai_screen.dart';
 
-void showGameSetupModal(BuildContext context) {
+void showGameSetupDialog(BuildContext context) {
   int isSelectedOrder = 0;
   int isSelectedDifficulty = 0;
 

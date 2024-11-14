@@ -6,8 +6,8 @@ import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/ai/index.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/widgets/line_painter.dart';
-import 'package:quoridouble/widgets/modals/game_pause_modal.dart';
-import 'package:quoridouble/widgets/modals/game_result_dialog.dart';
+import 'package:quoridouble/widgets/ai_screen/game_pause_dialog.dart';
+import 'package:quoridouble/widgets/ai_screen/game_result_dialog.dart';
 
 class QuoridoubleAIScreen extends StatefulWidget {
   final int level;
