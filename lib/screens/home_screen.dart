@@ -68,16 +68,13 @@ class DraggableContainersState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.greenAccent,
+        color: const Color(0xFF767680),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          SizedBox(
-            width: 12.0,
-          ),
-          Text("Opponent is out!"),
-        ],
+      child: const Text(
+        "Opponent is out!",
+        style: TextStyle(
+          color: Colors.white, // 텍스트 색상을 화이트로 설정
+        ),
       ),
     );
 
