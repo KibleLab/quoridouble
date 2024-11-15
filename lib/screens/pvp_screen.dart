@@ -6,6 +6,7 @@ import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/utils/socket_service.dart';
 import 'package:quoridouble/widgets/pvp_screen/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/line_painter.dart';
+import 'package:quoridouble/widgets/pvp_screen/game_result_dialog.dart';
 import 'home_screen.dart';
 
 class RoomScreen extends StatefulWidget {
@@ -73,6 +74,11 @@ class RoomScreenState extends State<RoomScreen> {
           setState(() {
             opponentDisconnected = true; // 상대방이 연결을 끊었음을 표시
           });
+        }
+
+        // 모달이 열려 있을 경우 닫기
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop(); // 모달 닫기
         }
 
         // 페이지 이동
@@ -712,28 +718,43 @@ class RoomScreenState extends State<RoomScreen> {
               ),
             ),
 
-            Center(
-              child: gameState.isLose()
-                  ? Container(
-                      padding: EdgeInsets.all(16), // 텍스트 주위에 패딩을 추가
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(8), // 모서리를 둥글게
-                      ),
-                      child: Text(
-                        gameState.isCurrentTurn(isFirst)
-                            ? 'You LOSE'
-                            : 'You WIN',
-                        style: TextStyle(
-                          color: Colors.white, // 텍스트 색상을 흰색으로 설정
-                          fontSize: 24, // 텍스트 크기 설정
-                          fontWeight: FontWeight.bold, // 텍스트 굵기 설정
+            if (gameState.isLose())
+              Builder(
+                builder: (context) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => Center(
+                        child: FractionallySizedBox(
+                          widthFactor: 0.8, // 화면 너비의 80%를 차지하도록 설정
+                          child: GameResultDialog(
+                            isWin:
+                                gameState.isCurrentTurn(isFirst) ? false : true,
+                            onExit: () {
+                              // 종료 로직
+                              Navigator.of(context).pop();
+                              Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      HomeScreen(page: 0),
+                                  transitionDuration:
+                                      Duration.zero, // 전환 애니메이션 시간 설정
+                                  reverseTransitionDuration:
+                                      Duration.zero, // 뒤로가기 애니메이션 시간 설정
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        textAlign: TextAlign.center, // 텍스트를 중앙 정렬
                       ),
-                    )
-                  : Container(), // 아무것도 띄우지 않음
-            ),
+                    );
+                  });
+                  return Container(); // Builder 내부에서 아무것도 렌더링하지 않음
+                },
+              ),
           ])),
     ]);
   }
