@@ -16,7 +16,7 @@ class SocketService {
       'transports': ['websocket'],
       'path': '/socket.io',
       'autoConnect': true,
-      'reconnection': false,
+      'reconnection': true,
     });
 
     // 연결 시 이벤트 리스너 설정
