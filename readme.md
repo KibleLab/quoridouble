@@ -120,6 +120,12 @@ Depth-Limited Alpha-Beta Pruning, Path-Finding Algorithm
 
 <br>
 
+## Presentation
+
+[Final Presentation Materials](https://1drv.ms/p/s!Aiuea30kcZTlh9Qn89KA65sKioHqVg?e=wGtTO0)
+
+<br>
+
 ---
 
 Copyright © 2024 KibleLab
