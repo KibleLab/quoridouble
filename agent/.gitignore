@@ -1,0 +1,7 @@
+### Build ###
+/build
+/dist
+
+### Visual Studio Code ###
+.vscode
+.cache
