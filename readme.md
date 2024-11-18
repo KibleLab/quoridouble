@@ -1,7 +1,14 @@
 # Quoridouble
 
 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Quoridor 게임 앱
+
+<br>
+
+**시연 영상** (클릭 시 YouTube로 연결됨):
+
 [![Quoridouble](https://img.youtube.com/vi/6FkS6Y0PvLM/0.jpg)](https://youtu.be/6FkS6Y0PvLM)
+
+<br>
 
 ## Overview
 
@@ -41,7 +48,7 @@ Quoridouble - 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Qu
 ### 기존 Quoridor 앱의 문제점
 
 - 앱의 수가 매우 적음
-- 조작감등 UX가 좋지 않음
+- 조작감 등 UX가 좋지 않음
 - PvP(Player vs Player) 기능 부재
 
 ### 개선 목표
@@ -104,6 +111,12 @@ Depth-Limited Alpha-Beta Pruning, Path-Finding Algorithm
 ## Technical Flowchart
 
 ![Technical Flowchart](docs/images/Technical-Flowchart.png)
+
+<br>
+
+## Study for Optimization
+
+> Quoridor AI 에이전트의 성능 향상을 위한 길찾기 알고리즘 비교 연구 (한국실천공학교육학회) <br> [GitHub Link](https://github.com/RegistryHJ/quoridor-pathfind), [Competition Paper Link](https://1drv.ms/b/s!Aiuea30kcZTlh9QuE58l6tLuY61Ivg?e=8lhQ4r)
 
 <br>
 
