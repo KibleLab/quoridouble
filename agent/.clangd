@@ -1,0 +1,14 @@
+# 인덱싱 설정
+Index:
+  Background: Build          # 백그라운드에서 프로젝트 인덱싱 수행
+
+# 인라인 힌트 설정
+InlayHints:
+  Enabled: Yes             # 인라인 힌트 활성화
+  ParameterNames: Yes       # 함수 파라미터 이름 힌트 표시
+  DeducedTypes: Yes        # 타입 추론 힌트 비활성화
+  Designators: No         # 배열 인덱스 힌트 비활성화
+
+# 호버 설정
+Hover:
+  ShowAKA: Yes             # 호버시 별칭(AKA) 정보 표시
