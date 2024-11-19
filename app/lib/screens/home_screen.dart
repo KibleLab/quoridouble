@@ -119,6 +119,8 @@ class DraggableContainersState extends State<HomeScreen> {
             final List<ConnectivityResult> connectivityResult =
                 await (Connectivity().checkConnectivity());
 
+            if (!mounted) return;
+
             if (connectivityResult.contains(ConnectivityResult.mobile) ||
                 connectivityResult.contains(ConnectivityResult.wifi)) {
               showDialog(
