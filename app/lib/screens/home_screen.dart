@@ -116,11 +116,11 @@ class DraggableContainersState extends State<HomeScreen> {
           // 비어있는 영역도 터치가 가능하도록 함
           behavior: HitTestBehavior.opaque,
           onTap: () async {
-            final ConnectivityResult connectivityResult =
+            final List<ConnectivityResult> connectivityResult =
                 await (Connectivity().checkConnectivity());
 
-            if (connectivityResult == ConnectivityResult.wifi ||
-                connectivityResult == ConnectivityResult.mobile) {
+            if (connectivityResult.contains(ConnectivityResult.mobile) ||
+                connectivityResult.contains(ConnectivityResult.wifi)) {
               showDialog(
                 context: context,
                 builder: (context) => Center(
