@@ -691,14 +691,19 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
-                child: Text('Walls ${gameState.getUser2WallCount((isFirst))}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: const Color.fromARGB(255, 255, 0, 0),
-                    )),
+                child: Text(
+                  'Walls ${gameState.getUser2WallCount((isFirst))}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: gameState.isCurrentTurn(1 - isFirst)
+                        ? const Color.fromARGB(255, 255, 0, 0) // 불투명
+                        : const Color.fromARGB(128, 255, 0, 0), // 50% 투명
+                  ),
+                ),
               ),
             ),
-            //  좌측 상단
+
+            //  좌측 하단
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 +
@@ -708,11 +713,15 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
-                child: Text('Walls ${gameState.getUser1WallCount((isFirst))}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: const Color.fromARGB(255, 255, 0, 0),
-                    )),
+                child: Text(
+                  'Walls ${gameState.getUser1WallCount((isFirst))}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: gameState.isCurrentTurn(isFirst)
+                        ? const Color.fromARGB(255, 255, 0, 0) // 불투명
+                        : const Color.fromARGB(128, 255, 0, 0), // 50% 투명
+                  ),
+                ),
               ),
             ),
 
