@@ -26,7 +26,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
-  final String title = 'AI 2-way Game';
+  final String title = 'AI Game';
   final int _blockCounter = 9;
   late int level;
   late int isOrder;

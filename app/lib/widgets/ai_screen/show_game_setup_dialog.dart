@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quoridouble/screens/ai_screen.dart';
 
@@ -24,7 +25,7 @@ void showGameSetupDialog(BuildContext context) {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
-                    'AI 2-way Game',
+                    'AI Game',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
@@ -33,12 +34,12 @@ void showGameSetupDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Set Play Order',
+                    'ai_screen.order',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
-                  ),
+                  ).tr(),
                   const SizedBox(height: 8),
                   Container(
                     height: 44,
@@ -110,12 +111,12 @@ void showGameSetupDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Select Difficulty',
+                    'ai_screen.difficulty',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
-                  ),
+                  ).tr(),
                   const SizedBox(height: 8),
                   Container(
                     height: 44,
