@@ -1,11 +1,7 @@
 {
   "ai_screen": {
     "order": "플레이 순서",
-    "difficulty": "난이도 설정",
-    "": "",
-    "": "",
-    "": "",
-    "": ""
+    "difficulty": "난이도 설정"
   },
   "pvp_screen": {
     "search": "게임을 찾는중"

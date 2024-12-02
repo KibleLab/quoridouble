@@ -57,7 +57,7 @@ void showInfo(BuildContext context) {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              for (int i = 1; i <= 10; i++) ...[
+              for (int i = 1; i <= 9; i++) ...[
                 Text(
                   tr('info_dialog.manual_item_$i'),
                   style: TextStyle(fontSize: 16),
