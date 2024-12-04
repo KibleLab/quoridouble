@@ -6,6 +6,9 @@ void showLanguageDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // 모서리를 직각으로 설정
+        ),
         title: Text('Select Language'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,

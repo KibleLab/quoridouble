@@ -11,13 +11,17 @@ void showInfo(BuildContext context) {
           borderRadius: BorderRadius.zero, // 모서리를 직각으로 설정
         ),
         title: Text(
-          'info_dialog.rule_title',
+          'info_dialog.info_title',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ).tr(),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                tr('info_dialog.quoridouble_rule'),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               Text(
                 tr('info_dialog.victory_condition'),
                 style: TextStyle(fontSize: 16),

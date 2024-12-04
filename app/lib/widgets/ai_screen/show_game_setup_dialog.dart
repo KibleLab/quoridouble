@@ -214,12 +214,12 @@ void showGameSetupDialog(BuildContext context) {
                       );
                     },
                     child: const Text(
-                      'Game Start!',
+                      'ai_screen.start',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
-                    ),
+                    ).tr(),
                   ),
                 ],
               ),
