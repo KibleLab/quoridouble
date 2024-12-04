@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/ai/index.dart';
@@ -24,7 +26,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
-  final String title = 'AI 2-way Game';
+  final String title = 'AI Game';
   final int _blockCounter = 9;
   late int level;
   late int isOrder;
@@ -92,47 +94,65 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
     /// ********************************************
 
     // AI의 turn
+
+    // compute에서 실행될 함수
+    int actionLevelWorker(Map<String, dynamic> args) {
+      GameState gameState = args['gameState'];
+      int level = args['level'];
+      return actionLevel(gameState, level);
+    }
+
+    // actionLevel 비동기 실행
+    Future<int> computeActionLevel(GameState gameState, int level) async {
+      return await compute(
+          actionLevelWorker, {'gameState': gameState, 'level': level});
+    }
+
     if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
-      Future.delayed(Duration(seconds: 1), () {
-        setState(() {
-          int action = actionLevel(gameState, level);
-          gameState = gameState.next(action);
-          user1 = gameState.user1Pos(isFirst);
-          user2 = gameState.user2Pos((isFirst));
+      Future.delayed(Duration(seconds: 1), () async {
+        // actionLevel을 compute에서 실행
+        int action = await computeActionLevel(gameState, level);
 
-          if (action >= 12 && action <= 139) {
-            bool isHorizontalWall = action > 75;
-            action -= isHorizontalWall ? 75 : 11;
+        if (mounted) {
+          setState(() {
+            gameState = gameState.next(action);
+            user1 = gameState.user1Pos(isFirst);
+            user2 = gameState.user2Pos(isFirst);
 
-            int quotient = action ~/ 8;
-            int remainder = action % 8;
+            if (action >= 12 && action <= 139) {
+              bool isHorizontalWall = action > 75;
+              action -= isHorizontalWall ? 75 : 11;
 
-            int x = (remainder != 0) ? 2 * remainder - 2 : 14;
-            int y = 2 * quotient + (remainder != 0 ? 1 : -1);
+              int quotient = action ~/ 8;
+              int remainder = action % 8;
 
-            if (isHorizontalWall) {
-              int temp = x;
-              x = y;
-              y = temp;
+              int x = (remainder != 0) ? 2 * remainder - 2 : 14;
+              int y = 2 * quotient + (remainder != 0 ? 1 : -1);
 
-              y += 2;
-              x = 16 - x;
-              y = 16 - y;
+              if (isHorizontalWall) {
+                int temp = x;
+                x = y;
+                y = temp;
 
-              String col = (x ~/ 2 + x % 2).toString();
-              String row = String.fromCharCode(65 + y ~/ 2);
-              wall.add(col + row);
-            } else {
-              x += 2;
-              x = 16 - x;
-              y = 16 - y;
+                y += 2;
+                x = 16 - x;
+                y = 16 - y;
 
-              String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
-              String col = (x ~/ 2 + 1).toString();
-              wall.add(row + col);
+                String col = (x ~/ 2 + x % 2).toString();
+                String row = String.fromCharCode(65 + y ~/ 2);
+                wall.add(col + row);
+              } else {
+                x += 2;
+                x = 16 - x;
+                y = 16 - y;
+
+                String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
+                String col = (x ~/ 2 + 1).toString();
+                wall.add(row + col);
+              }
             }
-          }
-        });
+          });
+        }
       });
     }
 
@@ -671,14 +691,19 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
-                child: Text('Walls ${gameState.getUser2WallCount((isFirst))}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: const Color.fromARGB(255, 255, 0, 0),
-                    )),
+                child: Text(
+                  'Walls ${gameState.getUser2WallCount((isFirst))}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: gameState.isCurrentTurn(1 - isFirst)
+                        ? const Color.fromARGB(255, 255, 0, 0) // 불투명
+                        : const Color.fromARGB(128, 255, 0, 0), // 50% 투명
+                  ),
+                ),
               ),
             ),
-            //  좌측 상단
+
+            //  좌측 하단
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 +
@@ -688,11 +713,15 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
-                child: Text('Walls ${gameState.getUser1WallCount((isFirst))}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: const Color.fromARGB(255, 255, 0, 0),
-                    )),
+                child: Text(
+                  'Walls ${gameState.getUser1WallCount((isFirst))}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: gameState.isCurrentTurn(isFirst)
+                        ? const Color.fromARGB(255, 255, 0, 0) // 불투명
+                        : const Color.fromARGB(128, 255, 0, 0), // 50% 투명
+                  ),
+                ),
               ),
             ),
 

@@ -27,7 +27,7 @@ class RoomScreenState extends State<RoomScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
-  final String title = 'PVP 2-way Game';
+  final String title = 'PVP Game';
   final int _blockCounter = 9;
 
   late int isFirst = widget.isFirst;

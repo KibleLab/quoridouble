@@ -7,9 +7,9 @@ int actionLevel(GameState state, int level) {
   if (level == 1) {
     return alphaBetaAction(state, 1, pruningVersion: 1);
   } else if (level == 2) {
-    return alphaBetaAction(state, 1, pruningVersion: 2);
-  } else if (level == 3) {
     return alphaBetaAction(state, 1);
+  } else if (level == 3) {
+    return alphaBetaAction(state, 2);
   } else {
     return alphaBetaAction(state, 1);
   }
