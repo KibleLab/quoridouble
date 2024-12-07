@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:quoridouble/utils/ai/alpha_beta.dart';
+import 'package:quoridouble/utils/AI/alpha_beta.dart';
 import 'package:quoridouble/utils/game.dart';
 
 int actionLevel(GameState state, int level) {
