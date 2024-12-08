@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class GamePauseDialog extends StatelessWidget {
@@ -38,12 +39,12 @@ class GamePauseDialog extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
-            child: Text('Pause'),
+            child: Text('ai_screen.pause').tr(),
           ),
           const SizedBox(height: 20),
-          _buildButton('Rematch', onRematch),
+          _buildButton('ai_screen.rematch', onRematch),
           const SizedBox(height: 12),
-          _buildButton('Exit', onExit),
+          _buildButton('ai_screen.exit', onExit),
         ],
       ),
     );
@@ -71,7 +72,7 @@ class GamePauseDialog extends StatelessWidget {
             fontWeight: FontWeight.w500,
             color: Colors.black87,
           ),
-        ),
+        ).tr(),
       ),
     );
   }

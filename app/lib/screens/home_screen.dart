@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quoridouble/widgets/ai_screen/show_game_setup_dialog.dart';
 import 'package:quoridouble/widgets/pvp_screen/match_dialog.dart';
 import 'package:quoridouble/widgets/pvp_screen/show_network_dialog.dart';
+import 'package:quoridouble/widgets/show_language_dialog.dart';
 import 'package:quoridouble/widgets/show_info.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -102,7 +103,7 @@ class DraggableContainersState extends State<HomeScreen> {
                 semanticsLabel: 'AI Game Icon',
               ),
               Text(
-                'AI 2-Way',
+                'AI Game',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -118,6 +119,8 @@ class DraggableContainersState extends State<HomeScreen> {
           onTap: () async {
             final List<ConnectivityResult> connectivityResult =
                 await (Connectivity().checkConnectivity());
+
+            if (!mounted) return;
 
             if (connectivityResult.contains(ConnectivityResult.mobile) ||
                 connectivityResult.contains(ConnectivityResult.wifi)) {
@@ -142,7 +145,7 @@ class DraggableContainersState extends State<HomeScreen> {
                 semanticsLabel: 'PvP Game Icon',
               ),
               Text(
-                'PvP 2-Way',
+                'PvP Game',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -187,7 +190,13 @@ class DraggableContainersState extends State<HomeScreen> {
               onPressed: () {
                 showInfo(context);
               },
-            )
+            ),
+            IconButton(
+              icon: Icon(Icons.public_rounded), // 지구본 아이콘
+              onPressed: () {
+                showLanguageDialog(context);
+              },
+            ),
           ],
         ),
         body: Center(

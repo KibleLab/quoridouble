@@ -1,0 +1,12 @@
+[package]
+name = "quoridor-core"
+version = "0.1.0"
+edition = "2021"
+description = ""
+license = "MIT"
+authors = ["Jungi Kim <rwr9857@gmail.com>"]
+
+[dependencies]
+grid_util = "0.1"
+grid_pathfinding = "0.2.1"
+rand = "0.8"

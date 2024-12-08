@@ -1,5 +1,5 @@
 // 알파베타법을 활용한 상태 가치 계산
-import 'package:quoridouble/utils/ai/index.dart';
+import 'package:quoridouble/utils/AI/index.dart';
 import 'package:quoridouble/utils/game.dart';
 
 double alphaBeta(GameState state, double alpha, double beta, int depth,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:quoridouble/screens/pvp_screen.dart';
@@ -115,7 +116,7 @@ class _MatchDialogState extends State<MatchDialog> {
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-          child: Text('PvP 2-way Game'),
+          child: Text('PvP Game'),
         ),
         const SizedBox(height: 20),
         _buildButton('Random Match', _handleRandomMatch),
@@ -159,7 +160,7 @@ class _MatchDialogState extends State<MatchDialog> {
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-          child: Text('PvP 2-way Game'),
+          child: Text('PvP Game'),
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -243,13 +244,13 @@ class _AnimatedLoadingTextState extends State<AnimatedLoadingText>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const DefaultTextStyle(
+        DefaultTextStyle(
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
             color: Colors.black87,
           ),
-          child: Text('게임을 찾는중'),
+          child: Text('pvp_screen.search').tr(),
         ),
         SizedBox(
           width: 24, // 점들을 위한 고정된 너비

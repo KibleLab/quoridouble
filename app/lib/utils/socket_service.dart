@@ -1,8 +1,8 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SocketService {
-  IO.Socket? socket;
+  io.Socket? socket;
   static final SocketService _instance = SocketService._internal();
 
   factory SocketService() {
@@ -12,11 +12,12 @@ class SocketService {
   SocketService._internal();
 
   void connect() {
-    socket = IO.io('${dotenv.env['SERVER_URL']}/room', <String, dynamic>{
+    socket = io.io('${dotenv.env['SERVER_URL']}/room', <String, dynamic>{
       'transports': ['websocket'],
       'path': '/socket.io',
       'autoConnect': true,
       'reconnection': true,
+      'auth': {'code': '${dotenv.env['SERVER_CODE']}'},
     });
 
     // 연결 시 이벤트 리스너 설정

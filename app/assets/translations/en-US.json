@@ -1,0 +1,40 @@
+{
+  "ai_screen": {
+    "order": "Set Play Order",
+    "difficulty": "Select Difficulty",
+    "start": "Game Start!",
+    "pause": "Pause",
+    "rematch": "Rematch",
+    "exit": "Exit"
+  },
+  "pvp_screen": {
+    "search": "Searching for a game"
+  },
+  "info_dialog": {
+    "info_title": "Information",
+    "quoridouble_rule": "Rules of the Quoridor",
+    "victory_condition": "The first player to reach the opposite side wins.",
+    "turn_choice": "On your turn, choose one of the following two actions.",
+    "move_piece": "1. Move the piece",
+    "move_piece_details": "- Move 1 square in any direction (up, down, left, or right), but you cannot move if blocked by a wall.\n\n- If your piece is next to the opponent's piece in the direction you wish to move, you can jump over their piece and continue forward.\n\n- If your piece is next to the opponent's piece and there is a wall behind the opponent, you can move diagonally.",
+    "place_wall": "2. Place a wall",
+    "place_wall_details": "(However, you should never eliminate a route to the other side, for example, by walling off your opponent or yourself.)",
+    "quoridouble_manual": "Quoridouble Manual",
+    "manual_item_1": "1. White is the first player, and Black is the last player.",
+    "manual_item_2": "2. The bottom side is your side, and the top side is the opponent's side.",
+    "manual_item_3": "3. Your remaining walls are displayed at the bottom.",
+    "manual_item_4": "4. The opponent's remaining walls are displayed at the top.",
+    "manual_item_5": "5. Click the arrow to move your piece.",
+    "manual_item_6": "6. Dragging the board area horizontally or vertically will place a translucent wall in that area.",
+    "manual_item_7": "7. When a translucent wall is placed, player movement and dragging are disabled.",
+    "manual_item_8": "8. The translucent wall disappears when clicking on another area of the board.",
+    "manual_item_9": "9. Clicking the translucent wall again will place an actual wall.",
+    "close": "Close"
+  },
+  "net_err": {
+    "title": "Network Error",
+    "content": "No network connection detected. Please connect and try again.",
+    "OK": "OK"
+  },
+  "Select Language": "Select Language"
+}

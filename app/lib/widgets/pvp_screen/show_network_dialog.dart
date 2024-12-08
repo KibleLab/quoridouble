@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 void showNetworkDialog(BuildContext context) {
@@ -6,14 +7,14 @@ void showNetworkDialog(BuildContext context) {
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('네트워크 오류'),
-        content: Text('네트워크 연결이 되어 있지 않습니다. 연결 후 다시 시도하세요.'),
+        title: Text('net_err.title').tr(),
+        content: Text('net_err.content').tr(),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('확인'),
+            child: Text('net_err.OK').tr(),
           ),
         ],
       );
