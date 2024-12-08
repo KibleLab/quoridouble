@@ -23,9 +23,33 @@ void showLanguageDialog(BuildContext context) {
             ),
             ListTile(
               leading: const Icon(Icons.language),
+              title: const Text('日本語'),
+              onTap: () {
+                context.setLocale(Locale('ja', 'JP'));
+                Navigator.of(context).pop();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
               title: const Text('한국어'),
               onTap: () {
                 context.setLocale(Locale('ko', 'KR'));
+                Navigator.of(context).pop();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text('Россия'),
+              onTap: () {
+                context.setLocale(Locale('ru', 'RU'));
+                Navigator.of(context).pop();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text('中文'),
+              onTap: () {
+                context.setLocale(Locale('zh', 'CN'));
                 Navigator.of(context).pop();
               },
             ),
