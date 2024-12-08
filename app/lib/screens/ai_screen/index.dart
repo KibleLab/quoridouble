@@ -3,19 +3,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quoridouble/screens/ai_screen/widgets/board_interaction.dart';
-import 'package:quoridouble/screens/ai_screen/widgets/board_tile.dart';
-import 'package:quoridouble/screens/ai_screen/widgets/player_pin.dart';
-import 'package:quoridouble/screens/ai_screen/widgets/wall_temp.dart';
+import 'package:quoridouble/widgets/gameboard/components1/game_grid.dart';
+import 'package:quoridouble/widgets/gameboard/components2/legal_moves.dart';
+import 'package:quoridouble/widgets/gameboard/components2/player_pins.dart';
+import 'package:quoridouble/widgets/gameboard/components2/walls.dart';
+import 'package:quoridouble/widgets/gameboard/components1/board_interaction.dart';
+import 'package:quoridouble/widgets/gameboard/components1/wall_temp.dart';
 import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/AI/index.dart';
 import 'package:quoridouble/utils/game.dart';
-import 'package:quoridouble/widgets/line_painter.dart';
+import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
 import 'package:quoridouble/widgets/ai_screen/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/ai_screen/game_result_dialog.dart';
-
-import 'widgets/wall_widget.dart';
 
 class QuoridoubleAIScreen extends StatefulWidget {
   final int level;
@@ -37,9 +36,9 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
   late int isOrder;
   late int isFirst;
 
-  /// ********************************************
-  /// game 핵심 속성
-  /// ********************************************
+  /// ****************************************************************************************
+  /// game 핵심 속성과 페이지 초기화
+  /// ****************************************************************************************
 
   late GameState gameState;
   late List<int> user1;
@@ -89,19 +88,9 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
 
     LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
 
-    // 회전 각도를 계산하는 함수를 추가함.
-    double getRotationAngle(List<int> target) {
-      final int x = target[0];
-      final int y = target[1];
-
-      return (atan2(y, -x) + 2 * pi) % (2 * pi);
-    }
-
-    /// ********************************************
-    /// game 핵심 기능
-    /// ********************************************
-
-    // AI의 turn
+    /// ****************************************************************************************
+    /// AI의 turn
+    /// ****************************************************************************************
 
     // compute에서 실행될 함수
     int actionLevelWorker(Map<String, dynamic> args) {
@@ -163,6 +152,10 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
         }
       });
     }
+
+    /// ****************************************************************************************
+    /// 보드판과 gameState 간의 상호작용 함수
+    /// ****************************************************************************************
 
     List<int> eventToIndex(Offset event) {
       double boundary = cellSize + spacing;
@@ -363,7 +356,9 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
       }
     }
 
-    /// ********************************************
+    /// ****************************************************************************************
+    /// background and appbar
+    /// ****************************************************************************************
 
     return Stack(children: <Widget>[
       Container(
@@ -430,6 +425,11 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
               ),
             ],
           ),
+
+          /// ****************************************************************************************
+          /// board widget
+          /// ****************************************************************************************
+
           body: Stack(children: [
             Center(
               child: Container(
@@ -446,65 +446,27 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                 padding: EdgeInsets.all(spacing), // 내부 여백
                 child: Stack(
                   children: [
-                    GridView.count(
-                      physics: const NeverScrollableScrollPhysics(), // 스크롤 비활성화
-                      crossAxisCount: 9,
-                      mainAxisSpacing: spacing,
-                      crossAxisSpacing: spacing,
-                      children: List.generate(9 * 9, (index) {
-                        return const BoardTile();
-                      }),
-                    ),
-
-                    CustomPaint(
-                      painter: painter,
-                    ),
-
-                    for (String wallInfo in wall)
-                      WallWidget(
-                        wallInfo: wallInfo,
-                        cellSize: cellSize,
-                        spacing: spacing,
-                      ),
-
-                    PlayerPin(
-                      position: user1,
+                    GameGrid(spacing: spacing),
+                    CustomPaint(painter: painter),
+                    Walls(wall: wall, cellSize: cellSize, spacing: spacing),
+                    PlayerPins(
+                      user1: user1,
+                      user2: user2,
                       cellSize: cellSize,
                       spacing: spacing,
-                      assetPath: isFirst == 0
-                          ? 'assets/images/white_pin.svg'
-                          : 'assets/images/black_pin.svg',
-                    ),
-                    PlayerPin(
-                      position: user2,
-                      cellSize: cellSize,
-                      spacing: spacing,
-                      assetPath: isFirst == 1
-                          ? 'assets/images/white_pin.svg'
-                          : 'assets/images/black_pin.svg',
+                      isFirst: isFirst,
                     ),
 
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() &&
                         gameState.isCurrentTurn(isFirst) &&
                         wallTemp.isEmpty)
-                      for (List<int> target in gameState.legalMoves())
-                        Positioned(
-                            top: (target[0] ~/ 2 + user1[0]) *
-                                (cellSize + spacing),
-                            left: (target[1] ~/ 2 + user1[1]) *
-                                (cellSize + spacing),
-                            width: cellSize,
-                            height: cellSize,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Transform.rotate(
-                                angle: getRotationAngle(target),
-                                child: SvgPicture.asset(
-                                  'assets/images/up_circle.svg',
-                                ),
-                              ),
-                            )),
+                      LegalMoves(
+                        gameState: gameState,
+                        user1: user1,
+                        cellSize: cellSize,
+                        spacing: spacing,
+                      ),
 
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
@@ -596,6 +558,10 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                 ),
               ),
             ),
+
+            /// ****************************************************************************************
+            /// pause dialog
+            /// ****************************************************************************************
 
             if (gameState.isLose())
               Builder(

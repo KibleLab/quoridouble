@@ -1,11 +1,14 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:quoridouble/widgets/gameboard/components2/legal_moves.dart';
+import 'package:quoridouble/widgets/gameboard/components2/player_pins.dart';
+import 'package:quoridouble/widgets/gameboard/components2/walls.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/utils/socket_service.dart';
+import 'package:quoridouble/widgets/gameboard/components1/board_interaction.dart';
+import 'package:quoridouble/widgets/gameboard/components1/game_grid.dart';
+import 'package:quoridouble/widgets/gameboard/components1/wall_temp.dart';
 import 'package:quoridouble/widgets/pvp_screen/game_pause_dialog.dart';
-import 'package:quoridouble/widgets/line_painter.dart';
+import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
 import 'package:quoridouble/widgets/pvp_screen/game_result_dialog.dart';
 import 'home_screen.dart';
 
@@ -28,7 +31,6 @@ class RoomScreenState extends State<RoomScreen> {
   Offset? endPoint;
 
   final String title = 'PVP Game';
-  final int _blockCounter = 9;
 
   late int isFirst = widget.isFirst;
   late SocketService socketService = widget.socketService;
@@ -160,17 +162,9 @@ class RoomScreenState extends State<RoomScreen> {
 
     LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
 
-    // 회전 각도를 계산하는 함수를 추가함.
-    double getRotationAngle(List<int> target) {
-      final int x = target[0];
-      final int y = target[1];
-
-      return (atan2(y, -x) + 2 * pi) % (2 * pi);
-    }
-
-    /// ********************************************
-    /// game 핵심 기능
-    /// ********************************************
+    /// ****************************************************************************************
+    /// 보드판과 gameState 간의 상호작용 함수
+    /// ****************************************************************************************
 
     List<int> eventToIndex(Offset event) {
       double boundary = cellSize + spacing;
@@ -374,7 +368,9 @@ class RoomScreenState extends State<RoomScreen> {
       }
     }
 
-    /// ********************************************
+    /// ****************************************************************************************
+    /// background and appbar
+    /// ****************************************************************************************
 
     return Stack(children: <Widget>[
       Container(
@@ -424,6 +420,11 @@ class RoomScreenState extends State<RoomScreen> {
               )
             ],
           ),
+
+          /// ****************************************************************************************
+          /// board widget
+          /// ****************************************************************************************
+
           body: Stack(children: [
             Center(
               child: Container(
@@ -440,244 +441,70 @@ class RoomScreenState extends State<RoomScreen> {
                 padding: EdgeInsets.all(spacing), // 내부 여백
                 child: Stack(
                   children: [
-                    GridView.count(
-                      physics: NeverScrollableScrollPhysics(), // 스크롤 비활성화
-                      crossAxisCount: _blockCounter,
-                      mainAxisSpacing: spacing,
-                      crossAxisSpacing: spacing,
-                      children:
-                          List.generate(_blockCounter * _blockCounter, (index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 237, 237, 237),
-                            borderRadius: BorderRadius.circular(2.5),
-                          ),
-                        );
-                      }),
+                    GameGrid(spacing: spacing),
+                    CustomPaint(painter: painter),
+                    Walls(wall: wall, cellSize: cellSize, spacing: spacing),
+                    PlayerPins(
+                      user1: user1,
+                      user2: user2,
+                      cellSize: cellSize,
+                      spacing: spacing,
+                      isFirst: isFirst,
                     ),
-
-                    CustomPaint(
-                      painter: painter,
-                    ),
-
-                    for (String wallInfo in wall)
-                      Builder(builder: (BuildContext context) {
-                        // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
-                        bool isHorizontalWall =
-                            wallInfo[0].contains(RegExp(r'[0-9]'));
-
-                        int topCon = isHorizontalWall
-                            ? int.parse(wallInfo[0])
-                            : int.parse(wallInfo[1]);
-
-                        int leftCon = isHorizontalWall
-                            ? wallInfo[1].codeUnitAt(0) - 'A'.codeUnitAt(0)
-                            : wallInfo[0].codeUnitAt(0) - 'A'.codeUnitAt(0);
-
-                        final double top = isHorizontalWall
-                            ? topCon * cellSize + spacing * (topCon - 1)
-                            : (topCon - 1) * (cellSize + spacing);
-
-                        final double left = isHorizontalWall
-                            ? leftCon * (cellSize + spacing)
-                            : (leftCon + 1) * cellSize + spacing * leftCon;
-
-                        return Positioned(
-                          top: top,
-                          left: left,
-                          child: Container(
-                            width: isHorizontalWall
-                                ? 2 * cellSize + spacing
-                                : spacing,
-                            height: isHorizontalWall
-                                ? spacing
-                                : 2 * cellSize + spacing,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 255, 127, 80),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        );
-                      }),
-
-                    AnimatedPositioned(
-                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
-                        curve: Curves.easeInOut, // 애니메이션 곡선
-                        top: user1[0] * (cellSize + spacing),
-                        left: user1[1] * (cellSize + spacing),
-                        width: cellSize,
-                        height: cellSize,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            isFirst == 0
-                                ? 'assets/images/white_pin.svg'
-                                : 'assets/images/black_pin.svg',
-                          ),
-                        )),
-                    AnimatedPositioned(
-                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
-                        curve: Curves.easeInOut, // 애니메이션 곡선
-                        top: user2[0] * (cellSize + spacing),
-                        left: user2[1] * (cellSize + spacing),
-                        width: cellSize,
-                        height: cellSize,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            isFirst == 1
-                                ? 'assets/images/white_pin.svg'
-                                : 'assets/images/black_pin.svg',
-                          ),
-                        )),
 
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() &&
                         gameState.isCurrentTurn(isFirst) &&
                         wallTemp.isEmpty)
-                      for (List<int> target in gameState.legalMoves())
-                        Positioned(
-                            top: (target[0] ~/ 2 + user1[0]) *
-                                (cellSize + spacing),
-                            left: (target[1] ~/ 2 + user1[1]) *
-                                (cellSize + spacing),
-                            width: cellSize,
-                            height: cellSize,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Transform.rotate(
-                                angle: getRotationAngle(target),
-                                child: SvgPicture.asset(
-                                  'assets/images/up_circle.svg',
-                                ),
-                              ),
-                            )),
+                      LegalMoves(
+                        gameState: gameState,
+                        user1: user1,
+                        cellSize: cellSize,
+                        spacing: spacing,
+                      ),
 
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
-                      GestureDetector(
-                        // 비어있는 영역도 터치가 가능하도록 함
-                        behavior: HitTestBehavior.opaque,
-                        onTapUp: wallTemp.isEmpty
-                            ? null
-                            : (details) {
-                                setState(() {
-                                  wallTemp = ""; // wallTemp를 빈 문자열로 지우기
-                                });
-                              },
-                        onPanStart: wallTemp.isEmpty
-                            ? (details) {
-                                setState(() {
-                                  startPoint = details.localPosition;
-                                  endPoint = null;
-                                });
-                              }
-                            : null,
-                        onPanUpdate: (details) {
-                          if (details.localPosition.dx >= 0 &&
-                              details.localPosition.dx <= screenWidth - 36 &&
-                              details.localPosition.dy >= 0 &&
-                              details.localPosition.dy <= screenWidth - 36 &&
-                              gameState.getUser1WallCount((isFirst)) > 0) {
-                            double distance =
-                                (startPoint! - details.localPosition).distance;
-                            setState(() {
-                              if (distance > 5) {
-                                endPoint = details.localPosition;
-                              }
-                            });
-                          }
+                      BoardInteraction(
+                        tempWall: wallTemp,
+                        screenWidth: screenWidth,
+                        startPoint: startPoint,
+                        endPoint: endPoint,
+                        emptyTempWall: () => setState(() {
+                          wallTemp = "";
+                        }),
+                        setPoint: (start, end) {
+                          print("setPoint called: start=$start, end=$end");
+                          setState(() {
+                            startPoint = start;
+                            endPoint = end;
+                          });
                         },
-                        onPanEnd: wallTemp.isEmpty
-                            ? (details) {
-                                // startPoint가 null이 아닌지 확인
-                                if (startPoint != null) {
-                                  if (endPoint == null) {
-                                    setPlayer(startPoint!); // 플레이어 설정
-                                  } else {
-                                    Offset? finalEndPoint =
-                                        painter.restrictedEnd;
-
-                                    // finalEndPoint가 null이 아닌지 확인
-                                    if (finalEndPoint != null) {
-                                      setWallTemp(startPoint!,
-                                          finalEndPoint); // 벽 임시 설정
-                                    } else {
-                                      print('finalEndPoint가 null입니다.');
-                                    }
-                                  }
-                                } else {
-                                  print('startPoint가 null입니다.');
-                                }
-
-                                setState(() {
-                                  startPoint = null;
-                                  endPoint = null;
-                                });
-                              }
-                            : null,
+                        userWallCount: gameState.getUser1WallCount(isFirst),
+                        onPanUpdate: (distance, details) => setState(() {
+                          if (distance > 5) {
+                            endPoint = details;
+                          }
+                        }),
+                        setPlayer: (startPoint) => setState(() {
+                          setPlayer(startPoint);
+                        }),
+                        setWallTemp: (startPoint, endPoint) => setState(() {
+                          setWallTemp(startPoint, endPoint); // 벽 임시 설정
+                        }),
+                        resetPoint: () => setState(() {
+                          startPoint = null;
+                          endPoint = null;
+                        }),
                       ),
 
-                    // wall temp 영역
-                    Builder(builder: (BuildContext context) {
-                      // wallTemp가 빈 문자열이면 아무것도 반환하지 않음
-                      if (wallTemp.isEmpty) {
-                        return SizedBox.shrink(); // 빈 공간(아무것도 렌더링하지 않음)을 반환
-                      }
-
-                      // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
-                      bool isHorizontalWall =
-                          wallTemp[0].contains(RegExp(r'[0-9]'));
-
-                      int topCon = isHorizontalWall
-                          ? int.parse(wallTemp[0])
-                          : int.parse(wallTemp[1]);
-
-                      int leftCon = isHorizontalWall
-                          ? wallTemp[1].codeUnitAt(0) - 'A'.codeUnitAt(0)
-                          : wallTemp[0].codeUnitAt(0) - 'A'.codeUnitAt(0);
-
-                      final double top = isHorizontalWall
-                          ? topCon * cellSize + spacing * (topCon - 1)
-                          : (topCon - 1) * (cellSize + spacing);
-
-                      final double left = isHorizontalWall
-                          ? leftCon * (cellSize + spacing)
-                          : (leftCon + 1) * cellSize + spacing * leftCon;
-
-                      double touchMargin = cellSize / 2;
-
-                      return Positioned(
-                          // 터치 영역을 넓히는 마진만큼 제외
-                          top: top - (isHorizontalWall ? touchMargin : 0),
-                          left: left - (isHorizontalWall ? 0 : touchMargin),
-                          child: GestureDetector(
-                            // 비어있는 영역도 터치가 가능하도록 함
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              setWall();
-                            },
-                            child: Container(
-                              width: isHorizontalWall
-                                  ? 2 * cellSize + spacing
-                                  : spacing,
-                              height: isHorizontalWall
-                                  ? spacing
-                                  : 2 * cellSize + spacing,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 255, 127, 80)
-                                    .withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              margin: EdgeInsets.only(
-                                top: isHorizontalWall ? touchMargin : 0,
-                                bottom: isHorizontalWall ? touchMargin : 0,
-                                left: isHorizontalWall ? 0 : touchMargin,
-                                right: isHorizontalWall ? 0 : touchMargin,
-                              ),
-                            ),
-                          ));
-                    }),
+                    WallTemp(
+                      wallTemp: wallTemp,
+                      cellSize: cellSize,
+                      spacing: spacing,
+                      touchMargin: cellSize / 2,
+                      onTap: setWall,
+                    ),
                   ],
                 ),
               ),
@@ -717,6 +544,10 @@ class RoomScreenState extends State<RoomScreen> {
                     )),
               ),
             ),
+
+            /// ****************************************************************************************
+            /// dialog
+            /// ****************************************************************************************
 
             if (gameState.isLose())
               Builder(
