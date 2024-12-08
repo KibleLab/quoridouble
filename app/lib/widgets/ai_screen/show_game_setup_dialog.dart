@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:quoridouble/screens/ai_screen.dart';
+import 'package:quoridouble/screens/ai_screen/index.dart';
 
 void showGameSetupDialog(BuildContext context) {
   int isSelectedOrder = 0;
