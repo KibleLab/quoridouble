@@ -37,12 +37,13 @@ void showInfo(BuildContext context) {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              ...tr('info_dialog.move_piece_details')
-                  .split('\n')
-                  .map((line) => Text(
-                        line,
-                        style: TextStyle(fontSize: 16),
-                      )),
+              for (int i = 1; i <= 3; i++) ...[
+                Text(
+                  tr('info_dialog.move_piece_details_$i'),
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 8), // 각 항목 사이에 간격 추가
+              ],
               SizedBox(height: 16),
               Text(
                 tr('info_dialog.place_wall'),
