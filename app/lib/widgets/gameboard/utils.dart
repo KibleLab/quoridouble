@@ -22,20 +22,6 @@ List<int> eventToIndex(Offset event, double cellSize, double spacing) {
   return [x, y];
 }
 
-int locationToWallIndex(double location, double cellSize, double spacing) {
-  double padding = cellSize / 2;
-  int index = 0;
-
-  for (int i = 1; i <= 8; i++) {
-    if (i * cellSize + (i - 1) * spacing - padding <= location &&
-        location <= i * (cellSize + spacing) + padding) {
-      index = i;
-    }
-  }
-
-  return index;
-}
-
 Map<String, dynamic> setPlayer(Offset event, double cellSize, double spacing,
     List<int> user1, int isFirst, GameState gameState) {
   // 클릭 위치를 행동으로 변환
@@ -47,6 +33,8 @@ Map<String, dynamic> setPlayer(Offset event, double cellSize, double spacing,
 
   bool exists = legalMove
       .any((element) => element[0] == target[0] && element[1] == target[1]);
+
+  int? action;
 
   if (exists) {
     List<List<int>> moves = [
@@ -73,7 +61,7 @@ Map<String, dynamic> setPlayer(Offset event, double cellSize, double spacing,
       return null; // 찾지 못한 경우
     }
 
-    int? action = findIndex(moves, target);
+    action = findIndex(moves, target);
 
     gameState = gameState.next(action!);
   }
@@ -81,9 +69,24 @@ Map<String, dynamic> setPlayer(Offset event, double cellSize, double spacing,
   // gameState, user1, user2를 Map으로 반환
   return {
     'gameState': gameState,
+    'action': action,
     'user1': gameState.user1Pos(isFirst),
     'user2': gameState.user2Pos(isFirst),
   };
+}
+
+int locationToWallIndex(double location, double cellSize, double spacing) {
+  double padding = cellSize / 2;
+  int index = 0;
+
+  for (int i = 1; i <= 8; i++) {
+    if (i * cellSize + (i - 1) * spacing - padding <= location &&
+        location <= i * (cellSize + spacing) + padding) {
+      index = i;
+    }
+  }
+
+  return index;
 }
 
 int locationToWallOtherIndex(double location, double cellSize, double spacing) {
@@ -205,6 +208,12 @@ Map<String, dynamic> setWall(
 
     gameState = gameState.next(action);
     wall.add(wallTemp);
+
+    return {
+      'gameState': gameState,
+      'action': action,
+      'wallTemp': '',
+    };
   }
 
   return {

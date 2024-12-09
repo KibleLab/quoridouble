@@ -311,12 +311,12 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
-                      onTap: () {
+                      onTap: () => setState(() {
                         Map<String, dynamic> result =
                             setWall(wallTemp, wall, gameState);
                         gameState = result['gameState'];
                         wallTemp = result['wallTemp']; // 빈 문자열
-                      },
+                      }),
                     ),
                   ],
                 ),

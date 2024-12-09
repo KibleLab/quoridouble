@@ -7,6 +7,7 @@ import 'package:quoridouble/utils/socket_service.dart';
 import 'package:quoridouble/widgets/gameboard/components1/board_interaction.dart';
 import 'package:quoridouble/widgets/gameboard/components1/game_grid.dart';
 import 'package:quoridouble/widgets/gameboard/components1/wall_temp.dart';
+import 'package:quoridouble/widgets/gameboard/utils.dart';
 import 'package:quoridouble/widgets/pvp_screen/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
 import 'package:quoridouble/widgets/pvp_screen/game_result_dialog.dart';
@@ -163,212 +164,6 @@ class RoomScreenState extends State<RoomScreen> {
     LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
 
     /// ****************************************************************************************
-    /// 보드판과 gameState 간의 상호작용 함수
-    /// ****************************************************************************************
-
-    List<int> eventToIndex(Offset event) {
-      double boundary = cellSize + spacing;
-      int x = 2 * (event.dx ~/ boundary); // 가로
-      int y = 2 * (event.dy ~/ boundary); // 세로
-
-      if (boundary * ((event.dx ~/ boundary) + 1) - event.dx < spacing) {
-        x += 1; // 가로
-      }
-
-      if (boundary * ((event.dy ~/ boundary) + 1) - event.dy < spacing) {
-        y += 1; // 세로
-      }
-
-      return [x, y];
-    }
-
-    void setPlayer(Offset event) {
-      // 클릭 위치를 행동으로 변환
-      List<int> pos = eventToIndex(event);
-
-      List legalMove = gameState.legalMoves();
-
-      List<int> target = [pos[1] - (user1[0] * 2), pos[0] - (user1[1] * 2)];
-
-      bool exists = legalMove
-          .any((element) => element[0] == target[0] && element[1] == target[1]);
-
-      setState(() {
-        if (exists) {
-          List<List<int>> moves = [
-            [-2, 0], // N (인덱스 0)
-            [-2, 2], // NE (인덱스 1)
-            [0, 2], // E (인덱스 2)
-            [2, 2], // SE (인덱스 3)
-            [2, 0], // S (인덱스 4)
-            [2, -2], // SW (인덱스 5)
-            [0, -2], // W (인덱스 6)
-            [-2, -2], // NW (인덱스 7)
-            [-4, 0], // NN (인덱스 8)
-            [0, 4], // EE (인덱스 9)
-            [4, 0], // SS (인덱스 10)
-            [0, -4], // WW (인덱스 11)
-          ];
-
-          int? findIndex(List<List<int>> moves, List<int> target) {
-            for (int i = 0; i < moves.length; i++) {
-              if (moves[i][0] == target[0] && moves[i][1] == target[1]) {
-                return i;
-              }
-            }
-            return null; // 찾지 못한 경우
-          }
-
-          int? action = findIndex(moves, target);
-
-          gameState = gameState.next(action!);
-          user1 = gameState.user1Pos(isFirst);
-          user2 = gameState.user2Pos((isFirst));
-
-          socketService.socket?.emit('gameData', {'action': action});
-        }
-      });
-    }
-
-    int locationToWallIndex(double location) {
-      double padding = cellSize / 2;
-      int index = 0;
-
-      for (int i = 1; i <= 8; i++) {
-        if (i * cellSize + (i - 1) * spacing - padding <= location &&
-            location <= i * (cellSize + spacing) + padding) {
-          index = i;
-        }
-      }
-
-      return index;
-    }
-
-    int locationToWallOtherIndex(double location) {
-      int index = 0;
-
-      for (int i = 1; i <= 9; i++) {
-        if ((i - 1) * (cellSize + spacing) <= location &&
-            location <= (i - 1) * (cellSize + spacing) + cellSize) {
-          index = i;
-        }
-      }
-
-      return index;
-    }
-
-    void setWallTemp(Offset start, Offset end) {
-      // 두 점 사이의 거리 계산
-      double distance = (start - end).distance;
-
-      // 길이가 일정이상 이여야 동작함.
-      if (distance >= cellSize + spacing) {
-        // 세로 직선
-        if (start.dx == end.dx) {
-          int wallIndex = locationToWallIndex(start.dx);
-
-          // X가 범위내에 들어와 있는지 확인
-          if (wallIndex != 0) {
-            String col = String.fromCharCode(64 + wallIndex);
-            // print("vertical index : $col");
-
-            if (start.dy > end.dy) {
-              // print('세로: 아래에서 위로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dy - spacing);
-              String row = (wallOtherIndex - 1).toString();
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * (wallOtherIndex - 2), 2 * wallIndex - 1);
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = col + row;
-                }
-              }
-            } else if (start.dy < end.dy) {
-              // print('세로: 위에서 아래로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dy + spacing);
-              String row = wallOtherIndex.toString();
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * (wallOtherIndex - 1), 2 * wallIndex - 1);
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = col + row;
-                }
-              }
-            }
-          }
-        }
-
-        // 가로 직선
-        if (start.dy == end.dy) {
-          int wallIndex = locationToWallIndex(start.dy);
-
-          // Y가 범위내에 들어와 있는지 확인
-          if (wallIndex != 0) {
-            String row = wallIndex.toString();
-            // print("horizontal index : $wallIndex");
-
-            if (start.dx > end.dx) {
-              // print('가로: 오른쪽에서 왼쪽으로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dx - spacing);
-              String col = String.fromCharCode(64 + wallOtherIndex - 1);
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * wallIndex - 1, 2 * (wallOtherIndex - 2));
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = row + col;
-                }
-              }
-            } else if (start.dx < end.dx) {
-              // print('가로: 왼쪽에서 오른쪽으로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dx + spacing);
-              String col = String.fromCharCode(64 + wallOtherIndex);
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * wallIndex - 1, 2 * (wallOtherIndex - 1));
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = row + col;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    void setWall() {
-      if (wallTemp.isNotEmpty) {
-        // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
-        // true는 가로 false는 세로를 의미함
-        bool isNumber = wallTemp[0].contains(RegExp(r'[0-9]'));
-
-        int x = isNumber
-            ? 2 * int.parse(wallTemp[0]) - 1
-            : 2 * (int.parse(wallTemp[1]) - 1);
-
-        int y = isNumber
-            ? 2 * (wallTemp[1].codeUnitAt(0) - 'A'.codeUnitAt(0))
-            : 2 * (wallTemp[0].codeUnitAt(0) - 'A'.codeUnitAt(0)) + 1;
-
-        int action = gameState.xyToWallAction(x, y);
-
-        setState(() {
-          gameState = gameState.next(action);
-          socketService.socket?.emit('gameData', {'action': action});
-          wall.add(wallTemp);
-          wallTemp = ""; // wallTemp를 빈 문자열로 지우기
-        });
-      }
-    }
-
-    /// ****************************************************************************************
     /// background and appbar
     /// ****************************************************************************************
 
@@ -487,10 +282,20 @@ class RoomScreenState extends State<RoomScreen> {
                           }
                         }),
                         setPlayer: (startPoint) => setState(() {
-                          setPlayer(startPoint);
+                          Map<String, dynamic> result = setPlayer(startPoint,
+                              cellSize, spacing, user1, isFirst, gameState);
+                          gameState = result['gameState'];
+                          user1 = result['user1'];
+                          user2 = result['user2'];
+
+                          if (result['action'] != null) {
+                            socketService.socket?.emit(
+                                'gameData', {'action': result['action']});
+                          }
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
-                          setWallTemp(startPoint, endPoint); // 벽 임시 설정
+                          wallTemp = setWallTemp(startPoint, endPoint, cellSize,
+                              spacing, gameState);
                         }),
                         resetPoint: () => setState(() {
                           startPoint = null;
@@ -503,7 +308,17 @@ class RoomScreenState extends State<RoomScreen> {
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
-                      onTap: setWall,
+                      onTap: () => setState(() {
+                        Map<String, dynamic> result =
+                            setWall(wallTemp, wall, gameState);
+                        gameState = result['gameState'];
+                        wallTemp = result['wallTemp']; // 빈 문자열
+
+                        if (result['action'] != null) {
+                          socketService.socket
+                              ?.emit('gameData', {'action': result['action']});
+                        }
+                      }),
                     ),
                   ],
                 ),
