@@ -14,21 +14,20 @@ import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/AI/index.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
-import 'package:quoridouble/widgets/ai_screen/game_pause_dialog.dart';
-import 'package:quoridouble/widgets/ai_screen/game_result_dialog.dart';
+import 'package:quoridouble/widgets/ai_widgets/game_pause_dialog.dart';
+import 'package:quoridouble/widgets/ai_widgets/game_result_dialog.dart';
 
-class QuoridoubleAIScreen extends StatefulWidget {
+class AIScreen extends StatefulWidget {
   final int level;
   final int isOrder;
 
-  const QuoridoubleAIScreen(
-      {super.key, required this.level, required this.isOrder});
+  const AIScreen({super.key, required this.level, required this.isOrder});
 
   @override
-  QuoridoubleAIScreenState createState() => QuoridoubleAIScreenState();
+  AIScreenState createState() => AIScreenState();
 }
 
-class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
+class AIScreenState extends State<AIScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
@@ -192,7 +191,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                               PageRouteBuilder(
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
-                                        QuoridoubleAIScreen(
+                                        AIScreen(
                                   level: widget.level,
                                   isOrder: widget.isOrder,
                                 ),
@@ -392,7 +391,7 @@ class QuoridoubleAIScreenState extends State<QuoridoubleAIScreen> {
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation,
                                           secondaryAnimation) =>
-                                      QuoridoubleAIScreen(
+                                      AIScreen(
                                     level: widget.level,
                                     isOrder: widget.isOrder,
                                   ),

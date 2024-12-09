@@ -196,7 +196,7 @@ void showGameSetupDialog(BuildContext context) {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  QuoridoubleAIScreen(
+                                  AIScreen(
                             level: isSelectedDifficulty + 1,
                             isOrder: isSelectedOrder,
                           ),

@@ -62,7 +62,7 @@ class _MatchDialogState extends State<MatchDialog> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              RoomScreen(isFirst: isFirst, socketService: _socketService),
+              PvPScreen(isFirst: isFirst, socketService: _socketService),
           transitionDuration: Duration.zero, // 전환 애니메이션 시간 설정
           reverseTransitionDuration: Duration.zero, // 뒤로가기 애니메이션 시간 설정
         ),

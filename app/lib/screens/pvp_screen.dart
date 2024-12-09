@@ -8,26 +8,26 @@ import 'package:quoridouble/widgets/gameboard/components1/board_interaction.dart
 import 'package:quoridouble/widgets/gameboard/components1/game_grid.dart';
 import 'package:quoridouble/widgets/gameboard/components1/wall_temp.dart';
 import 'package:quoridouble/widgets/gameboard/utils.dart';
-import 'package:quoridouble/widgets/pvp_screen/game_pause_dialog.dart';
+import 'package:quoridouble/widgets/pvp_widgets/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
-import 'package:quoridouble/widgets/pvp_screen/game_result_dialog.dart';
+import 'package:quoridouble/widgets/pvp_widgets/game_result_dialog.dart';
 import 'home_screen.dart';
 
-class RoomScreen extends StatefulWidget {
+class PvPScreen extends StatefulWidget {
   final int isFirst;
   final SocketService socketService;
 
-  const RoomScreen({
+  const PvPScreen({
     super.key,
     required this.isFirst,
     required this.socketService,
   });
 
   @override
-  RoomScreenState createState() => RoomScreenState();
+  PvPScreenState createState() => PvPScreenState();
 }
 
-class RoomScreenState extends State<RoomScreen> {
+class PvPScreenState extends State<PvPScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
