@@ -119,70 +119,62 @@ void showGameSetupDialog(BuildContext context) {
                   ).tr(),
                   const SizedBox(height: 8),
                   Container(
-                    height: 44,
+                    height: 120, // 높이 조정
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(10), // 모서리 둥글게
+                      border: Border.all(color: Colors.black, width: 2),
                     ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final buttonWidth = constraints.maxWidth / 3;
-                        return Stack(
-                          children: [
-                            // 애니메이션되는 선택 배경
-                            AnimatedPositioned(
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeInOut,
-                              left: isSelectedDifficulty * buttonWidth,
-                              top: 2,
-                              bottom: 2,
-                              width: buttonWidth,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(30),
-                                  border:
-                                      Border.all(color: Colors.black, width: 2),
-                                ),
-                              ),
-                            ),
-                            // 버튼들
-                            Align(
-                              alignment: Alignment.center, // 텍스트 세로 정렬
-                              child: Row(
-                                children: [
-                                  _buildDifficultyButton(
-                                      onTap: () => setState(
-                                          () => isSelectedDifficulty = 0),
-                                      value: 0,
-                                      label: 'Basic',
-                                      groupValue: isSelectedDifficulty),
-                                  Container(
-                                      width: 1,
-                                      height: 16,
-                                      color: Colors.grey[400]),
-                                  _buildDifficultyButton(
-                                      onTap: () => setState(
-                                          () => isSelectedDifficulty = 1),
-                                      value: 1,
-                                      label: 'Normal',
-                                      groupValue: isSelectedDifficulty),
-                                  Container(
-                                      width: 1,
-                                      height: 16,
-                                      color: Colors.grey[400]),
-                                  _buildDifficultyButton(
-                                      onTap: () => setState(
-                                          () => isSelectedDifficulty = 2),
-                                      value: 2,
-                                      label: 'Hard',
-                                      groupValue: isSelectedDifficulty),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
+                    alignment: Alignment.center, // 내용 가운데 정렬
+                    child: ListWheelScrollView.useDelegate(
+                      physics: FixedExtentScrollPhysics(), // 부드러운 스크롤링
+                      itemExtent: 40, // 각 항목의 높이
+                      onSelectedItemChanged: (index) {
+                        setState(() {
+                          isSelectedDifficulty = index;
+                        });
                       },
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        builder: (context, index) {
+                          final labels = [
+                            'Level - 1',
+                            'Level - 2',
+                            'Level - 3',
+                            'Level - 4',
+                            'Level - 5',
+                          ];
+                          final isSelected = isSelectedDifficulty == index;
+
+                          return AnimatedContainer(
+                            duration:
+                                Duration(milliseconds: 300), // 애니메이션 지속 시간
+                            curve: Curves.easeInOut, // 부드러운 애니메이션 효과
+                            alignment: Alignment.center,
+                            margin:
+                                EdgeInsets.symmetric(vertical: 2), // 항목 간 간격
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.black.withOpacity(0.1)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Text(
+                              labels[index],
+                              style: TextStyle(
+                                fontSize: isSelected ? 20 : 16, // 선택된 항목 크기 변경
+                                color: isSelected
+                                    ? Colors.black
+                                    : Colors.grey, // 선택된 항목 색상 변경
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                        childCount: 5, // 항목 개수
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -232,33 +224,6 @@ void showGameSetupDialog(BuildContext context) {
 }
 
 Widget _buildOrderButton({
-  required VoidCallback onTap,
-  required int value,
-  required String label,
-  required int groupValue,
-}) {
-  final isSelected = groupValue == value;
-
-  return Expanded(
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-            color: Colors.black,
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-Widget _buildDifficultyButton({
   required VoidCallback onTap,
   required int value,
   required String label,
