@@ -46,6 +46,7 @@ class AIScreenState extends State<AIScreen> {
 
   List<String> wall = [];
   String wallTemp = "";
+  int executionTime = 0;
 
   @override
   void initState() {
@@ -106,51 +107,63 @@ class AIScreenState extends State<AIScreen> {
     }
 
     if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
-      Future.delayed(Duration(seconds: 1), () async {
+      handAI() async {
+        DateTime startTime = DateTime.now();
+
         // actionLevel을 compute에서 실행
         int action = await computeActionLevel(gameState, level);
 
-        if (mounted) {
-          setState(() {
-            gameState = gameState.next(action);
-            user1 = gameState.user1Pos(isFirst);
-            user2 = gameState.user2Pos(isFirst);
+        DateTime endTime = DateTime.now();
 
-            if (action >= 12 && action <= 139) {
-              bool isHorizontalWall = action > 75;
-              action -= isHorizontalWall ? 75 : 11;
+        executionTime = endTime.difference(startTime).inMilliseconds;
 
-              int quotient = action ~/ 8;
-              int remainder = action % 8;
+        Future.delayed(Duration(milliseconds: max(0, 500 - executionTime)), () {
+          executionTime += max(0, 500 - executionTime);
 
-              int x = (remainder != 0) ? 2 * remainder - 2 : 14;
-              int y = 2 * quotient + (remainder != 0 ? 1 : -1);
+          if (mounted) {
+            setState(() {
+              gameState = gameState.next(action);
+              user1 = gameState.user1Pos(isFirst);
+              user2 = gameState.user2Pos(isFirst);
 
-              if (isHorizontalWall) {
-                int temp = x;
-                x = y;
-                y = temp;
+              if (action >= 12 && action <= 139) {
+                bool isHorizontalWall = action > 75;
+                action -= isHorizontalWall ? 75 : 11;
 
-                y += 2;
-                x = 16 - x;
-                y = 16 - y;
+                int quotient = action ~/ 8;
+                int remainder = action % 8;
 
-                String col = (x ~/ 2 + x % 2).toString();
-                String row = String.fromCharCode(65 + y ~/ 2);
-                wall.add(col + row);
-              } else {
-                x += 2;
-                x = 16 - x;
-                y = 16 - y;
+                int x = (remainder != 0) ? 2 * remainder - 2 : 14;
+                int y = 2 * quotient + (remainder != 0 ? 1 : -1);
 
-                String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
-                String col = (x ~/ 2 + 1).toString();
-                wall.add(row + col);
+                if (isHorizontalWall) {
+                  int temp = x;
+                  x = y;
+                  y = temp;
+
+                  y += 2;
+                  x = 16 - x;
+                  y = 16 - y;
+
+                  String col = (x ~/ 2 + x % 2).toString();
+                  String row = String.fromCharCode(65 + y ~/ 2);
+                  wall.add(col + row);
+                } else {
+                  x += 2;
+                  x = 16 - x;
+                  y = 16 - y;
+
+                  String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
+                  String col = (x ~/ 2 + 1).toString();
+                  wall.add(row + col);
+                }
               }
-            }
-          });
-        }
-      });
+            });
+          }
+        });
+      }
+
+      handAI();
     }
 
     /// ****************************************************************************************
@@ -344,7 +357,50 @@ class AIScreenState extends State<AIScreen> {
               ),
             ),
 
+            // 우측 상단
+            Positioned(
+              top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
+                  25 -
+                  (screenWidth - 10) / 2 -
+                  20, // 중앙에서 위로 배치
+              right: 10,
+              child: Container(
+                height: 50, // 위젯 높이
+                alignment: Alignment.center,
+                child: Text(
+                  "$executionTime ms",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: gameState.isCurrentTurn(1 - isFirst)
+                        ? const Color.fromARGB(255, 255, 0, 0) // 불투명
+                        : const Color.fromARGB(128, 255, 0, 0), // 50% 투명
+                  ),
+                ),
+              ),
+            ),
+
             //  좌측 하단
+            Positioned(
+              top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
+                  25 +
+                  (screenWidth - 10) / 2 +
+                  20, // 중앙에서 아래로 배치
+              left: 10,
+              child: Container(
+                height: 50, // 위젯 높이
+                alignment: Alignment.center,
+                child: Text(
+                  '00:00',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: gameState.isCurrentTurn(isFirst)
+                        ? const Color.fromARGB(255, 255, 0, 0) // 불투명
+                        : const Color.fromARGB(128, 255, 0, 0), // 50% 투명
+                  ),
+                ),
+              ),
+            ),
+            //  우측 하단
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 +
