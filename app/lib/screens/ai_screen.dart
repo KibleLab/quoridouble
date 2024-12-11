@@ -368,7 +368,7 @@ class AIScreenState extends State<AIScreen> {
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
                 child: Text(
-                  "$executionTime ms",
+                  "Delay $executionTime ms",
                   style: TextStyle(
                     fontSize: 18,
                     color: gameState.isCurrentTurn(1 - isFirst)
@@ -390,7 +390,7 @@ class AIScreenState extends State<AIScreen> {
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
                 child: Text(
-                  '00:00',
+                  'Timer \u221E',
                   style: TextStyle(
                     fontSize: 18,
                     color: gameState.isCurrentTurn(isFirst)
