@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 public class LogAspect {
-  @Pointcut("within(com.quoridouble.api.controllers..*)" + "||"
+  @Pointcut("within(xyz.quoridouble.api.controllers..*)" + "||"
       + "@annotation(xyz.quoridouble.api.annotations.Logger)")
   public void pointcut() {
   }
