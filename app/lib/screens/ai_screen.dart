@@ -382,7 +382,7 @@ class AIScreenState extends State<AIScreen> {
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
                 child: Text(
-                  "Delay $executionTime ms",
+                  "Delay ${(executionTime / 1000).toStringAsFixed(2)} s",
                   style: TextStyle(
                     fontSize: 18,
                     color: gameState.isCurrentTurn(1 - isFirst)
