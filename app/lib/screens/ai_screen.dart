@@ -100,71 +100,85 @@ class AIScreenState extends State<AIScreen> {
       return actionLevel(gameState, level);
     }
 
-    // actionLevel 비동기 실행
-    Future<int> computeActionLevel(GameState gameState, int level) async {
-      return await compute(
-          actionLevelWorker, {'gameState': gameState, 'level': level});
+    // AI의 턴인지 확인하는 메서드
+    bool isAITurn() {
+      return !gameState.isLose() && gameState.isCurrentTurn(1 - isFirst);
     }
 
-    if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
-      handAI() async {
-        DateTime startTime = DateTime.now();
+    void updateGameState(int action) {
+      gameState = gameState.next(action);
+      user1 = gameState.user1Pos(isFirst);
+      user2 = gameState.user2Pos(isFirst);
 
-        // actionLevel을 compute에서 실행
-        int action = await computeActionLevel(gameState, level);
+      // 벽 배치 로직
+      if (action >= 12 && action <= 139) {
+        bool isHorizontalWall = action > 75;
+        action -= isHorizontalWall ? 75 : 11;
 
-        DateTime endTime = DateTime.now();
+        int quotient = action ~/ 8;
+        int remainder = action % 8;
 
-        executionTime = endTime.difference(startTime).inMilliseconds;
+        int x = (remainder != 0) ? 2 * remainder - 2 : 14;
+        int y = 2 * quotient + (remainder != 0 ? 1 : -1);
 
-        Future.delayed(Duration(milliseconds: max(0, 500 - executionTime)), () {
-          executionTime += max(0, 500 - executionTime);
+        if (isHorizontalWall) {
+          int temp = x;
+          x = y;
+          y = temp;
 
-          if (mounted) {
-            setState(() {
-              gameState = gameState.next(action);
-              user1 = gameState.user1Pos(isFirst);
-              user2 = gameState.user2Pos(isFirst);
+          y += 2;
+          x = 16 - x;
+          y = 16 - y;
 
-              if (action >= 12 && action <= 139) {
-                bool isHorizontalWall = action > 75;
-                action -= isHorizontalWall ? 75 : 11;
+          String col = (x ~/ 2 + x % 2).toString();
+          String row = String.fromCharCode(65 + y ~/ 2);
+          wall.add(col + row);
+        } else {
+          x += 2;
+          x = 16 - x;
+          y = 16 - y;
 
-                int quotient = action ~/ 8;
-                int remainder = action % 8;
-
-                int x = (remainder != 0) ? 2 * remainder - 2 : 14;
-                int y = 2 * quotient + (remainder != 0 ? 1 : -1);
-
-                if (isHorizontalWall) {
-                  int temp = x;
-                  x = y;
-                  y = temp;
-
-                  y += 2;
-                  x = 16 - x;
-                  y = 16 - y;
-
-                  String col = (x ~/ 2 + x % 2).toString();
-                  String row = String.fromCharCode(65 + y ~/ 2);
-                  wall.add(col + row);
-                } else {
-                  x += 2;
-                  x = 16 - x;
-                  y = 16 - y;
-
-                  String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
-                  String col = (x ~/ 2 + 1).toString();
-                  wall.add(row + col);
-                }
-              }
-            });
-          }
-        });
+          String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
+          String col = (x ~/ 2 + 1).toString();
+          wall.add(row + col);
+        }
       }
-
-      handAI();
     }
+
+    // AI 행동 처리 메서드
+    void handleAITurn() async {
+      // AI의 턴인지 다시 한 번 확인
+      if (!isAITurn()) return;
+
+      try {
+        final Stopwatch stopwatch = Stopwatch()..start();
+
+        // compute를 통해 AI의 액션 계산
+        int action = await compute(
+            actionLevelWorker, {'gameState': gameState, 'level': level});
+
+        stopwatch.stop();
+        int execution = stopwatch.elapsedMilliseconds;
+
+        // 최소 지연 시간 보장
+        await Future.delayed(Duration(milliseconds: max(0, 500 - execution)));
+
+        // 상태 업데이트
+        setState(() {
+          executionTime = execution;
+          updateGameState(action);
+        });
+      } catch (e) {
+        print('AI 턴 처리 중 오류 발생: $e');
+      }
+    }
+
+    // 위젯 빌드 후 AI 턴 처리
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isAITurn()) {
+        handleAITurn();
+      }
+    });
 
     /// ****************************************************************************************
     /// background and appbar
