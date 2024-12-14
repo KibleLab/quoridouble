@@ -1,34 +1,37 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:quoridouble/widgets/gameboard/components2/legal_moves.dart';
+import 'package:quoridouble/widgets/gameboard/components2/player_pins.dart';
+import 'package:quoridouble/widgets/gameboard/components2/walls.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/utils/socket_service.dart';
-import 'package:quoridouble/widgets/pvp_screen/game_pause_dialog.dart';
-import 'package:quoridouble/widgets/line_painter.dart';
-import 'package:quoridouble/widgets/pvp_screen/game_result_dialog.dart';
+import 'package:quoridouble/widgets/gameboard/components1/board_interaction.dart';
+import 'package:quoridouble/widgets/gameboard/components1/game_grid.dart';
+import 'package:quoridouble/widgets/gameboard/components1/wall_temp.dart';
+import 'package:quoridouble/widgets/gameboard/utils.dart';
+import 'package:quoridouble/widgets/pvp_widgets/game_pause_dialog.dart';
+import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
+import 'package:quoridouble/widgets/pvp_widgets/game_result_dialog.dart';
 import 'home_screen.dart';
 
-class RoomScreen extends StatefulWidget {
+class PvPScreen extends StatefulWidget {
   final int isFirst;
   final SocketService socketService;
 
-  const RoomScreen({
+  const PvPScreen({
     super.key,
     required this.isFirst,
     required this.socketService,
   });
 
   @override
-  RoomScreenState createState() => RoomScreenState();
+  PvPScreenState createState() => PvPScreenState();
 }
 
-class RoomScreenState extends State<RoomScreen> {
+class PvPScreenState extends State<PvPScreen> {
   Offset? startPoint;
   Offset? endPoint;
 
   final String title = 'PVP Game';
-  final int _blockCounter = 9;
 
   late int isFirst = widget.isFirst;
   late SocketService socketService = widget.socketService;
@@ -160,221 +163,9 @@ class RoomScreenState extends State<RoomScreen> {
 
     LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
 
-    // 회전 각도를 계산하는 함수를 추가함.
-    double getRotationAngle(List<int> target) {
-      final int x = target[0];
-      final int y = target[1];
-
-      return (atan2(y, -x) + 2 * pi) % (2 * pi);
-    }
-
-    /// ********************************************
-    /// game 핵심 기능
-    /// ********************************************
-
-    List<int> eventToIndex(Offset event) {
-      double boundary = cellSize + spacing;
-      int x = 2 * (event.dx ~/ boundary); // 가로
-      int y = 2 * (event.dy ~/ boundary); // 세로
-
-      if (boundary * ((event.dx ~/ boundary) + 1) - event.dx < spacing) {
-        x += 1; // 가로
-      }
-
-      if (boundary * ((event.dy ~/ boundary) + 1) - event.dy < spacing) {
-        y += 1; // 세로
-      }
-
-      return [x, y];
-    }
-
-    void setPlayer(Offset event) {
-      // 클릭 위치를 행동으로 변환
-      List<int> pos = eventToIndex(event);
-
-      List legalMove = gameState.legalMoves();
-
-      List<int> target = [pos[1] - (user1[0] * 2), pos[0] - (user1[1] * 2)];
-
-      bool exists = legalMove
-          .any((element) => element[0] == target[0] && element[1] == target[1]);
-
-      setState(() {
-        if (exists) {
-          List<List<int>> moves = [
-            [-2, 0], // N (인덱스 0)
-            [-2, 2], // NE (인덱스 1)
-            [0, 2], // E (인덱스 2)
-            [2, 2], // SE (인덱스 3)
-            [2, 0], // S (인덱스 4)
-            [2, -2], // SW (인덱스 5)
-            [0, -2], // W (인덱스 6)
-            [-2, -2], // NW (인덱스 7)
-            [-4, 0], // NN (인덱스 8)
-            [0, 4], // EE (인덱스 9)
-            [4, 0], // SS (인덱스 10)
-            [0, -4], // WW (인덱스 11)
-          ];
-
-          int? findIndex(List<List<int>> moves, List<int> target) {
-            for (int i = 0; i < moves.length; i++) {
-              if (moves[i][0] == target[0] && moves[i][1] == target[1]) {
-                return i;
-              }
-            }
-            return null; // 찾지 못한 경우
-          }
-
-          int? action = findIndex(moves, target);
-
-          gameState = gameState.next(action!);
-          user1 = gameState.user1Pos(isFirst);
-          user2 = gameState.user2Pos((isFirst));
-
-          socketService.socket?.emit('gameData', {'action': action});
-        }
-      });
-    }
-
-    int locationToWallIndex(double location) {
-      double padding = cellSize / 2;
-      int index = 0;
-
-      for (int i = 1; i <= 8; i++) {
-        if (i * cellSize + (i - 1) * spacing - padding <= location &&
-            location <= i * (cellSize + spacing) + padding) {
-          index = i;
-        }
-      }
-
-      return index;
-    }
-
-    int locationToWallOtherIndex(double location) {
-      int index = 0;
-
-      for (int i = 1; i <= 9; i++) {
-        if ((i - 1) * (cellSize + spacing) <= location &&
-            location <= (i - 1) * (cellSize + spacing) + cellSize) {
-          index = i;
-        }
-      }
-
-      return index;
-    }
-
-    void setWallTemp(Offset start, Offset end) {
-      // 두 점 사이의 거리 계산
-      double distance = (start - end).distance;
-
-      // 길이가 일정이상 이여야 동작함.
-      if (distance >= cellSize + spacing) {
-        // 세로 직선
-        if (start.dx == end.dx) {
-          int wallIndex = locationToWallIndex(start.dx);
-
-          // X가 범위내에 들어와 있는지 확인
-          if (wallIndex != 0) {
-            String col = String.fromCharCode(64 + wallIndex);
-            // print("vertical index : $col");
-
-            if (start.dy > end.dy) {
-              // print('세로: 아래에서 위로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dy - spacing);
-              String row = (wallOtherIndex - 1).toString();
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * (wallOtherIndex - 2), 2 * wallIndex - 1);
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = col + row;
-                }
-              }
-            } else if (start.dy < end.dy) {
-              // print('세로: 위에서 아래로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dy + spacing);
-              String row = wallOtherIndex.toString();
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * (wallOtherIndex - 1), 2 * wallIndex - 1);
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = col + row;
-                }
-              }
-            }
-          }
-        }
-
-        // 가로 직선
-        if (start.dy == end.dy) {
-          int wallIndex = locationToWallIndex(start.dy);
-
-          // Y가 범위내에 들어와 있는지 확인
-          if (wallIndex != 0) {
-            String row = wallIndex.toString();
-            // print("horizontal index : $wallIndex");
-
-            if (start.dx > end.dx) {
-              // print('가로: 오른쪽에서 왼쪽으로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dx - spacing);
-              String col = String.fromCharCode(64 + wallOtherIndex - 1);
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * wallIndex - 1, 2 * (wallOtherIndex - 2));
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = row + col;
-                }
-              }
-            } else if (start.dx < end.dx) {
-              // print('가로: 왼쪽에서 오른쪽으로');
-              int wallOtherIndex = locationToWallOtherIndex(start.dx + spacing);
-              String col = String.fromCharCode(64 + wallOtherIndex);
-
-              if (wallOtherIndex != 0) {
-                int action = gameState.xyToWallAction(
-                    2 * wallIndex - 1, 2 * (wallOtherIndex - 1));
-
-                if (gameState.legalActions().contains(action)) {
-                  wallTemp = row + col;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    void setWall() {
-      if (wallTemp.isNotEmpty) {
-        // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
-        // true는 가로 false는 세로를 의미함
-        bool isNumber = wallTemp[0].contains(RegExp(r'[0-9]'));
-
-        int x = isNumber
-            ? 2 * int.parse(wallTemp[0]) - 1
-            : 2 * (int.parse(wallTemp[1]) - 1);
-
-        int y = isNumber
-            ? 2 * (wallTemp[1].codeUnitAt(0) - 'A'.codeUnitAt(0))
-            : 2 * (wallTemp[0].codeUnitAt(0) - 'A'.codeUnitAt(0)) + 1;
-
-        int action = gameState.xyToWallAction(x, y);
-
-        setState(() {
-          gameState = gameState.next(action);
-          socketService.socket?.emit('gameData', {'action': action});
-          wall.add(wallTemp);
-          wallTemp = ""; // wallTemp를 빈 문자열로 지우기
-        });
-      }
-    }
-
-    /// ********************************************
+    /// ****************************************************************************************
+    /// background and appbar
+    /// ****************************************************************************************
 
     return Stack(children: <Widget>[
       Container(
@@ -424,6 +215,11 @@ class RoomScreenState extends State<RoomScreen> {
               )
             ],
           ),
+
+          /// ****************************************************************************************
+          /// board widget
+          /// ****************************************************************************************
+
           body: Stack(children: [
             Center(
               child: Container(
@@ -440,244 +236,90 @@ class RoomScreenState extends State<RoomScreen> {
                 padding: EdgeInsets.all(spacing), // 내부 여백
                 child: Stack(
                   children: [
-                    GridView.count(
-                      physics: NeverScrollableScrollPhysics(), // 스크롤 비활성화
-                      crossAxisCount: _blockCounter,
-                      mainAxisSpacing: spacing,
-                      crossAxisSpacing: spacing,
-                      children:
-                          List.generate(_blockCounter * _blockCounter, (index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 237, 237, 237),
-                            borderRadius: BorderRadius.circular(2.5),
-                          ),
-                        );
-                      }),
+                    GameGrid(spacing: spacing),
+                    CustomPaint(painter: painter),
+                    Walls(wall: wall, cellSize: cellSize, spacing: spacing),
+                    PlayerPins(
+                      user1: user1,
+                      user2: user2,
+                      cellSize: cellSize,
+                      spacing: spacing,
+                      isFirst: isFirst,
                     ),
-
-                    CustomPaint(
-                      painter: painter,
-                    ),
-
-                    for (String wallInfo in wall)
-                      Builder(builder: (BuildContext context) {
-                        // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
-                        bool isHorizontalWall =
-                            wallInfo[0].contains(RegExp(r'[0-9]'));
-
-                        int topCon = isHorizontalWall
-                            ? int.parse(wallInfo[0])
-                            : int.parse(wallInfo[1]);
-
-                        int leftCon = isHorizontalWall
-                            ? wallInfo[1].codeUnitAt(0) - 'A'.codeUnitAt(0)
-                            : wallInfo[0].codeUnitAt(0) - 'A'.codeUnitAt(0);
-
-                        final double top = isHorizontalWall
-                            ? topCon * cellSize + spacing * (topCon - 1)
-                            : (topCon - 1) * (cellSize + spacing);
-
-                        final double left = isHorizontalWall
-                            ? leftCon * (cellSize + spacing)
-                            : (leftCon + 1) * cellSize + spacing * leftCon;
-
-                        return Positioned(
-                          top: top,
-                          left: left,
-                          child: Container(
-                            width: isHorizontalWall
-                                ? 2 * cellSize + spacing
-                                : spacing,
-                            height: isHorizontalWall
-                                ? spacing
-                                : 2 * cellSize + spacing,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 255, 127, 80),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        );
-                      }),
-
-                    AnimatedPositioned(
-                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
-                        curve: Curves.easeInOut, // 애니메이션 곡선
-                        top: user1[0] * (cellSize + spacing),
-                        left: user1[1] * (cellSize + spacing),
-                        width: cellSize,
-                        height: cellSize,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            isFirst == 0
-                                ? 'assets/images/white_pin.svg'
-                                : 'assets/images/black_pin.svg',
-                          ),
-                        )),
-                    AnimatedPositioned(
-                        duration: Duration(milliseconds: 500), // 애니메이션 지속 시간
-                        curve: Curves.easeInOut, // 애니메이션 곡선
-                        top: user2[0] * (cellSize + spacing),
-                        left: user2[1] * (cellSize + spacing),
-                        width: cellSize,
-                        height: cellSize,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            isFirst == 1
-                                ? 'assets/images/white_pin.svg'
-                                : 'assets/images/black_pin.svg',
-                          ),
-                        )),
 
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() &&
                         gameState.isCurrentTurn(isFirst) &&
                         wallTemp.isEmpty)
-                      for (List<int> target in gameState.legalMoves())
-                        Positioned(
-                            top: (target[0] ~/ 2 + user1[0]) *
-                                (cellSize + spacing),
-                            left: (target[1] ~/ 2 + user1[1]) *
-                                (cellSize + spacing),
-                            width: cellSize,
-                            height: cellSize,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Transform.rotate(
-                                angle: getRotationAngle(target),
-                                child: SvgPicture.asset(
-                                  'assets/images/up_circle.svg',
-                                ),
-                              ),
-                            )),
+                      LegalMoves(
+                        gameState: gameState,
+                        user1: user1,
+                        cellSize: cellSize,
+                        spacing: spacing,
+                      ),
 
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
-                      GestureDetector(
-                        // 비어있는 영역도 터치가 가능하도록 함
-                        behavior: HitTestBehavior.opaque,
-                        onTapUp: wallTemp.isEmpty
-                            ? null
-                            : (details) {
-                                setState(() {
-                                  wallTemp = ""; // wallTemp를 빈 문자열로 지우기
-                                });
-                              },
-                        onPanStart: wallTemp.isEmpty
-                            ? (details) {
-                                setState(() {
-                                  startPoint = details.localPosition;
-                                  endPoint = null;
-                                });
-                              }
-                            : null,
-                        onPanUpdate: (details) {
-                          if (details.localPosition.dx >= 0 &&
-                              details.localPosition.dx <= screenWidth - 36 &&
-                              details.localPosition.dy >= 0 &&
-                              details.localPosition.dy <= screenWidth - 36 &&
-                              gameState.getUser1WallCount((isFirst)) > 0) {
-                            double distance =
-                                (startPoint! - details.localPosition).distance;
-                            setState(() {
-                              if (distance > 5) {
-                                endPoint = details.localPosition;
-                              }
-                            });
-                          }
+                      BoardInteraction(
+                        tempWall: wallTemp,
+                        screenWidth: screenWidth,
+                        startPoint: startPoint,
+                        endPoint: endPoint,
+                        emptyTempWall: () => setState(() {
+                          wallTemp = "";
+                        }),
+                        setPoint: (start, end) {
+                          print("setPoint called: start=$start, end=$end");
+                          setState(() {
+                            startPoint = start;
+                            endPoint = end;
+                          });
                         },
-                        onPanEnd: wallTemp.isEmpty
-                            ? (details) {
-                                // startPoint가 null이 아닌지 확인
-                                if (startPoint != null) {
-                                  if (endPoint == null) {
-                                    setPlayer(startPoint!); // 플레이어 설정
-                                  } else {
-                                    Offset? finalEndPoint =
-                                        painter.restrictedEnd;
+                        userWallCount: gameState.getUser1WallCount(isFirst),
+                        onPanUpdate: (distance, details) => setState(() {
+                          if (distance > 5) {
+                            endPoint = details;
+                          }
+                        }),
+                        setPlayer: (startPoint) => setState(() {
+                          Map<String, dynamic> result = setPlayer(startPoint,
+                              cellSize, spacing, user1, isFirst, gameState);
+                          gameState = result['gameState'];
+                          user1 = result['user1'];
+                          user2 = result['user2'];
 
-                                    // finalEndPoint가 null이 아닌지 확인
-                                    if (finalEndPoint != null) {
-                                      setWallTemp(startPoint!,
-                                          finalEndPoint); // 벽 임시 설정
-                                    } else {
-                                      print('finalEndPoint가 null입니다.');
-                                    }
-                                  }
-                                } else {
-                                  print('startPoint가 null입니다.');
-                                }
-
-                                setState(() {
-                                  startPoint = null;
-                                  endPoint = null;
-                                });
-                              }
-                            : null,
+                          if (result['action'] != null) {
+                            socketService.socket?.emit(
+                                'gameData', {'action': result['action']});
+                          }
+                        }),
+                        setWallTemp: (startPoint, endPoint) => setState(() {
+                          wallTemp = setWallTemp(startPoint, endPoint, cellSize,
+                              spacing, gameState);
+                        }),
+                        resetPoint: () => setState(() {
+                          startPoint = null;
+                          endPoint = null;
+                        }),
                       ),
 
-                    // wall temp 영역
-                    Builder(builder: (BuildContext context) {
-                      // wallTemp가 빈 문자열이면 아무것도 반환하지 않음
-                      if (wallTemp.isEmpty) {
-                        return SizedBox.shrink(); // 빈 공간(아무것도 렌더링하지 않음)을 반환
-                      }
+                    WallTemp(
+                      wallTemp: wallTemp,
+                      cellSize: cellSize,
+                      spacing: spacing,
+                      touchMargin: cellSize / 2,
+                      onTap: () => setState(() {
+                        Map<String, dynamic> result =
+                            setWall(wallTemp, wall, gameState);
+                        gameState = result['gameState'];
+                        wallTemp = result['wallTemp']; // 빈 문자열
 
-                      // 처음 문자열이 단일 숫자(True)인지 문자(False)인지 확인함
-                      bool isHorizontalWall =
-                          wallTemp[0].contains(RegExp(r'[0-9]'));
-
-                      int topCon = isHorizontalWall
-                          ? int.parse(wallTemp[0])
-                          : int.parse(wallTemp[1]);
-
-                      int leftCon = isHorizontalWall
-                          ? wallTemp[1].codeUnitAt(0) - 'A'.codeUnitAt(0)
-                          : wallTemp[0].codeUnitAt(0) - 'A'.codeUnitAt(0);
-
-                      final double top = isHorizontalWall
-                          ? topCon * cellSize + spacing * (topCon - 1)
-                          : (topCon - 1) * (cellSize + spacing);
-
-                      final double left = isHorizontalWall
-                          ? leftCon * (cellSize + spacing)
-                          : (leftCon + 1) * cellSize + spacing * leftCon;
-
-                      double touchMargin = cellSize / 2;
-
-                      return Positioned(
-                          // 터치 영역을 넓히는 마진만큼 제외
-                          top: top - (isHorizontalWall ? touchMargin : 0),
-                          left: left - (isHorizontalWall ? 0 : touchMargin),
-                          child: GestureDetector(
-                            // 비어있는 영역도 터치가 가능하도록 함
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              setWall();
-                            },
-                            child: Container(
-                              width: isHorizontalWall
-                                  ? 2 * cellSize + spacing
-                                  : spacing,
-                              height: isHorizontalWall
-                                  ? spacing
-                                  : 2 * cellSize + spacing,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 255, 127, 80)
-                                    .withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              margin: EdgeInsets.only(
-                                top: isHorizontalWall ? touchMargin : 0,
-                                bottom: isHorizontalWall ? touchMargin : 0,
-                                left: isHorizontalWall ? 0 : touchMargin,
-                                right: isHorizontalWall ? 0 : touchMargin,
-                              ),
-                            ),
-                          ));
-                    }),
+                        if (result['action'] != null) {
+                          socketService.socket
+                              ?.emit('gameData', {'action': result['action']});
+                        }
+                      }),
+                    ),
                   ],
                 ),
               ),
@@ -717,6 +359,10 @@ class RoomScreenState extends State<RoomScreen> {
                     )),
               ),
             ),
+
+            /// ****************************************************************************************
+            /// dialog
+            /// ****************************************************************************************
 
             if (gameState.isLose())
               Builder(

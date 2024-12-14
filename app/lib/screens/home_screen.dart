@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:quoridouble/widgets/ai_screen/show_game_setup_dialog.dart';
-import 'package:quoridouble/widgets/pvp_screen/match_dialog.dart';
-import 'package:quoridouble/widgets/pvp_screen/show_network_dialog.dart';
+import 'package:quoridouble/widgets/ai_widgets/show_game_setup_dialog.dart';
+import 'package:quoridouble/widgets/pvp_widgets/match_dialog.dart';
+import 'package:quoridouble/widgets/pvp_widgets/show_network_dialog.dart';
 import 'package:quoridouble/widgets/show_language_dialog.dart';
 import 'package:quoridouble/widgets/show_info.dart';
 
@@ -14,10 +14,10 @@ class HomeScreen extends StatefulWidget {
 
   const HomeScreen({super.key, this.page, this.opponentDisconnected});
   @override
-  DraggableContainersState createState() => DraggableContainersState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class DraggableContainersState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   late PageController _pageController;
 
   // 현재 페이지 값 추적

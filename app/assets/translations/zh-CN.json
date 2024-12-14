@@ -1,0 +1,42 @@
+{
+  "ai_screen": {
+    "order": "出场顺序",
+    "difficulty": "难度设置",
+    "start": "开始",
+    "pause": "暂停",
+    "rematch": "重试",
+    "exit": "退出"
+  },
+  "pvp_screen": {
+    "search": "正在寻找游戏"
+  },
+  "info_dialog": {
+    "info_title": "信息",
+    "quoridouble_rule": "桌游Quoridor规则",
+    "victory_condition": "谁先到达对面即为胜利。",
+    "turn_choice": "在自己的回合选择以下两种之一",
+    "move_piece": "1. 移动棋子",
+    "move_piece_details_1": "- 可以向前、后、左、右移动一格，但不能穿过墙。",
+    "move_piece_details_2": "- 如果你要前进的方向紧挨着对方的棋子，可以跳过对方的棋子。",
+    "move_piece_details_3": "- 如果你要前进的方向紧挨着对方的棋子且其背后有墙，可以沿对角线移动。",
+    "place_wall": "2. 放置墙",
+    "place_wall_details": "（但不能完全封锁路径，使自己或对方无法到达对面。）",
+    "quoridouble_manual": "Quoridouble说明书",
+    "manual_item_1": "1. 白棋先手，黑棋后手。",
+    "manual_item_2": "2. 下方为自己，上方为对手。",
+    "manual_item_3": "3. 自己剩余的墙数量显示在下方。",
+    "manual_item_4": "4. 对手剩余的墙数量显示在上方。",
+    "manual_item_5": "5. 点击箭头按钮移动棋子。",
+    "manual_item_6": "6. 在棋盘区域上下或左右拖动，会在对应位置放置透明墙。",
+    "manual_item_7": "7. 如果存在透明墙，玩家的移动和拖动操作将被禁用。",
+    "manual_item_8": "8. 点击棋盘其他区域可取消透明墙。",
+    "manual_item_9": "9. 再次点击透明墙即可放置墙。",
+    "close": "关闭"
+  },
+  "net_err": {
+    "title": "网络错误",
+    "content": "当前未连接到网络，请连接后重试。",
+    "OK": "确定"
+  },
+  "Select Language": "选择语言"
+}

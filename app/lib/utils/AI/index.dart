@@ -1,18 +1,23 @@
 import 'dart:math';
 
 import 'package:quoridouble/utils/AI/alpha_beta.dart';
+import 'package:quoridouble/utils/AI/mcts.dart';
 import 'package:quoridouble/utils/game.dart';
 
 int actionLevel(GameState state, int level) {
-  if (level == 1) {
-    return alphaBetaAction(state, 1, pruningVersion: 1);
-  } else if (level == 2) {
-    return alphaBetaAction(state, 1);
-  } else if (level == 3) {
-    return alphaBetaAction(state, 2);
-  } else {
-    return alphaBetaAction(state, 1);
-  }
+  final actions = [
+    () => alphaBetaAction(state, 1), // level 0 (default)
+    () => alphaBetaAction(state, 1, pruningVersion: 1), // level 1
+    () => alphaBetaAction(state, 1, pruningVersion: 2), // level 2
+    () => alphaBetaAction(state, 1), // level 3
+    () => alphaBetaAction(state, 2), // level 4
+    () => mctsAction(state), // level 5
+  ];
+
+  // level이 범위를 벗어나면 기본값으로 첫 번째 요소 실행
+  return (level >= 0 && level < actions.length)
+      ? actions[level]()
+      : alphaBetaAction(state, 1);
 }
 
 List<int> pruningActionVer1(GameState state) {
