@@ -97,10 +97,8 @@ class RoomScreenState extends State<RoomScreen> {
     });
 
     socketService.socket?.on('gameData', (data) {
-      Map<String, dynamic> parsedData = Map<String, dynamic>.from(data);
-
       // action 값 가져오기
-      int action = parsedData['action'];
+      int action = data['action'];
       print('Received action: $action');
 
       if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
@@ -231,7 +229,11 @@ class RoomScreenState extends State<RoomScreen> {
           user1 = gameState.user1Pos(isFirst);
           user2 = gameState.user2Pos((isFirst));
 
-          socketService.socket?.emit('gameData', {'action': action});
+          Map<String, int> gameData = {
+            'action': action,
+          };
+
+          socketService.socket?.emit('gameData', gameData);
         }
       });
     }
@@ -367,7 +369,12 @@ class RoomScreenState extends State<RoomScreen> {
 
         setState(() {
           gameState = gameState.next(action);
-          socketService.socket?.emit('gameData', {'action': action});
+
+          Map<String, int> gameData = {
+            'action': action,
+          };
+
+          socketService.socket?.emit('gameData', gameData);
           wall.add(wallTemp);
           wallTemp = ""; // wallTemp를 빈 문자열로 지우기
         });
