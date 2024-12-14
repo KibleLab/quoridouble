@@ -28,13 +28,17 @@ class AIScreen extends StatefulWidget {
 }
 
 class AIScreenState extends State<AIScreen> {
+  // board 관련 변수
   Offset? startPoint;
   Offset? endPoint;
+  List<String> wall = [];
+  String wallTemp = "";
+
+  int executionTime = 0;
 
   final String title = 'AI Game';
   late int level;
   late int isOrder;
-  late int isFirst;
 
   /// ****************************************************************************************
   /// game 핵심 속성과 페이지 초기화
@@ -43,14 +47,14 @@ class AIScreenState extends State<AIScreen> {
   late GameState gameState;
   late List<int> user1;
   late List<int> user2;
-
-  List<String> wall = [];
-  String wallTemp = "";
-  int executionTime = 0;
+  late int isFirst;
 
   @override
   void initState() {
     super.initState();
+    startPoint = null;
+    endPoint = null;
+
     level = widget.level;
     isOrder = widget.isOrder;
 
@@ -59,9 +63,6 @@ class AIScreenState extends State<AIScreen> {
         : isOrder == 1
             ? 0
             : 1;
-
-    startPoint = null;
-    endPoint = null;
 
     initializeGame();
   }
@@ -84,10 +85,13 @@ class AIScreenState extends State<AIScreen> {
     // 상태바 높이
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    final double cellSize = (screenWidth - 100) / 9;
-    const double spacing = 8;
+    // Board 관련 사이즈 정의
+    double boardSize = screenWidth > 480 ? screenWidth * 0.8 : screenWidth - 10;
+    double boardBoarder = boardSize * 0.01;
+    final double spacing = boardSize * 0.02;
+    final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
-    LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
+    LinePainter painter = LinePainter(startPoint, endPoint, cellSize, spacing);
 
     /// ****************************************************************************************
     /// AI의 turn
@@ -257,13 +261,13 @@ class AIScreenState extends State<AIScreen> {
           body: Stack(children: [
             Center(
               child: Container(
-                width: screenWidth - 10, // 정사각형의 가로 크기
-                height: screenWidth - 10, // 정사각형의 세로 크기
+                width: boardSize, // 정사각형의 가로 크기
+                height: boardSize, // 정사각형의 세로 크기
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
                     color: const Color.fromARGB(255, 107, 49, 54), // 테두리 색상
-                    width: 5.0, // 테두리 두께
+                    width: boardBoarder, // 테두리 두께
                   ),
                   borderRadius: BorderRadius.circular(10.0), // 모서리 둥글기
                 ),
@@ -353,9 +357,9 @@ class AIScreenState extends State<AIScreen> {
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 -
-                  (screenWidth - 10) / 2 -
+                  boardSize / 2 -
                   20, // 중앙에서 위로 배치
-              left: 10,
+              left: (screenWidth - boardSize) / 2 + 5,
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
@@ -375,9 +379,9 @@ class AIScreenState extends State<AIScreen> {
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 -
-                  (screenWidth - 10) / 2 -
+                  boardSize / 2 -
                   20, // 중앙에서 위로 배치
-              right: 10,
+              right: (screenWidth - boardSize) / 2 + 5,
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
@@ -397,9 +401,9 @@ class AIScreenState extends State<AIScreen> {
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 +
-                  (screenWidth - 10) / 2 +
+                  boardSize / 2 +
                   20, // 중앙에서 아래로 배치
-              left: 10,
+              left: (screenWidth - boardSize) / 2 + 5,
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
@@ -418,9 +422,9 @@ class AIScreenState extends State<AIScreen> {
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 +
-                  (screenWidth - 10) / 2 +
+                  boardSize / 2 +
                   20, // 중앙에서 아래로 배치
-              right: 10,
+              right: (screenWidth - boardSize) / 2 + 5,
               child: Container(
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,

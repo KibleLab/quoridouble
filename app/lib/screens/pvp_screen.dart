@@ -156,10 +156,12 @@ class PvPScreenState extends State<PvPScreen> {
     // 상태바 높이
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    final double cellSize = (screenWidth - 100) / 9;
-    const double spacing = 8;
+    double boardSize = screenWidth - 10;
+    double boardBoarder = boardSize * 0.01;
+    final double spacing = boardSize * 0.02;
+    final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
-    LinePainter painter = LinePainter(startPoint, endPoint, cellSize);
+    LinePainter painter = LinePainter(startPoint, endPoint, cellSize, spacing);
 
     /// ****************************************************************************************
     /// background and appbar
@@ -221,13 +223,13 @@ class PvPScreenState extends State<PvPScreen> {
           body: Stack(children: [
             Center(
               child: Container(
-                width: screenWidth - 10, // 정사각형의 가로 크기
-                height: screenWidth - 10, // 정사각형의 세로 크기
+                width: boardSize, // 정사각형의 가로 크기
+                height: boardSize, // 정사각형의 세로 크기
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
                     color: const Color.fromARGB(255, 107, 49, 54), // 테두리 색상
-                    width: 5.0, // 테두리 두께
+                     width: boardBoarder, // 테두리 두께
                   ),
                   borderRadius: BorderRadius.circular(10.0), // 모서리 둥글기
                 ),
@@ -331,7 +333,7 @@ class PvPScreenState extends State<PvPScreen> {
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 -
-                  (screenWidth - 10) / 2 -
+                  boardSize / 2 -
                   20, // 중앙에서 위로 배치
               left: 10,
               child: Container(
@@ -344,11 +346,11 @@ class PvPScreenState extends State<PvPScreen> {
                     )),
               ),
             ),
-            //  좌측 상단
+            //  우측 하단
             Positioned(
               top: (screenHeight - kToolbarHeight - statusBarHeight) / 2 -
                   25 +
-                  (screenWidth - 10) / 2 +
+                  boardSize / 2 +
                   20, // 중앙에서 아래로 배치
               right: 10,
               child: Container(

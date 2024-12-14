@@ -29,7 +29,7 @@ class PlayerPin extends StatelessWidget {
       width: cellSize,
       height: cellSize,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(spacing),
         child: SvgPicture.asset(assetPath),
       ),
     );

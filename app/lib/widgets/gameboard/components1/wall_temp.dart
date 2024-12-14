@@ -54,7 +54,7 @@ class WallTemp extends StatelessWidget {
           height: isHorizontalWall ? spacing : 2 * cellSize + spacing,
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 255, 127, 80).withOpacity(0.5),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(1000),
           ),
           margin: EdgeInsets.only(
             top: isHorizontalWall ? touchMargin : 0,

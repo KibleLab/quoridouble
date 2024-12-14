@@ -6,16 +6,17 @@ class LinePainter extends CustomPainter {
   final Offset? start;
   final Offset? end;
   final double cellSize;
+  final double spacing;
   Offset? restrictedEnd;
 
-  LinePainter(this.start, this.end, this.cellSize);
+  LinePainter(this.start, this.end, this.cellSize, this.spacing);
 
   @override
   void paint(Canvas canvas, Size size) {
     if (start != null && end != null) {
       final paint = Paint()
         ..color = Color.fromARGB(255, 255, 127, 80).withOpacity(0.5)
-        ..strokeWidth = 8
+        ..strokeWidth = spacing
         ..strokeCap = StrokeCap.round;
 
       // maxLength
@@ -27,7 +28,7 @@ class LinePainter extends CustomPainter {
       if (dx.abs() > dy.abs()) {
         // 가로 방향
         double length = min(dx.abs(), maxLength);
-        restrictedEnd = Offset(start!.dx + length * dx.sign, start!.dy);
+       restrictedEnd = Offset(start!.dx + length * dx.sign, start!.dy);
       } else {
         // 세로 방향
         double length = min(dy.abs(), maxLength);

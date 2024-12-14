@@ -40,7 +40,7 @@ class WallWidget extends StatelessWidget {
         height: isHorizontalWall ? spacing : 2 * cellSize + spacing,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 127, 80),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius:BorderRadius.circular(1000),
         ),
       ),
     );
