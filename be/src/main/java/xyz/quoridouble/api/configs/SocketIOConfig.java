@@ -18,10 +18,7 @@ import xyz.quoridouble.api.services.game.GameSessionService;
 @Configuration
 @RequiredArgsConstructor
 public class SocketIOConfig implements ApplicationListener<ContextClosedEvent> {
-  @Value("${socket.host:localhost}")
-  private String host;
-
-  @Value("${socket.port:4100}")
+  @Value("${socket.port}")
   private Integer port;
 
   private SocketIOServer server;
@@ -29,7 +26,7 @@ public class SocketIOConfig implements ApplicationListener<ContextClosedEvent> {
   @Bean(initMethod = "start")
   public SocketIOServer socketIOServer() {
     com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
-    config.setHostname(host);
+    config.setHostname("localhost");
     config.setPort(port);
     config.setContext("/socket.io");
 
