@@ -100,10 +100,8 @@ class PvPScreenState extends State<PvPScreen> {
     });
 
     socketService.socket?.on('gameData', (data) {
-      Map<String, dynamic> parsedData = Map<String, dynamic>.from(data);
-
       // action 값 가져오기
-      int action = parsedData['action'];
+      int action = data['action'];
       print('Received action: $action');
 
       if (!gameState.isLose() && gameState.isCurrentTurn(1 - isFirst)) {
@@ -289,8 +287,10 @@ class PvPScreenState extends State<PvPScreen> {
                           user2 = result['user2'];
 
                           if (result['action'] != null) {
-                            socketService.socket?.emit(
-                                'gameData', {'action': result['action']});
+                            Map<String, int> gameData = {
+                              'action': result['action'],
+                            };
+                            socketService.socket?.emit('gameData', gameData);
                           }
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
@@ -315,8 +315,10 @@ class PvPScreenState extends State<PvPScreen> {
                         wallTemp = result['wallTemp']; // 빈 문자열
 
                         if (result['action'] != null) {
-                          socketService.socket
-                              ?.emit('gameData', {'action': result['action']});
+                          Map<String, int> gameData = {
+                            'action': result['action'],
+                          };
+                          socketService.socket?.emit('gameData', gameData);
                         }
                       }),
                     ),

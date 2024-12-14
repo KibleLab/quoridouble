@@ -17,7 +17,6 @@ class SocketService {
       'path': '/socket.io',
       'autoConnect': true,
       'reconnection': true,
-      'auth': {'code': '${dotenv.env['SERVER_CODE']}'},
     });
 
     // 연결 시 이벤트 리스너 설정
