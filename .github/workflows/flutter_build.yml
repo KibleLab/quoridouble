@@ -33,7 +33,7 @@ jobs:
       - name: Set .env as environment variables
         env:
           SERVER_URL: ${{ secrets.SERVER_URL }}
-          SERVER_CODE: ${{ secrets.SERVER_CODE }}
+
         run: |
           cd app
           echo "SERVER_URL=${SERVER_URL}" >> .env
