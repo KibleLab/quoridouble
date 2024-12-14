@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "xyz.quoridouble.api"
-version = "0.0.1-dev"
+version = "0.1.1-dev"
 
 java {
 	toolchain {
@@ -28,6 +28,8 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	compileOnly("org.projectlombok:lombok")
 	implementation("com.auth0:java-jwt:4.4.0")
+	implementation("com.corundumstudio.socketio:netty-socketio:2.0.12")
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
 	implementation("com.github.spotbugs:spotbugs-annotations:4.8.6")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
