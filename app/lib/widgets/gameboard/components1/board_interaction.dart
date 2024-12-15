@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class BoardInteraction extends StatefulWidget {
   final String tempWall;
-  final double screenWidth;
+  final double boardSize;
+  final double boardBoarder;
+  final double spacing;
   final Offset? startPoint;
   final Offset? endPoint;
 
@@ -19,7 +21,9 @@ class BoardInteraction extends StatefulWidget {
   const BoardInteraction({
     super.key,
     required this.tempWall,
-    required this.screenWidth,
+    required this.boardSize,
+    required this.boardBoarder,
+    required this.spacing,
     required this.startPoint,
     required this.endPoint,
     required this.emptyTempWall,
@@ -69,9 +73,11 @@ class BoardInteractionState extends State<BoardInteraction> {
       onPanUpdate: (details) {
         if (widget.startPoint != null &&
             details.localPosition.dx >= 0 &&
-            details.localPosition.dx <= widget.screenWidth - 36 &&
+            details.localPosition.dx <=
+                widget.boardSize - 2 * (widget.spacing + widget.boardBoarder) &&
             details.localPosition.dy >= 0 &&
-            details.localPosition.dy <= widget.screenWidth - 36 &&
+            details.localPosition.dy <=
+                widget.boardSize - 2 * (widget.spacing + widget.boardBoarder) &&
             widget.userWallCount > 0) {
           double distance =
               (widget.startPoint! - details.localPosition).distance;

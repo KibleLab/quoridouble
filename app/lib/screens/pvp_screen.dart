@@ -229,7 +229,7 @@ class PvPScreenState extends State<PvPScreen> {
                   color: Colors.white,
                   border: Border.all(
                     color: const Color.fromARGB(255, 107, 49, 54), // 테두리 색상
-                     width: boardBoarder, // 테두리 두께
+                    width: boardBoarder, // 테두리 두께
                   ),
                   borderRadius: BorderRadius.circular(10.0), // 모서리 둥글기
                 ),
@@ -262,7 +262,9 @@ class PvPScreenState extends State<PvPScreen> {
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
                       BoardInteraction(
                         tempWall: wallTemp,
-                        screenWidth: screenWidth,
+                        boardSize: boardSize,
+                        boardBoarder: boardBoarder,
+                        spacing: spacing,
                         startPoint: startPoint,
                         endPoint: endPoint,
                         emptyTempWall: () => setState(() {

@@ -300,7 +300,9 @@ class AIScreenState extends State<AIScreen> {
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
                       BoardInteraction(
                         tempWall: wallTemp,
-                        screenWidth: screenWidth,
+                        boardSize: boardSize,
+                        boardBoarder: boardBoarder,
+                        spacing: spacing,
                         startPoint: startPoint,
                         endPoint: endPoint,
                         emptyTempWall: () => setState(() {
