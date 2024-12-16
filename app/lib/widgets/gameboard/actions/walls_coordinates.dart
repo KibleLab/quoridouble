@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:quoridouble/widgets/gameboard/components1/wall_widget.dart';
+import 'package:quoridouble/widgets/gameboard/boards/wall_widget.dart';
 
-class Walls extends StatelessWidget {
+class WallsCoordinates extends StatelessWidget {
   final List<String> wall;
   final double cellSize;
   final double spacing;
 
-  const Walls({
+  const WallsCoordinates({
     super.key,
     required this.wall,
     required this.cellSize,

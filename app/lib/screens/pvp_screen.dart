@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:quoridouble/widgets/gameboard/components2/legal_moves.dart';
-import 'package:quoridouble/widgets/gameboard/components2/player_pins.dart';
-import 'package:quoridouble/widgets/gameboard/components2/walls.dart';
 import 'package:quoridouble/utils/game.dart';
 import 'package:quoridouble/utils/socket_service.dart';
-import 'package:quoridouble/widgets/gameboard/components1/board_interaction.dart';
-import 'package:quoridouble/widgets/gameboard/components1/game_grid.dart';
-import 'package:quoridouble/widgets/gameboard/components1/wall_temp.dart';
+import 'package:quoridouble/widgets/gameboard/actions/board_interaction.dart';
+import 'package:quoridouble/widgets/gameboard/actions/wall_placement.dart';
+import 'package:quoridouble/widgets/gameboard/actions/walls_coordinates.dart';
+import 'package:quoridouble/widgets/gameboard/boards/board_widget.dart';
+import 'package:quoridouble/widgets/gameboard/boards/move_button_widget.dart';
+import 'package:quoridouble/widgets/gameboard/boards/pieces_widget.dart';
+import 'package:quoridouble/widgets/gameboard/boards/wall_widget.dart';
 import 'package:quoridouble/widgets/gameboard/utils.dart';
 import 'package:quoridouble/widgets/pvp_widgets/game_pause_dialog.dart';
-import 'package:quoridouble/widgets/gameboard/components1/line_painter.dart';
 import 'package:quoridouble/widgets/pvp_widgets/game_result_dialog.dart';
 import 'home_screen.dart';
 
@@ -46,7 +46,7 @@ class PvPScreenState extends State<PvPScreen> {
   late List<int> user2;
 
   List<String> wall = [];
-  String wallTemp = "";
+  String wallTempWidget = "";
 
   void initializeGame() {
     gameState = GameState();
@@ -161,7 +161,8 @@ class PvPScreenState extends State<PvPScreen> {
     final double spacing = boardSize * 0.02;
     final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
-    LinePainter painter = LinePainter(startPoint, endPoint, cellSize, spacing);
+    WallPlacement painter =
+        WallPlacement(startPoint, endPoint, cellSize, spacing);
 
     /// ****************************************************************************************
     /// background and appbar
@@ -236,10 +237,11 @@ class PvPScreenState extends State<PvPScreen> {
                 padding: EdgeInsets.all(spacing), // 내부 여백
                 child: Stack(
                   children: [
-                    GameGrid(spacing: spacing),
+                    BoardWidget(spacing: spacing),
                     CustomPaint(painter: painter),
-                    Walls(wall: wall, cellSize: cellSize, spacing: spacing),
-                    PlayerPins(
+                    WallsCoordinates(
+                        wall: wall, cellSize: cellSize, spacing: spacing),
+                    PiecesWidget(
                       user1: user1,
                       user2: user2,
                       cellSize: cellSize,
@@ -250,8 +252,8 @@ class PvPScreenState extends State<PvPScreen> {
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() &&
                         gameState.isCurrentTurn(isFirst) &&
-                        wallTemp.isEmpty)
-                      LegalMoves(
+                        wallTempWidget.isEmpty)
+                      MoveButtonWidget(
                         gameState: gameState,
                         user1: user1,
                         cellSize: cellSize,
@@ -261,14 +263,14 @@ class PvPScreenState extends State<PvPScreen> {
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
                       BoardInteraction(
-                        tempWall: wallTemp,
+                        tempWall: wallTempWidget,
                         boardSize: boardSize,
                         boardBoarder: boardBoarder,
                         spacing: spacing,
                         startPoint: startPoint,
                         endPoint: endPoint,
                         emptyTempWall: () => setState(() {
-                          wallTemp = "";
+                          wallTempWidget = "";
                         }),
                         setPoint: (start, end) {
                           print("setPoint called: start=$start, end=$end");
@@ -298,8 +300,8 @@ class PvPScreenState extends State<PvPScreen> {
                           }
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
-                          wallTemp = setWallTemp(startPoint, endPoint, cellSize,
-                              spacing, gameState);
+                          wallTempWidget = setWallTemp(startPoint, endPoint,
+                              cellSize, spacing, gameState);
                         }),
                         resetPoint: () => setState(() {
                           startPoint = null;
@@ -307,16 +309,16 @@ class PvPScreenState extends State<PvPScreen> {
                         }),
                       ),
 
-                    WallTemp(
-                      wallTemp: wallTemp,
+                    WallTempWidget(
+                      wallTempWidget: wallTempWidget,
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
                       onTap: () => setState(() {
                         Map<String, dynamic> result =
-                            setWall(wallTemp, wall, gameState);
+                            setWall(wallTempWidget, wall, gameState);
                         gameState = result['gameState'];
-                        wallTemp = result['wallTemp']; // 빈 문자열
+                        wallTempWidget = result['wallTemp']; // 빈 문자열
 
                         if (result['action'] != null) {
                           Map<String, int> gameData = {

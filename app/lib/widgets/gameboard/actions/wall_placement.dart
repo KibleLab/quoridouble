@@ -2,14 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-class LinePainter extends CustomPainter {
+class WallPlacement extends CustomPainter {
   final Offset? start;
   final Offset? end;
   final double cellSize;
   final double spacing;
   Offset? restrictedEnd;
 
-  LinePainter(this.start, this.end, this.cellSize, this.spacing);
+  WallPlacement(this.start, this.end, this.cellSize, this.spacing);
 
   @override
   void paint(Canvas canvas, Size size) {
