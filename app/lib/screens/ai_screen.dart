@@ -34,7 +34,9 @@ class AIScreenState extends State<AIScreen> {
   List<String> wall = [];
   String wallTempCoord = "";
 
-  int executionTime = 0;
+  Timer? _timer; // 타이머 변수
+  int ms = 0; // 초 단위 시간
+  bool _isRunning = false; // 타이머 상태
 
   final String title = 'AI Game';
   late int level;
@@ -48,6 +50,51 @@ class AIScreenState extends State<AIScreen> {
   late List<int> user1;
   late List<int> user2;
   late int isFirst;
+
+  // AI의 턴인지 확인하는 메서드
+  bool isAITurn() {
+    return !gameState.isLose() && gameState.isCurrentTurn(1 - isFirst);
+  }
+
+  void updateGameState(int action) {
+    gameState = gameState.next(action);
+    user1 = gameState.user1Pos(isFirst);
+    user2 = gameState.user2Pos(isFirst);
+
+    // 벽 배치 로직
+    if (action >= 12 && action <= 139) {
+      bool isHorizontalWall = action > 75;
+      action -= isHorizontalWall ? 75 : 11;
+
+      int quotient = action ~/ 8;
+      int remainder = action % 8;
+
+      int x = (remainder != 0) ? 2 * remainder - 2 : 14;
+      int y = 2 * quotient + (remainder != 0 ? 1 : -1);
+
+      if (isHorizontalWall) {
+        int temp = x;
+        x = y;
+        y = temp;
+
+        y += 2;
+        x = 16 - x;
+        y = 16 - y;
+
+        String col = (x ~/ 2 + x % 2).toString();
+        String row = String.fromCharCode(65 + y ~/ 2);
+        wall.add(col + row);
+      } else {
+        x += 2;
+        x = 16 - x;
+        y = 16 - y;
+
+        String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
+        String col = (x ~/ 2 + 1).toString();
+        wall.add(row + col);
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -65,6 +112,22 @@ class AIScreenState extends State<AIScreen> {
             : 1;
 
     initializeGame();
+
+    // 위젯 빌드 후 AI 턴 처리
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (isAITurn()) {
+        try {
+          // 비동기 작업 실행
+          int action = await Future(() => actionLevel(gameState, level));
+
+          setState(() {
+            updateGameState(action); // 게임 상태 업데이트
+          });
+        } catch (e) {
+          debugPrint("AI 처리 중 오류: $e");
+        }
+      }
+    });
   }
 
   void initializeGame() {
@@ -72,6 +135,35 @@ class AIScreenState extends State<AIScreen> {
 
     user1 = gameState.user1Pos(isFirst);
     user2 = gameState.user2Pos(isFirst);
+  }
+
+  void _toggleTimer() {
+    if (_isRunning) {
+      // 타이머 멈춤
+      _timer?.cancel();
+    } else {
+      // 타이머 시작
+      ms = 0;
+      _timer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+        setState(() {
+          ms++;
+        });
+      });
+    }
+    setState(() {
+      _isRunning = !_isRunning;
+    });
+  }
+
+  @override
+  void dispose() {
+    // 타이머 정리
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _formatTime(int ms) {
+    return '${ms / 1000}';
   }
 
   /// ********************************************
@@ -105,53 +197,9 @@ class AIScreenState extends State<AIScreen> {
       return actionLevel(gameState, level);
     }
 
-    // AI의 턴인지 확인하는 메서드
-    bool isAITurn() {
-      return !gameState.isLose() && gameState.isCurrentTurn(1 - isFirst);
-    }
-
-    void updateGameState(int action) {
-      gameState = gameState.next(action);
-      user1 = gameState.user1Pos(isFirst);
-      user2 = gameState.user2Pos(isFirst);
-
-      // 벽 배치 로직
-      if (action >= 12 && action <= 139) {
-        bool isHorizontalWall = action > 75;
-        action -= isHorizontalWall ? 75 : 11;
-
-        int quotient = action ~/ 8;
-        int remainder = action % 8;
-
-        int x = (remainder != 0) ? 2 * remainder - 2 : 14;
-        int y = 2 * quotient + (remainder != 0 ? 1 : -1);
-
-        if (isHorizontalWall) {
-          int temp = x;
-          x = y;
-          y = temp;
-
-          y += 2;
-          x = 16 - x;
-          y = 16 - y;
-
-          String col = (x ~/ 2 + x % 2).toString();
-          String row = String.fromCharCode(65 + y ~/ 2);
-          wall.add(col + row);
-        } else {
-          x += 2;
-          x = 16 - x;
-          y = 16 - y;
-
-          String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
-          String col = (x ~/ 2 + 1).toString();
-          wall.add(row + col);
-        }
-      }
-    }
-
     // AI 행동 처리 메서드
     void handleAITurn() async {
+      _toggleTimer();
       // AI의 턴인지 다시 한 번 확인
       if (!isAITurn()) return;
 
@@ -170,20 +218,14 @@ class AIScreenState extends State<AIScreen> {
 
         // 상태 업데이트
         setState(() {
-          executionTime = execution;
           updateGameState(action);
         });
       } catch (e) {
         print('AI 턴 처리 중 오류 발생: $e');
       }
-    }
 
-    // 위젯 빌드 후 AI 턴 처리
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isAITurn()) {
-        handleAITurn();
-      }
-    });
+      _toggleTimer();
+    }
 
     /// ****************************************************************************************
     /// background and appbar
@@ -326,9 +368,11 @@ class AIScreenState extends State<AIScreen> {
                         setPlayer: (startPoint) => setState(() {
                           Map<String, dynamic> result = setPlayer(startPoint,
                               cellSize, spacing, user1, isFirst, gameState);
+
                           gameState = result['gameState'];
                           user1 = result['user1'];
                           user2 = result['user2'];
+                          handleAITurn();
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
                           wallTempCoord = setWallTemp(startPoint, endPoint, cellSize,
@@ -390,7 +434,7 @@ class AIScreenState extends State<AIScreen> {
                 height: 50, // 위젯 높이
                 alignment: Alignment.center,
                 child: Text(
-                  "Delay ${(executionTime / 1000).toStringAsFixed(2)} s",
+                  'Delay ${_formatTime(ms)}s',
                   style: TextStyle(
                     fontSize: 18,
                     color: gameState.isCurrentTurn(1 - isFirst)
