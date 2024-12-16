@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:quoridouble/widgets/board_widgets/wall_placement_painter.dart';
 import 'package:quoridouble/widgets/board_widgets/walls_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/board_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/board_grid_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/move_button_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/pieces_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/wall_temp_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/utils.dart';
+import 'package:quoridouble/widgets/board_widgets/function.dart';
 import 'package:quoridouble/widgets/board_widgets/board_interaction_widget.dart';
 import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/AI/index.dart';
-import 'package:quoridouble/utils/AI/game_state.dart';
+import 'package:quoridouble/utils/game_state.dart';
 import 'package:quoridouble/widgets/ai_widgets/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/ai_widgets/game_result_dialog.dart';
 
@@ -32,7 +32,7 @@ class AIScreenState extends State<AIScreen> {
   Offset? startPoint;
   Offset? endPoint;
   List<String> wall = [];
-  String wallTemp = "";
+  String wallTempCoord = "";
 
   int executionTime = 0;
 
@@ -275,7 +275,7 @@ class AIScreenState extends State<AIScreen> {
                 padding: EdgeInsets.all(spacing), // 내부 여백
                 child: Stack(
                   children: [
-                    BoardWidget(spacing: spacing),
+                    BoardGridWidget(spacing: spacing),
                     CustomPaint(painter: painter),
                     WallsWidget(
                         wall: wall, cellSize: cellSize, spacing: spacing),
@@ -290,7 +290,7 @@ class AIScreenState extends State<AIScreen> {
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() &&
                         gameState.isCurrentTurn(isFirst) &&
-                        wallTemp.isEmpty)
+                        wallTempCoord.isEmpty)
                       MoveButtonWidget(
                         gameState: gameState,
                         user1: user1,
@@ -301,14 +301,14 @@ class AIScreenState extends State<AIScreen> {
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
                       BoardInteractionWidget(
-                        tempWall: wallTemp,
+                        tempWall: wallTempCoord,
                         boardSize: boardSize,
                         boardBoarder: boardBoarder,
                         spacing: spacing,
                         startPoint: startPoint,
                         endPoint: endPoint,
                         emptyTempWall: () => setState(() {
-                          wallTemp = "";
+                          wallTempCoord = "";
                         }),
                         setPoint: (start, end) {
                           print("setPoint called: start=$start, end=$end");
@@ -331,7 +331,7 @@ class AIScreenState extends State<AIScreen> {
                           user2 = result['user2'];
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
-                          wallTemp = setWallTemp(startPoint, endPoint, cellSize,
+                          wallTempCoord = setWallTemp(startPoint, endPoint, cellSize,
                               spacing, gameState);
                         }),
                         resetPoint: () => setState(() {
@@ -341,15 +341,15 @@ class AIScreenState extends State<AIScreen> {
                       ),
 
                     WallTempWidget(
-                      wallTemp: wallTemp,
+                      wallTemp: wallTempCoord,
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
                       onTap: () => setState(() {
                         Map<String, dynamic> result =
-                            setWall(wallTemp, wall, gameState);
+                            setWall(wallTempCoord, wall, gameState);
                         gameState = result['gameState'];
-                        wallTemp = result['wallTemp']; // 빈 문자열
+                        wallTempCoord = result['wallTemp']; // 빈 문자열
                       }),
                     ),
                   ],

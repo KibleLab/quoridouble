@@ -18,7 +18,7 @@ class WallTempWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // wallTempWidget가 빈 문자열이면 아무것도 렌더링하지 않음
+    // wallTemp가 빈 문자열이면 아무것도 렌더링하지 않음
     if (wallTemp.isEmpty) {
       return const SizedBox.shrink();
     }

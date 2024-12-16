@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:quoridouble/utils/AI/game_state.dart';
+import 'package:quoridouble/utils/game_state.dart';
 import 'package:quoridouble/utils/socket_service.dart';
 import 'package:quoridouble/widgets/board_widgets/board_interaction_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/wall_placement_painter.dart';
 import 'package:quoridouble/widgets/board_widgets/walls_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/board_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/board_grid_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/move_button_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/pieces_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/wall_temp_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/utils.dart';
+import 'package:quoridouble/widgets/board_widgets/function.dart';
 import 'package:quoridouble/widgets/pvp_widgets/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/pvp_widgets/game_result_dialog.dart';
 import 'home_screen.dart';
@@ -237,7 +237,7 @@ class PvPScreenState extends State<PvPScreen> {
                 padding: EdgeInsets.all(spacing), // 내부 여백
                 child: Stack(
                   children: [
-                    BoardWidget(spacing: spacing),
+                    BoardGridWidget(spacing: spacing),
                     CustomPaint(painter: painter),
                     WallsWidget(
                         wall: wall, cellSize: cellSize, spacing: spacing),

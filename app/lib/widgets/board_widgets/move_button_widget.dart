@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:quoridouble/utils/AI/game_state.dart';
+import 'package:quoridouble/utils/game_state.dart';
 
 class MoveButtonWidget extends StatelessWidget {
   final GameState gameState;

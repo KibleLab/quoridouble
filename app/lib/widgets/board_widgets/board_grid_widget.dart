@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class BoardWidget extends StatelessWidget {
+class BoardGridWidget extends StatelessWidget {
   final double spacing;
 
-  const BoardWidget({super.key, required this.spacing});
+  const BoardGridWidget({super.key, required this.spacing});
 
   @override
   Widget build(BuildContext context) {
