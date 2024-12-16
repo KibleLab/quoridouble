@@ -162,8 +162,16 @@ class AIScreenState extends State<AIScreen> {
     super.dispose();
   }
 
-  String _formatTime(int ms) {
-    return '${ms / 1000}';
+  String _formatTime(int milliseconds) {
+    // 밀리초를 초로 변환
+    int seconds = (milliseconds / 1000).floor();
+
+    // 밀리초를 2자리로 포맷
+    int remainingMilliseconds =
+        (milliseconds % 1000) ~/ 10; // 밀리초를 10ms 단위로 반올림
+
+    // 초:밀리초 형식으로 반환
+    return '${seconds.toString().padLeft(2, '0')}:${remainingMilliseconds.toString().padLeft(2, '0')}';
   }
 
   /// ********************************************
@@ -199,9 +207,10 @@ class AIScreenState extends State<AIScreen> {
 
     // AI 행동 처리 메서드
     void handleAITurn() async {
-      _toggleTimer();
-      // AI의 턴인지 다시 한 번 확인
+      // AI의 턴인지 확인
       if (!isAITurn()) return;
+
+      _toggleTimer();
 
       try {
         final Stopwatch stopwatch = Stopwatch()..start();
