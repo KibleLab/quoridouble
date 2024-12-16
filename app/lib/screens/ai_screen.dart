@@ -37,6 +37,7 @@ class AIScreenState extends State<AIScreen> {
   Timer? _timer; // 타이머 변수
   int ms = 0; // 초 단위 시간
   bool _isRunning = false; // 타이머 상태
+  bool _hasRunOnce = false;
 
   final String title = 'AI Game';
   late int level;
@@ -112,22 +113,6 @@ class AIScreenState extends State<AIScreen> {
             : 1;
 
     initializeGame();
-
-    // 위젯 빌드 후 AI 턴 처리
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (isAITurn()) {
-        try {
-          // 비동기 작업 실행
-          int action = await Future(() => actionLevel(gameState, level));
-
-          setState(() {
-            updateGameState(action); // 게임 상태 업데이트
-          });
-        } catch (e) {
-          debugPrint("AI 처리 중 오류: $e");
-        }
-      }
-    });
   }
 
   void initializeGame() {
@@ -159,6 +144,9 @@ class AIScreenState extends State<AIScreen> {
   void dispose() {
     // 타이머 정리
     _timer?.cancel();
+    _timer = null;
+    _isRunning = false;
+    ms = 0;
     super.dispose();
   }
 
@@ -210,9 +198,8 @@ class AIScreenState extends State<AIScreen> {
       // AI의 턴인지 확인
       if (!isAITurn()) return;
 
-      _toggleTimer();
-
       try {
+        _toggleTimer();
         final Stopwatch stopwatch = Stopwatch()..start();
 
         // compute를 통해 AI의 액션 계산
@@ -225,15 +212,24 @@ class AIScreenState extends State<AIScreen> {
         // 최소 지연 시간 보장
         await Future.delayed(Duration(milliseconds: max(0, 500 - execution)));
 
-        // 상태 업데이트
-        setState(() {
-          updateGameState(action);
-        });
+        // mounted 확인 후 setState 호출
+        if (mounted) {
+          setState(() {
+            updateGameState(action);
+          });
+        }
       } catch (e) {
         print('AI 턴 처리 중 오류 발생: $e');
       }
 
       _toggleTimer();
+    }
+
+    if (!_hasRunOnce) {
+      _hasRunOnce = true; // 실행 플래그 설정
+      if (isAITurn()) {
+        handleAITurn();
+      }
     }
 
     /// ****************************************************************************************
@@ -384,8 +380,8 @@ class AIScreenState extends State<AIScreen> {
                           handleAITurn();
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
-                          wallTempCoord = setWallTemp(startPoint, endPoint, cellSize,
-                              spacing, gameState);
+                          wallTempCoord = setWallTemp(startPoint, endPoint,
+                              cellSize, spacing, gameState);
                         }),
                         resetPoint: () => setState(() {
                           startPoint = null;
