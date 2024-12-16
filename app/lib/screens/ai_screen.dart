@@ -240,7 +240,7 @@ class AIScreenState extends State<AIScreen> {
                               PageRouteBuilder(
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
-                                        HomeScreen(page: 0),
+                                        HomeScreen(),
                                 transitionDuration: Duration.zero,
                                 reverseTransitionDuration: Duration.zero,
                               ),
@@ -488,7 +488,7 @@ class AIScreenState extends State<AIScreen> {
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation,
                                           secondaryAnimation) =>
-                                      HomeScreen(page: 0),
+                                      HomeScreen(),
                                   transitionDuration:
                                       Duration.zero, // 전환 애니메이션 시간 설정
                                   reverseTransitionDuration:
