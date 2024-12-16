@@ -394,15 +394,17 @@ class AIScreenState extends State<AIScreen> {
                       ),
 
                     WallTempWidget(
-                      wallTemp: wallTempCoord,
+                      wallTempWidget: wallTempCoord,
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
                       onTap: () => setState(() {
                         Map<String, dynamic> result =
                             setWall(wallTempCoord, wall, gameState);
+
                         gameState = result['gameState'];
                         wallTempCoord = result['wallTemp']; // 빈 문자열
+                        handleAITurn();
                       }),
                     ),
                   ],
