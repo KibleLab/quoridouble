@@ -394,7 +394,7 @@ class AIScreenState extends State<AIScreen> {
                       ),
 
                     WallTempWidget(
-                      wallTempWidget: wallTempCoord,
+                      wallTemp: wallTempCoord,
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
