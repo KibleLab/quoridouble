@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:quoridouble/utils/AI/alpha_beta.dart';
 import 'package:quoridouble/utils/AI/mcts.dart';
-import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/utils/AI/game_state.dart';
 
 int actionLevel(GameState state, int level) {
   final actions = [

@@ -3,17 +3,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:quoridouble/widgets/gameboard/actions/wall_placement.dart';
-import 'package:quoridouble/widgets/gameboard/actions/walls_coordinates.dart';
-import 'package:quoridouble/widgets/gameboard/boards/board_widget.dart';
-import 'package:quoridouble/widgets/gameboard/boards/move_button_widget.dart';
-import 'package:quoridouble/widgets/gameboard/boards/pieces_widget.dart';
-import 'package:quoridouble/widgets/gameboard/boards/wall_widget.dart';
-import 'package:quoridouble/widgets/gameboard/utils.dart';
-import 'package:quoridouble/widgets/gameboard/actions/board_interaction.dart';
+import 'package:quoridouble/widgets/board_widgets/wall_placement_painter.dart';
+import 'package:quoridouble/widgets/board_widgets/walls_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/board_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/move_button_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/pieces_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/wall_temp_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/utils.dart';
+import 'package:quoridouble/widgets/board_widgets/board_interaction_widget.dart';
 import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/AI/index.dart';
-import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/utils/AI/game_state.dart';
 import 'package:quoridouble/widgets/ai_widgets/game_pause_dialog.dart';
 import 'package:quoridouble/widgets/ai_widgets/game_result_dialog.dart';
 
@@ -32,7 +32,7 @@ class AIScreenState extends State<AIScreen> {
   Offset? startPoint;
   Offset? endPoint;
   List<String> wall = [];
-  String wallTempWidget = "";
+  String wallTemp = "";
 
   int executionTime = 0;
 
@@ -91,8 +91,8 @@ class AIScreenState extends State<AIScreen> {
     final double spacing = boardSize * 0.02;
     final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
-    WallPlacement painter =
-        WallPlacement(startPoint, endPoint, cellSize, spacing);
+    WallPlacementPainter painter =
+        WallPlacementPainter(startPoint, endPoint, cellSize, spacing);
 
     /// ****************************************************************************************
     /// AI의 turn
@@ -277,7 +277,7 @@ class AIScreenState extends State<AIScreen> {
                   children: [
                     BoardWidget(spacing: spacing),
                     CustomPaint(painter: painter),
-                    WallsCoordinates(
+                    WallsWidget(
                         wall: wall, cellSize: cellSize, spacing: spacing),
                     PiecesWidget(
                       user1: user1,
@@ -290,7 +290,7 @@ class AIScreenState extends State<AIScreen> {
                     // 플레이어 이동 가능 방향을 보여줌
                     if (!gameState.isLose() &&
                         gameState.isCurrentTurn(isFirst) &&
-                        wallTempWidget.isEmpty)
+                        wallTemp.isEmpty)
                       MoveButtonWidget(
                         gameState: gameState,
                         user1: user1,
@@ -300,15 +300,15 @@ class AIScreenState extends State<AIScreen> {
 
                     // 조건에 따라 GestureDetector 설정
                     if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
-                      BoardInteraction(
-                        tempWall: wallTempWidget,
+                      BoardInteractionWidget(
+                        tempWall: wallTemp,
                         boardSize: boardSize,
                         boardBoarder: boardBoarder,
                         spacing: spacing,
                         startPoint: startPoint,
                         endPoint: endPoint,
                         emptyTempWall: () => setState(() {
-                          wallTempWidget = "";
+                          wallTemp = "";
                         }),
                         setPoint: (start, end) {
                           print("setPoint called: start=$start, end=$end");
@@ -331,7 +331,7 @@ class AIScreenState extends State<AIScreen> {
                           user2 = result['user2'];
                         }),
                         setWallTemp: (startPoint, endPoint) => setState(() {
-                          wallTempWidget = setWallTemp(startPoint, endPoint, cellSize,
+                          wallTemp = setWallTemp(startPoint, endPoint, cellSize,
                               spacing, gameState);
                         }),
                         resetPoint: () => setState(() {
@@ -341,15 +341,15 @@ class AIScreenState extends State<AIScreen> {
                       ),
 
                     WallTempWidget(
-                      wallTempWidget: wallTempWidget,
+                      wallTemp: wallTemp,
                       cellSize: cellSize,
                       spacing: spacing,
                       touchMargin: cellSize / 2,
                       onTap: () => setState(() {
                         Map<String, dynamic> result =
-                            setWall(wallTempWidget, wall, gameState);
+                            setWall(wallTemp, wall, gameState);
                         gameState = result['gameState'];
-                        wallTempWidget = result['wallTemp']; // 빈 문자열
+                        wallTemp = result['wallTemp']; // 빈 문자열
                       }),
                     ),
                   ],

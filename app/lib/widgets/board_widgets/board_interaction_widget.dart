@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class BoardInteraction extends StatefulWidget {
+class BoardInteractionWidget extends StatefulWidget {
   final String tempWall;
   final double boardSize;
   final double boardBoarder;
@@ -18,7 +18,7 @@ class BoardInteraction extends StatefulWidget {
   final Function(Offset startPoint, Offset endPoint) setWallTemp;
   final Function resetPoint;
 
-  const BoardInteraction({
+  const BoardInteractionWidget({
     super.key,
     required this.tempWall,
     required this.boardSize,
@@ -39,7 +39,7 @@ class BoardInteraction extends StatefulWidget {
   BoardInteractionState createState() => BoardInteractionState();
 }
 
-class BoardInteractionState extends State<BoardInteraction> {
+class BoardInteractionState extends State<BoardInteractionWidget> {
   Offset? restrictedEnd;
 
   // restrictedEnd 계산 함수

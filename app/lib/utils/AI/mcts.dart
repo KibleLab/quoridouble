@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/utils/AI/game_state.dart';
 
 // 최대값의 인덱스를 반환
 int argmax(List<dynamic> collection) {

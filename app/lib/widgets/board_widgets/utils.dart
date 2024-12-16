@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/utils/AI/game_state.dart';
 
 /// ****************************************************************************************
 /// 보드판과 gameState 간의 상호작용 함수
