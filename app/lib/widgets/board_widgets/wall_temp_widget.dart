@@ -5,7 +5,7 @@ class WallTempWidget extends StatelessWidget {
   final double cellSize;
   final double spacing;
   final double touchMargin;
-  final VoidCallback onTap;
+  final VoidCallback onSetWall;
 
   const WallTempWidget({
     super.key,
@@ -13,7 +13,7 @@ class WallTempWidget extends StatelessWidget {
     required this.cellSize,
     required this.spacing,
     required this.touchMargin,
-    required this.onTap,
+    required this.onSetWall,
   });
 
   @override
@@ -48,7 +48,7 @@ class WallTempWidget extends StatelessWidget {
       child: GestureDetector(
         // 비어있는 영역도 터치가 가능하도록 설정
         behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+        onTap: onSetWall,
         child: Container(
           width: isHorizontalWall ? 2 * cellSize + spacing : spacing,
           height: isHorizontalWall ? spacing : 2 * cellSize + spacing,

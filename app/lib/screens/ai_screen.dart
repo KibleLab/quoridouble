@@ -3,14 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:quoridouble/widgets/board_widgets/wall_placement_painter.dart';
-import 'package:quoridouble/widgets/board_widgets/walls_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/board_grid_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/move_button_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/pieces_widget.dart';
-import 'package:quoridouble/widgets/board_widgets/wall_temp_widget.dart';
+import 'package:quoridouble/widgets/board_widgets/index.dart';
 import 'package:quoridouble/widgets/board_widgets/function.dart';
-import 'package:quoridouble/widgets/board_widgets/board_interaction_widget.dart';
 import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/AI/index.dart';
 import 'package:quoridouble/utils/game_state.dart';
@@ -180,9 +174,6 @@ class AIScreenState extends State<AIScreen> {
     final double spacing = boardSize * 0.02;
     final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
-    WallPlacementPainter painter =
-        WallPlacementPainter(startPoint, endPoint, cellSize, spacing);
-
     /// ****************************************************************************************
     /// AI의 turn
     /// ****************************************************************************************
@@ -319,102 +310,55 @@ class AIScreenState extends State<AIScreen> {
 
           body: Stack(children: [
             Center(
-              child: Container(
-                width: boardSize, // 정사각형의 가로 크기
-                height: boardSize, // 정사각형의 세로 크기
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: const Color.fromARGB(255, 107, 49, 54), // 테두리 색상
-                    width: boardBoarder, // 테두리 두께
-                  ),
-                  borderRadius: BorderRadius.circular(10.0), // 모서리 둥글기
-                ),
-                padding: EdgeInsets.all(spacing), // 내부 여백
-                child: Stack(
-                  children: [
-                    BoardGridWidget(spacing: spacing),
-                    CustomPaint(painter: painter),
-                    WallsWidget(
-                        wall: wall, cellSize: cellSize, spacing: spacing),
-                    PiecesWidget(
-                      user1: user1,
-                      user2: user2,
-                      cellSize: cellSize,
-                      spacing: spacing,
-                      isFirst: isFirst,
-                    ),
+              child: QuoridorBoard(
+                boardSize: boardSize,
+                gameState: gameState,
+                isFirst: isFirst,
+                user1: user1,
+                user2: user2,
+                wall: wall,
+                wallTempCoord: wallTempCoord,
+                startPoint: startPoint,
+                endPoint: endPoint,
+                emptyTempWall: () => setState(() {
+                  wallTempCoord = "";
+                }),
+                setPoint: (start, end) {
+                  setState(() {
+                    startPoint = start;
+                    endPoint = end;
+                  });
+                },
+                onPanUpdate: (distance, details) => setState(() {
+                  if (distance > 5) {
+                    endPoint = details;
+                  }
+                }),
+                resetPoint: () => setState(() {
+                  startPoint = null;
+                  endPoint = null;
+                }),
+                onSetPlayer: (startPoint) => setState(() {
+                  Map<String, dynamic> result = setPlayer(
+                      startPoint, cellSize, spacing, user1, isFirst, gameState);
 
-                    // 플레이어 이동 가능 방향을 보여줌
-                    if (!gameState.isLose() &&
-                        gameState.isCurrentTurn(isFirst) &&
-                        wallTempCoord.isEmpty)
-                      MoveButtonWidget(
-                        gameState: gameState,
-                        user1: user1,
-                        cellSize: cellSize,
-                        spacing: spacing,
-                      ),
+                  gameState = result['gameState'];
+                  user1 = result['user1'];
+                  user2 = result['user2'];
+                  handleAITurn();
+                }),
+                onSetWallTemp: (startPoint, endPoint) => setState(() {
+                  wallTempCoord = setWallTemp(
+                      startPoint, endPoint, cellSize, spacing, gameState);
+                }),
+                onSetWall: () => setState(() {
+                  Map<String, dynamic> result =
+                      setWall(wallTempCoord, wall, gameState);
 
-                    // 조건에 따라 GestureDetector 설정
-                    if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
-                      BoardInteractionWidget(
-                        tempWall: wallTempCoord,
-                        boardSize: boardSize,
-                        boardBoarder: boardBoarder,
-                        spacing: spacing,
-                        startPoint: startPoint,
-                        endPoint: endPoint,
-                        emptyTempWall: () => setState(() {
-                          wallTempCoord = "";
-                        }),
-                        setPoint: (start, end) {
-                          setState(() {
-                            startPoint = start;
-                            endPoint = end;
-                          });
-                        },
-                        userWallCount: gameState.getUser1WallCount(isFirst),
-                        onPanUpdate: (distance, details) => setState(() {
-                          if (distance > 5) {
-                            endPoint = details;
-                          }
-                        }),
-                        setPlayer: (startPoint) => setState(() {
-                          Map<String, dynamic> result = setPlayer(startPoint,
-                              cellSize, spacing, user1, isFirst, gameState);
-
-                          gameState = result['gameState'];
-                          user1 = result['user1'];
-                          user2 = result['user2'];
-                          handleAITurn();
-                        }),
-                        setWallTemp: (startPoint, endPoint) => setState(() {
-                          wallTempCoord = setWallTemp(startPoint, endPoint,
-                              cellSize, spacing, gameState);
-                        }),
-                        resetPoint: () => setState(() {
-                          startPoint = null;
-                          endPoint = null;
-                        }),
-                      ),
-
-                    WallTempWidget(
-                      wallTemp: wallTempCoord,
-                      cellSize: cellSize,
-                      spacing: spacing,
-                      touchMargin: cellSize / 2,
-                      onTap: () => setState(() {
-                        Map<String, dynamic> result =
-                            setWall(wallTempCoord, wall, gameState);
-
-                        gameState = result['gameState'];
-                        wallTempCoord = result['wallTemp']; // 빈 문자열
-                        handleAITurn();
-                      }),
-                    ),
-                  ],
-                ),
+                  gameState = result['gameState'];
+                  wallTempCoord = result['wallTemp']; // 빈 문자열
+                  handleAITurn();
+                }),
               ),
             ),
 
