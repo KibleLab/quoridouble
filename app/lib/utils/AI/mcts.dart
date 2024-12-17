@@ -90,9 +90,38 @@ int mctsAction(GameState state) {
   Node rootNode = Node(state);
   rootNode.expand();
 
-  // 시뮬레이션 실행
-  for (int i = 0; i < 5000; i++) {
-    rootNode.evaluate();
+  int wallcount = 10 - (state.pieces.where((e) => e == 2).length ~/ 3);
+
+  if (wallcount == 0) {
+    int p1Index = state.pieces.indexOf(1);
+    List<int> p1Pos = [(p1Index ~/ 17), (p1Index % 17)];
+
+    int p2Index = state.enemyPieces.reversed.toList().indexOf(1);
+    List<int> p2Pos = [(p2Index ~/ 17), (p2Index % 17)];
+
+    List<List<int>> dxy = [
+      [0, 2],
+      [0, -2],
+      [-2, 0],
+      [2, 0]
+    ];
+
+    int deltaX = p2Pos[0] - p1Pos[0];
+    int deltaY = p2Pos[1] - p1Pos[1];
+
+    if (!containsList(dxy, [deltaX, deltaY])) {
+      return state.findShotPathAction();
+    } else {
+      // 시뮬레이션 실행
+      for (int i = 0; i < 2000; i++) {
+        rootNode.evaluate();
+      }
+    }
+  } else {
+    // 시뮬레이션 실행
+    for (int i = 0; i < 3000; i++) {
+      rootNode.evaluate();
+    }
   }
 
   // 시행 횟수가 가장 큰 값을 갖는 행동 반환
