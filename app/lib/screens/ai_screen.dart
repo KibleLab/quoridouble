@@ -123,19 +123,20 @@ class AIScreenState extends State<AIScreen> {
   }
 
   void _toggleTimer() {
-    if (_isRunning) {
-      // 타이머 멈춤
-      _timer?.cancel();
-    } else {
-      // 타이머 시작
-      ms = 0;
-      _timer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
-        setState(() {
-          ms++;
-        });
-      });
-    }
     setState(() {
+      if (_isRunning) {
+        // 타이머 멈춤
+        _timer?.cancel();
+        _timer = null;
+      } else {
+        // 타이머 시작
+        ms = 0;
+        _timer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+          setState(() {
+            ms++;
+          });
+        });
+      }
       _isRunning = !_isRunning;
     });
   }
@@ -199,7 +200,11 @@ class AIScreenState extends State<AIScreen> {
       if (!isAITurn()) return;
 
       try {
-        _toggleTimer();
+        if (mounted) {
+          setState(() {
+            _toggleTimer();
+          });
+        }
         final Stopwatch stopwatch = Stopwatch()..start();
 
         // compute를 통해 AI의 액션 계산
@@ -212,17 +217,23 @@ class AIScreenState extends State<AIScreen> {
         // 최소 지연 시간 보장
         await Future.delayed(Duration(milliseconds: max(0, 500 - execution)));
 
-        // mounted 확인 후 setState 호출
+        // mounted 확인 후 상태 업데이트
         if (mounted) {
           setState(() {
             updateGameState(action);
+            // 타이머 중지
+            _toggleTimer();
           });
         }
       } catch (e) {
         print('AI 턴 처리 중 오류 발생: $e');
+        // 오류 발생 시 타이머 중지
+        if (mounted) {
+          setState(() {
+            _toggleTimer();
+          });
+        }
       }
-
-      _toggleTimer();
     }
 
     if (!_hasRunOnce) {
@@ -358,7 +369,6 @@ class AIScreenState extends State<AIScreen> {
                           wallTempCoord = "";
                         }),
                         setPoint: (start, end) {
-                          print("setPoint called: start=$start, end=$end");
                           setState(() {
                             startPoint = start;
                             endPoint = end;
