@@ -1,4 +1,4 @@
-package com.example.quoridouble
+package xyz.quoridouble
 
 import io.flutter.embedding.android.FlutterActivity
 
