@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class WallsWidget extends StatelessWidget {
-  final List<String> wall;
+  final List<String> wallCoords;
   final double cellSize;
   final double spacing;
 
   const WallsWidget({
     super.key,
-    required this.wall,
+    required this.wallCoords,
     required this.cellSize,
     required this.spacing,
   });
@@ -15,7 +15,7 @@ class WallsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: wall.map((wallInfo) {
+      children: wallCoords.map((wallInfo) {
         return WallWidget(
           wallInfo: wallInfo,
           cellSize: cellSize,

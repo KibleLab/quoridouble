@@ -8,21 +8,15 @@ import 'package:quoridouble/widgets/board_widgets/wall_placement_painter.dart';
 import 'package:quoridouble/widgets/board_widgets/wall_temp_widget.dart';
 import 'package:quoridouble/widgets/board_widgets/walls_widget.dart';
 
-class QuoridorBoard extends StatelessWidget {
+class QuoridorBoard extends StatefulWidget {
   final double boardSize;
   final GameState gameState;
   final int isFirst;
   final List<int> user1;
   final List<int> user2;
-  final List<String> wall;
+  final List<String> wallCoords;
   final String wallTempCoord;
-  final Offset? startPoint;
-  final Offset? endPoint;
-
-  final Function emptyTempWall;
-  final dynamic setPoint;
-  final dynamic onPanUpdate;
-  final Function resetPoint;
+  final Function onEmptyWallTemp;
 
   final dynamic onSetPlayer;
   final dynamic onSetWallTemp;
@@ -35,31 +29,42 @@ class QuoridorBoard extends StatelessWidget {
     required this.isFirst,
     required this.user1,
     required this.user2,
-    required this.wall,
+    required this.wallCoords,
     required this.wallTempCoord,
-    required this.startPoint,
-    required this.endPoint,
-    required this.emptyTempWall,
-    required this.setPoint,
-    required this.onPanUpdate,
-    required this.resetPoint,
+    required this.onEmptyWallTemp,
     required this.onSetPlayer,
     required this.onSetWallTemp,
     required this.onSetWall,
   });
 
   @override
+  QuoridorBoardState createState() => QuoridorBoardState();
+}
+
+class QuoridorBoardState extends State<QuoridorBoard> {
+  Offset? startPoint;
+  Offset? endPoint;
+
+  @override
+  void initState() {
+    super.initState();
+    startPoint = null;
+    endPoint = null;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double boardBoarder = boardSize * 0.01;
-    final double spacing = boardSize * 0.02;
-    final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
+    double boardBoarder = widget.boardSize * 0.01;
+    final double spacing = widget.boardSize * 0.02;
+    final double cellSize =
+        (widget.boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
     WallPlacementPainter painter =
         WallPlacementPainter(startPoint, endPoint, cellSize, spacing);
 
     return Container(
-      width: boardSize, // 정사각형의 가로 크기
-      height: boardSize, // 정사각형의 세로 크기
+      width: widget.boardSize, // 정사각형의 가로 크기
+      height: widget.boardSize, // 정사각형의 세로 크기
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
@@ -73,50 +78,64 @@ class QuoridorBoard extends StatelessWidget {
         children: [
           BoardGridWidget(spacing: spacing),
           CustomPaint(painter: painter),
-          WallsWidget(wall: wall, cellSize: cellSize, spacing: spacing),
+          WallsWidget(wallCoords: widget.wallCoords, cellSize: cellSize, spacing: spacing),
           PiecesWidget(
-            user1: user1,
-            user2: user2,
+            user1: widget.user1,
+            user2: widget.user2,
             cellSize: cellSize,
             spacing: spacing,
-            isFirst: isFirst,
+            isFirst: widget.isFirst,
           ),
 
           // 플레이어 이동 가능 방향을 보여줌
-          if (!gameState.isLose() &&
-              gameState.isCurrentTurn(isFirst) &&
-              wallTempCoord.isEmpty)
+          if (!widget.gameState.isLose() &&
+              widget.gameState.isCurrentTurn(widget.isFirst) &&
+              widget.wallTempCoord.isEmpty)
             MoveButtonWidget(
-              gameState: gameState,
-              user1: user1,
+              gameState: widget.gameState,
+              user1: widget.user1,
               cellSize: cellSize,
               spacing: spacing,
             ),
 
           // 조건에 따라 GestureDetector 설정
-          if (!gameState.isLose() && gameState.isCurrentTurn(isFirst))
+          if (!widget.gameState.isLose() &&
+              widget.gameState.isCurrentTurn(widget.isFirst))
             BoardInteractionWidget(
-              tempWall: wallTempCoord,
-              boardSize: boardSize,
+              wallTempCoord: widget.wallTempCoord,
+              boardSize: widget.boardSize,
               boardBoarder: boardBoarder,
               spacing: spacing,
+              cellSize: cellSize,
               startPoint: startPoint,
               endPoint: endPoint,
-              userWallCount: gameState.getUser1WallCount(isFirst),
-              emptyTempWall: emptyTempWall,
-              setPoint: setPoint,
-              onPanUpdate: onPanUpdate,
-              setPlayer: onSetPlayer,
-              setWallTemp: onSetWallTemp,
-              resetPoint: resetPoint,
+              userWallCount: widget.gameState.getUser1WallCount(widget.isFirst),
+              onEmptyWallTemp: widget.onEmptyWallTemp,
+              onSetPlayer: widget.onSetPlayer,
+              onSetWallTemp: widget.onSetWallTemp,
+              setPoint: (start, end) {
+                setState(() {
+                  startPoint = start;
+                  endPoint = end;
+                });
+              },
+              updatePoint: (distance, details) => setState(() {
+                if (distance > 5) {
+                  endPoint = details;
+                }
+              }),
+              resetPoint: () => setState(() {
+                startPoint = null;
+                endPoint = null;
+              }),
             ),
 
           WallTempWidget(
-            wallTemp: wallTempCoord,
+            wallTemp: widget.wallTempCoord,
             cellSize: cellSize,
             spacing: spacing,
             touchMargin: cellSize / 2,
-            onSetWall: onSetWall,
+            onSetWall: widget.onSetWall,
           ),
         ],
       ),

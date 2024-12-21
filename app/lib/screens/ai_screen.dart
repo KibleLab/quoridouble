@@ -23,9 +23,7 @@ class AIScreen extends StatefulWidget {
 
 class AIScreenState extends State<AIScreen> {
   // board 관련 변수
-  Offset? startPoint;
-  Offset? endPoint;
-  List<String> wallCoord = [];
+  List<String> wallCoords = [];
   String wallTempCoord = "";
 
   Timer? _timer; // 타이머 변수
@@ -78,7 +76,7 @@ class AIScreenState extends State<AIScreen> {
 
         String col = (x ~/ 2 + x % 2).toString();
         String row = String.fromCharCode(65 + y ~/ 2);
-        wallCoord.add(col + row);
+        wallCoords.add(col + row);
       } else {
         x += 2;
         x = 16 - x;
@@ -86,16 +84,21 @@ class AIScreenState extends State<AIScreen> {
 
         String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
         String col = (x ~/ 2 + 1).toString();
-        wallCoord.add(row + col);
+        wallCoords.add(row + col);
       }
     }
+  }
+
+  void initializeGame() {
+    gameState = GameState();
+
+    user1 = gameState.user1Pos(isFirst);
+    user2 = gameState.user2Pos(isFirst);
   }
 
   @override
   void initState() {
     super.initState();
-    startPoint = null;
-    endPoint = null;
 
     level = widget.level;
     isOrder = widget.isOrder;
@@ -107,13 +110,6 @@ class AIScreenState extends State<AIScreen> {
             : 1;
 
     initializeGame();
-  }
-
-  void initializeGame() {
-    gameState = GameState();
-
-    user1 = gameState.user1Pos(isFirst);
-    user2 = gameState.user2Pos(isFirst);
   }
 
   void _toggleTimer() {
@@ -133,16 +129,6 @@ class AIScreenState extends State<AIScreen> {
       }
       _isRunning = !_isRunning;
     });
-  }
-
-  @override
-  void dispose() {
-    // 타이머 정리
-    _timer?.cancel();
-    _timer = null;
-    _isRunning = false;
-    ms = 0;
-    super.dispose();
   }
 
   String _formatTime(int milliseconds) {
@@ -168,14 +154,11 @@ class AIScreenState extends State<AIScreen> {
     // 상태바 높이
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    // Board 관련 사이즈 정의
+    // Board 사이즈 정의
     double boardSize = screenWidth > 480 ? screenWidth * 0.8 : screenWidth - 10;
-    double boardBoarder = boardSize * 0.01;
-    final double spacing = boardSize * 0.02;
-    final double cellSize = (boardSize - 2 * boardBoarder - 10 * spacing) / 9;
 
     /// ****************************************************************************************
-    /// AI의 turn
+    /// AI 턴 처리
     /// ****************************************************************************************
 
     // compute에서 실행될 함수
@@ -227,8 +210,9 @@ class AIScreenState extends State<AIScreen> {
       }
     }
 
+     // 실행 플래그 설정 (한 번만 실행)
     if (!_hasRunOnce) {
-      _hasRunOnce = true; // 실행 플래그 설정
+      _hasRunOnce = true;
       if (isAITurn()) {
         handleAITurn();
       }
@@ -316,29 +300,12 @@ class AIScreenState extends State<AIScreen> {
                 isFirst: isFirst,
                 user1: user1,
                 user2: user2,
-                wall: wallCoord,
+                wallCoords: wallCoords,
                 wallTempCoord: wallTempCoord,
-                startPoint: startPoint,
-                endPoint: endPoint,
-                emptyTempWall: () => setState(() {
+                onEmptyWallTemp: () => setState(() {
                   wallTempCoord = "";
                 }),
-                setPoint: (start, end) {
-                  setState(() {
-                    startPoint = start;
-                    endPoint = end;
-                  });
-                },
-                onPanUpdate: (distance, details) => setState(() {
-                  if (distance > 5) {
-                    endPoint = details;
-                  }
-                }),
-                resetPoint: () => setState(() {
-                  startPoint = null;
-                  endPoint = null;
-                }),
-                onSetPlayer: (startPoint) => setState(() {
+                onSetPlayer: (startPoint, cellSize, spacing) => setState(() {
                   Map<String, dynamic> result = setPlayer(
                       startPoint, cellSize, spacing, user1, isFirst, gameState);
 
@@ -347,13 +314,13 @@ class AIScreenState extends State<AIScreen> {
                   user2 = result['user2'];
                   handleAITurn();
                 }),
-                onSetWallTemp: (startPoint, endPoint) => setState(() {
+                onSetWallTemp: (startPoint, endPoint, cellSize, spacing) => setState(() {
                   wallTempCoord = setWallTemp(
                       startPoint, endPoint, cellSize, spacing, gameState);
                 }),
                 onSetWall: () => setState(() {
                   Map<String, dynamic> result =
-                      setWall(wallTempCoord, wallCoord, gameState);
+                      setWall(wallTempCoord, wallCoords, gameState);
 
                   gameState = result['gameState'];
                   wallTempCoord = result['wallTemp']; // 빈 문자열
@@ -361,6 +328,12 @@ class AIScreenState extends State<AIScreen> {
                 }),
               ),
             ),
+
+            /// ****************************************************************************************
+
+            /// ****************************************************************************************
+            /// Wall and Timer Text
+            /// ****************************************************************************************
 
             // 좌측 상단
             Positioned(
@@ -511,5 +484,15 @@ class AIScreenState extends State<AIScreen> {
               ),
           ])),
     ]);
+  }
+
+  @override
+  void dispose() {
+    // 타이머 정리
+    _timer?.cancel();
+    _timer = null;
+    _isRunning = false;
+    ms = 0;
+    super.dispose();
   }
 }

@@ -1,37 +1,41 @@
 import 'package:flutter/material.dart';
 
 class BoardInteractionWidget extends StatefulWidget {
-  final String tempWall;
+  final String wallTempCoord;
   final double boardSize;
   final double boardBoarder;
+  final double cellSize;
   final double spacing;
   final Offset? startPoint;
   final Offset? endPoint;
 
-  final Function emptyTempWall;
+  final Function onEmptyWallTemp;
   final Function(Offset startPoint, Offset? endPoint) setPoint;
 
   final int userWallCount;
-  final Function(double distance, Offset details) onPanUpdate;
-  final Function(Offset startPoint) setPlayer;
+  final Function(double distance, Offset details) updatePoint;
+  final Function(Offset startPoint, double cellSize, double spacing) onSetPlayer;
 
-  final Function(Offset startPoint, Offset endPoint) setWallTemp;
+  final Function(
+          Offset startPoint, Offset endPoint, double cellSize, double spacing)
+      onSetWallTemp;
   final Function resetPoint;
 
   const BoardInteractionWidget({
     super.key,
-    required this.tempWall,
+    required this.wallTempCoord,
     required this.boardSize,
     required this.boardBoarder,
+    required this.cellSize,
     required this.spacing,
     required this.startPoint,
     required this.endPoint,
-    required this.emptyTempWall,
+    required this.onEmptyWallTemp,
     required this.setPoint,
     required this.userWallCount,
-    required this.onPanUpdate,
-    required this.setPlayer,
-    required this.setWallTemp,
+    required this.updatePoint,
+    required this.onSetPlayer,
+    required this.onSetWallTemp,
     required this.resetPoint,
   });
 
@@ -60,14 +64,15 @@ class BoardInteractionState extends State<BoardInteractionWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapUp: widget.tempWall.isEmpty
+      onTapUp: widget.wallTempCoord.isEmpty
           ? null
           : (details) {
-              widget.emptyTempWall();
+              widget.onEmptyWallTemp();
             },
-      onPanStart: widget.tempWall.isEmpty
+      onPanStart: widget.wallTempCoord.isEmpty
           ? (details) {
-              widget.setPoint(details.localPosition, null);
+              widget.setPoint(
+                  details.localPosition, null);
             }
           : null,
       onPanUpdate: (details) {
@@ -81,13 +86,13 @@ class BoardInteractionState extends State<BoardInteractionWidget> {
             widget.userWallCount > 0) {
           double distance =
               (widget.startPoint! - details.localPosition).distance;
-          widget.onPanUpdate(distance, details.localPosition);
+          widget.updatePoint(distance, details.localPosition);
 
           // restrictedEnd 계산
           calculateRestrictedEnd(widget.startPoint!, details.localPosition);
         }
       },
-      onPanEnd: widget.tempWall.isEmpty
+      onPanEnd: widget.wallTempCoord.isEmpty
           ? (details) {
               if (widget.startPoint == null) {
                 print('startPoint가 null입니다.');
@@ -95,10 +100,11 @@ class BoardInteractionState extends State<BoardInteractionWidget> {
               }
 
               if (widget.endPoint == null) {
-                widget.setPlayer(widget.startPoint!);
+                widget.onSetPlayer(
+                    widget.startPoint!, widget.cellSize, widget.spacing);
               } else if (restrictedEnd != null) {
-                widget.setWallTemp(
-                    widget.startPoint!, restrictedEnd!); // restrictedEnd 사용
+                widget.onSetWallTemp(widget.startPoint!, restrictedEnd!,
+                    widget.cellSize, widget.spacing); // restrictedEnd 사용
               } else {
                 print('restrictedEnd가 null입니다.');
               }
