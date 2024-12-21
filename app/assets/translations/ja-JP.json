@@ -3,7 +3,7 @@
     "order": "プレイ順序",
     "difficulty": "難易度設定",
     "start": "ゲームスタート",
-    "pause": "一時停止",
+    "menu": "メニュー",
     "rematch": "リトライ",
     "exit": "終了"
   },

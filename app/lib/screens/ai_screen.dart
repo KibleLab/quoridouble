@@ -8,7 +8,7 @@ import 'package:quoridouble/widgets/board_widgets/function.dart';
 import 'package:quoridouble/screens/home_screen.dart';
 import 'package:quoridouble/utils/AI/index.dart';
 import 'package:quoridouble/utils/game_state.dart';
-import 'package:quoridouble/widgets/ai_widgets/game_pause_dialog.dart';
+import 'package:quoridouble/widgets/ai_widgets/game_menu_dialog.dart';
 import 'package:quoridouble/widgets/ai_widgets/game_result_dialog.dart';
 
 class AIScreen extends StatefulWidget {
@@ -25,7 +25,7 @@ class AIScreenState extends State<AIScreen> {
   // board 관련 변수
   Offset? startPoint;
   Offset? endPoint;
-  List<String> wall = [];
+  List<String> wallCoord = [];
   String wallTempCoord = "";
 
   Timer? _timer; // 타이머 변수
@@ -78,7 +78,7 @@ class AIScreenState extends State<AIScreen> {
 
         String col = (x ~/ 2 + x % 2).toString();
         String row = String.fromCharCode(65 + y ~/ 2);
-        wall.add(col + row);
+        wallCoord.add(col + row);
       } else {
         x += 2;
         x = 16 - x;
@@ -86,7 +86,7 @@ class AIScreenState extends State<AIScreen> {
 
         String row = String.fromCharCode(64 + y ~/ 2 + y % 2);
         String col = (x ~/ 2 + 1).toString();
-        wall.add(row + col);
+        wallCoord.add(row + col);
       }
     }
   }
@@ -263,7 +263,7 @@ class AIScreenState extends State<AIScreen> {
                     builder: (context) => Center(
                       child: FractionallySizedBox(
                         widthFactor: 0.8,
-                        child: GamePauseDialog(
+                        child: GameMenuDialog(
                           onRematch: () {
                             // 재시작 로직
                             Navigator.of(context).pop();
@@ -316,7 +316,7 @@ class AIScreenState extends State<AIScreen> {
                 isFirst: isFirst,
                 user1: user1,
                 user2: user2,
-                wall: wall,
+                wall: wallCoord,
                 wallTempCoord: wallTempCoord,
                 startPoint: startPoint,
                 endPoint: endPoint,
@@ -353,7 +353,7 @@ class AIScreenState extends State<AIScreen> {
                 }),
                 onSetWall: () => setState(() {
                   Map<String, dynamic> result =
-                      setWall(wallTempCoord, wall, gameState);
+                      setWall(wallTempCoord, wallCoord, gameState);
 
                   gameState = result['gameState'];
                   wallTempCoord = result['wallTemp']; // 빈 문자열

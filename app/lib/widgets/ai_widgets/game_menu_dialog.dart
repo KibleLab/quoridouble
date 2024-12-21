@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-class GamePauseDialog extends StatelessWidget {
+class GameMenuDialog extends StatelessWidget {
   final VoidCallback onRematch;
   final VoidCallback onExit;
 
-  const GamePauseDialog({
+  const GameMenuDialog({
     super.key,
     required this.onRematch,
     required this.onExit,
@@ -39,7 +39,7 @@ class GamePauseDialog extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
-            child: Text('ai_screen.pause').tr(),
+            child: Text('ai_screen.menu').tr(),
           ),
           const SizedBox(height: 20),
           _buildButton('ai_screen.rematch', onRematch),
