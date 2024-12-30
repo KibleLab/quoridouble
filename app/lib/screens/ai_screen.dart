@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:quoridouble/utils/ad_helper.dart';
 import 'package:quoridouble/widgets/board_widgets/index.dart';
 import 'package:quoridouble/widgets/board_widgets/function.dart';
 import 'package:quoridouble/screens/home_screen.dart';
@@ -22,6 +24,8 @@ class AIScreen extends StatefulWidget {
 }
 
 class AIScreenState extends State<AIScreen> {
+  BannerAd? bannerAd;
+
   // board 관련 변수
   List<String> wallCoords = [];
   String wallTempCoord = "";
@@ -110,6 +114,23 @@ class AIScreenState extends State<AIScreen> {
             : 1;
 
     initializeGame();
+
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
   }
 
   void _toggleTimer() {
@@ -210,7 +231,7 @@ class AIScreenState extends State<AIScreen> {
       }
     }
 
-     // 실행 플래그 설정 (한 번만 실행)
+    // 실행 플래그 설정 (한 번만 실행)
     if (!_hasRunOnce) {
       _hasRunOnce = true;
       if (isAITurn()) {
@@ -314,7 +335,8 @@ class AIScreenState extends State<AIScreen> {
                   user2 = result['user2'];
                   handleAITurn();
                 }),
-                onSetWallTemp: (startPoint, endPoint, cellSize, spacing) => setState(() {
+                onSetWallTemp: (startPoint, endPoint, cellSize, spacing) =>
+                    setState(() {
                   wallTempCoord = setWallTemp(
                       startPoint, endPoint, cellSize, spacing, gameState);
                 }),
@@ -423,7 +445,7 @@ class AIScreenState extends State<AIScreen> {
             ),
 
             /// ****************************************************************************************
-            /// pause dialog
+            /// Menu dialog
             /// ****************************************************************************************
 
             if (gameState.isLose())
@@ -483,6 +505,15 @@ class AIScreenState extends State<AIScreen> {
                 },
               ),
           ])),
+      if (bannerAd != null)
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            width: bannerAd!.size.width.toDouble(),
+            height: bannerAd!.size.height.toDouble(),
+            child: AdWidget(ad: bannerAd!),
+          ),
+        )
     ]);
   }
 

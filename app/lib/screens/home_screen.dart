@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:quoridouble/utils/ad_helper.dart';
 import 'package:quoridouble/widgets/ai_widgets/show_game_setup_dialog.dart';
 import 'package:quoridouble/widgets/show_language_dialog.dart';
 import 'package:quoridouble/widgets/show_info.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,6 +14,30 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -56,7 +82,8 @@ class HomeScreenState extends State<HomeScreen> {
             width: screenWidth,
             height: screenWidth,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.22, vertical: 30),
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.22, vertical: 30),
               child: Container(
                 width: 200,
                 height: 300,
@@ -95,7 +122,16 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      )
+      ),
+      if (_bannerAd != null)
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            width: _bannerAd!.size.width.toDouble(),
+            height: _bannerAd!.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd!),
+          ),
+        )
     ]);
   }
 }

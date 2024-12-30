@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:quoridouble/screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 
@@ -8,6 +9,9 @@ void main() async {
   // 위젯 시스템이 초기화되었는지 보장
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  // 광고 초기화 (Google AdMob)
+  MobileAds.instance.initialize();
 
   // Set portrait orientation
   await SystemChrome.setPreferredOrientations([
