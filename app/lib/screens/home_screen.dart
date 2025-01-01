@@ -66,7 +66,7 @@ class HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: Icon(Icons.help_outline_rounded),
               onPressed: () {
-                showInfo(context);
+                showGameInfomation(context);
               },
             ),
             IconButton(
