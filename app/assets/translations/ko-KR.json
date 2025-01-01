@@ -7,9 +7,6 @@
     "rematch": "재도전",
     "exit": "나가기"
   },
-  "pvp_screen": {
-    "search": "게임을 찾는중"
-  },
   "info_dialog": {
     "info_title": "정보",
     "quoridouble_rule": "보드게임 쿼리도의 룰",
@@ -32,11 +29,6 @@
     "manual_item_8": "8. 반투명 벽 취소는 보드내 다른 영역을 클릭시 사라진다.",
     "manual_item_9": "9. 반투명 벽을 한 번 더 클릭시 벽을 설치할 수가 있다.",
     "close": "닫기"
-  },
-  "net_err": {
-    "title": "네트워크 오류",
-    "content": "네트워크 연결이 되어 있지 않습니다. 연결 후 다시 시도하세요.",
-    "OK": "확인"
   },
   "Select Language": "언어 설정"
 }

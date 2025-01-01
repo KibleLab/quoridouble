@@ -7,9 +7,6 @@
     "rematch": "Rematch",
     "exit": "Exit"
   },
-  "pvp_screen": {
-    "search": "Searching for a game"
-  },
   "info_dialog": {
     "info_title": "Information",
     "quoridouble_rule": "Rules of the Quoridor",
@@ -32,11 +29,6 @@
     "manual_item_8": "8. The translucent wall disappears when clicking on another area of the board.",
     "manual_item_9": "9. Clicking the translucent wall again will place an actual wall.",
     "close": "Close"
-  },
-  "net_err": {
-    "title": "Network Error",
-    "content": "No network connection detected. Please connect and try again.",
-    "OK": "OK"
   },
   "Select Language": "Select Language"
 }

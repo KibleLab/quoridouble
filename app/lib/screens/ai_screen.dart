@@ -508,12 +508,16 @@ class AIScreenState extends State<AIScreen> {
       if (bannerAd != null)
         Align(
           alignment: Alignment.bottomCenter,
-          child: SizedBox(
-            width: bannerAd!.size.width.toDouble(),
-            height: bannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: bannerAd!),
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom),
+            child: SizedBox(
+              width: bannerAd!.size.width.toDouble(),
+              height: bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: bannerAd!),
+            ),
           ),
-        )
+        ),
     ]);
   }
 

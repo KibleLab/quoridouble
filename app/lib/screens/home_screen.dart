@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  BannerAd? _bannerAd;
+  BannerAd? bannerAd;
 
   @override
   void initState() {
@@ -27,7 +27,7 @@ class HomeScreenState extends State<HomeScreen> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _bannerAd = ad as BannerAd;
+            bannerAd = ad as BannerAd;
           });
         },
         onAdFailedToLoad: (ad, err) {
@@ -123,15 +123,19 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      if (_bannerAd != null)
+      if (bannerAd != null)
         Align(
           alignment: Alignment.bottomCenter,
-          child: SizedBox(
-            width: _bannerAd!.size.width.toDouble(),
-            height: _bannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: _bannerAd!),
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom),
+            child: SizedBox(
+              width: bannerAd!.size.width.toDouble(),
+              height: bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: bannerAd!),
+            ),
           ),
-        )
+        ),
     ]);
   }
 }
