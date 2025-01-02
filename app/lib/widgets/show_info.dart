@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class GameInstructionsPages extends StatefulWidget {
@@ -41,47 +42,47 @@ class _GameInstructionsPagesState extends State<GameInstructionsPages> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '게임 설명서',
+              'info_dialog.info_title',
               style: Theme.of(context).textTheme.titleLarge,
-            ),
+            ).tr(),
             const SizedBox(height: 16),
             SizedBox(
               height: 400,
               child: PageView(
                 controller: _pageController,
                 children: [
-                  _buildPage('쿼리도', [
-                    '체스와 같은 턴제 \n추상전략 게임입니다.',
+                  _buildPage('info_dialog.manual_page1_title', [
+                    'info_dialog.manual_page1_contents',
                   ], [
                     'assets/images/info/page1.png',
                   ], [
                     Size(360 * 0.55, 440 * 0.55),
                   ]),
-                  _buildPage('승리조건', [
-                    '자신의 말을 반대편으로 먼저 \n옮기는 사람이 승리합니다.',
+                  _buildPage('info_dialog.manual_page2_title', [
+                    'info_dialog.manual_page2_contents',
                   ], [
                     'assets/images/info/page2.png',
                   ], [
                     Size(360 * 0.55, 440 * 0.55),
                   ]),
-                  _buildPage('게임구성', [
-                    '서로에게 각각 말 1개와 \n벽 10개가 주어집니다.',
+                  _buildPage('info_dialog.manual_page3_title', [
+                    'info_dialog.manual_page3_contents',
                   ], [
                     'assets/images/info/page3.png',
                   ], [
                     Size(360 * 0.55, 440 * 0.55),
                   ]),
-                  _buildPage('진행방법', [
-                    '말을 이동시키거나 \n벽을 설치하면 됩니다.',
+                  _buildPage('info_dialog.manual_page4_title', [
+                    'info_dialog.manual_page4_contents',
                   ], [
                     'assets/images/info/page4.png',
                   ], [
                     Size(360 * 0.55, 440 * 0.55),
                   ]),
-                  _buildPage('이동방법', [
-                    '(기본) 상하좌우로 한칸 \n움직입니다.',
-                    '(상대의 말과 붙어있을 때) \n해당 말을 건너 뛰고 전진합니다.',
-                    '(상대의 말을 건너뛸 때) \n상대의 말 뒤에 벽이 있다면 \n대각선으로 이동합니다.',
+                  _buildPage('info_dialog.manual_page5_title', [
+                    'info_dialog.manual_page5_contents_1',
+                    'info_dialog.manual_page5_contents_2',
+                    'info_dialog.manual_page5_contents_3',
                   ], [
                     'assets/images/info/page5-1.png',
                     'assets/images/info/page5-2.png',
@@ -91,11 +92,11 @@ class _GameInstructionsPagesState extends State<GameInstructionsPages> {
                     Size(200, 200),
                     Size(200, 200),
                   ]),
-                  _buildPage('벽설치 방법', [
-                    '보드영역을 상하 or 좌우로 \n드래그해서 임시 벽을 설치합니다.',
-                    '임시 벽을 한 번 더 클릭해 \n벽을 설치합니다.',
-                    '임시 벽 취소는 보드내 \n다른 영역을 클릭시 사라집니다.',
-                    '상대나 자신이 반대편으로 도달할 \n루트를 없애서는 안 됩니다.',
+                  _buildPage('info_dialog.manual_page6_title', [
+                    'info_dialog.manual_page6_contents_1',
+                    'info_dialog.manual_page6_contents_2',
+                    'info_dialog.manual_page6_contents_3',
+                    'info_dialog.manual_page6_contents_4',
                   ], [
                     'assets/images/info/page6-1.png',
                     'assets/images/info/page6-2.png',
@@ -110,13 +111,16 @@ class _GameInstructionsPagesState extends State<GameInstructionsPages> {
                 ],
               ),
             ),
-            const Text('옆으로 스와이프하여 다음 페이지로 이동'),
+            const Text(
+              'info_dialog.swipe_guide',
+              textAlign: TextAlign.center,
+            ).tr(),
             Text(
-              '현재 페이지 ($_currentPage/$_totalPages)',
+              'info_dialog.current_page',
               style: const TextStyle(
                 fontSize: 14,
               ),
-            ),
+            ).tr(args: ['($_currentPage/$_totalPages)']),
             const SizedBox(height: 16),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -130,12 +134,12 @@ class _GameInstructionsPagesState extends State<GameInstructionsPages> {
               ),
               onPressed: () => Navigator.pop(context),
               child: const Text(
-                '닫기',
+                'info_dialog.close',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
-              ),
+              ).tr(),
             ),
           ],
         ),
@@ -156,7 +160,7 @@ Widget _buildPage(
         title,
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center, // 제목 가운데 정렬
-      ),
+      ).tr(),
       const SizedBox(height: 16),
       Expanded(
         child: ListView.builder(
@@ -174,7 +178,7 @@ Widget _buildPage(
                       fontSize: 16,
                       height: 1.5, // 줄 간격
                     ),
-                  ),
+                  ).tr(),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
