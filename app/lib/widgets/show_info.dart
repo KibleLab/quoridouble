@@ -202,6 +202,7 @@ Widget _buildPage(
 void showGameInfomation(BuildContext context) {
   showDialog(
     context: context,
+    barrierDismissible: false,
     builder: (context) => const GameInstructionsPages(),
   );
 }

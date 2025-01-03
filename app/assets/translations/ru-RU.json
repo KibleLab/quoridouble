@@ -13,7 +13,7 @@
     "manual_page1_contents": "A turn-based abstract \nstrategy game like chess.",
     "manual_page2_title": "Win Condition",
     "manual_page2_contents": "The first to move \ntheir piece \nto the opposite side wins.",
-    "manual_page3_title": "Game Setup",
+    "manual_page3_title": "Game Components",
     "manual_page3_contents": "Each player gets 1 piece \nand 10 walls.",
     "manual_page4_title": "How to Play",
     "manual_page4_contents": "You can move your piece \nor place a wall.",
