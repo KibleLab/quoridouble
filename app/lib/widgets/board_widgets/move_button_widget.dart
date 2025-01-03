@@ -2,15 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:quoridouble/utils/game.dart';
+import 'package:quoridouble/utils/game_state.dart';
 
-class LegalMoves extends StatelessWidget {
+class MoveButtonWidget extends StatelessWidget {
   final GameState gameState;
   final List<int> user1;
   final double cellSize;
   final double spacing;
 
-  const LegalMoves({
+  const MoveButtonWidget({
     super.key,
     required this.gameState,
     required this.user1,

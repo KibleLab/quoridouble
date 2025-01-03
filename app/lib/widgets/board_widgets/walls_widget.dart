@@ -1,5 +1,31 @@
 import 'package:flutter/material.dart';
 
+class WallsWidget extends StatelessWidget {
+  final List<String> wall;
+  final double cellSize;
+  final double spacing;
+
+  const WallsWidget({
+    super.key,
+    required this.wall,
+    required this.cellSize,
+    required this.spacing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: wall.map((wallInfo) {
+        return WallWidget(
+          wallInfo: wallInfo,
+          cellSize: cellSize,
+          spacing: spacing,
+        );
+      }).toList(),
+    );
+  }
+}
+
 class WallWidget extends StatelessWidget {
   final String wallInfo;
   final double cellSize;
@@ -40,7 +66,7 @@ class WallWidget extends StatelessWidget {
         height: isHorizontalWall ? spacing : 2 * cellSize + spacing,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 127, 80),
-          borderRadius:BorderRadius.circular(1000),
+          borderRadius: BorderRadius.circular(1000),
         ),
       ),
     );

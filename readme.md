@@ -2,13 +2,34 @@
 
 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Quoridor 게임 앱
 
-<br>
+<br />
 
-**시연 영상** (클릭 시 YouTube로 연결됨):
+**Application** [`/app`](https://github.com/KibleLab/quoridouble/tree/main/app) <br />
+<img src="https://img.shields.io/badge/Flutter-181717?style=flat-square&logo=flutter" />
+<img src="https://img.shields.io/badge/Socket.IO Client-181717?style=flat-square&logo=Socket.io" />
+<img src="https://img.shields.io/badge/Dart-181717?style=flat-square&logo=Dart" />
 
-[![Quoridouble](https://img.youtube.com/vi/6FkS6Y0PvLM/0.jpg)](https://youtu.be/6FkS6Y0PvLM)
+**Back-end** [`/be`](https://github.com/KibleLab/quoridouble/tree/main/be) <br />
+<img src="https://img.shields.io/badge/Spring Boot-181717?style=flat-square&logo=springboot" />
+<img src="https://img.shields.io/badge/Socket.IO-181717?style=flat-square&logo=Socket.io" />
+<img src="https://img.shields.io/badge/Gradle-181717?style=flat-square&logo=gradle" />
+<img src="https://img.shields.io/badge/Java-181717?style=flat-square&logo=java" />
 
-<br>
+**RL Game Agent** [`/agent`](https://github.com/KibleLab/quoridouble/tree/main/agent) <br />
+<img src="https://img.shields.io/badge/CMake-181717?style=flat-square&logo=cmake" />
+<img src="https://img.shields.io/badge/C++-181717?style=flat-square&logo=cplusplus" />
+
+<br />
+
+<table border="1">
+	<tr>
+		<td align="center">
+			<video src="https://github.com/user-attachments/assets/d843d772-89ed-49a9-95de-a449f0b022f3"  controls autoplay>
+		</td>
+	</tr>
+</table>
+
+<br />
 
 ## Overview
 
@@ -18,24 +39,26 @@ Quoridouble - 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Qu
 
 ### 제작기간
 
-2024.08 ~ 2024.11 (진행중)
+2024.08 ~ (진행중)
 
 ### 팀원 및 역할
 
 <table border="1">
-    <tr>
-        <td align="center"><a href="https://github.com/Vulpes94"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/74402423?v=4" alt="김준기 GitHub"/></a></td>
-        <td align="center"><a href="https://github.com/RegistryHJ"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/55695897?v=4" alt="이현준 GitHub"/></a></td>
-        <td align="center"><a href="https://github.com/SDpardres"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/143976588?v=4" alt="최호연 GitHub"/></a></td>
-    </tr>
-    <tr>
-      <td align="center">김준기</br>팀장, Application, RL</td>
-        <td align="center">이현준</br>UI/UX, Backend, 문서화</td>
-        <td align="center">최호연</br>QA, Backend</td>
-    </tr>
+  <tr>
+      <td align="center"><a href="https://github.com/Vulpes94"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/74402423?v=4" alt="김준기 GitHub"/></a></td>
+			<td align="left">김준기 (팀장)</br>Application, RL, 선행 연구</td>
+  </tr>
+  <tr>
+			<td align="center"><a href="https://github.com/RegistryHJ"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/55695897?v=4" alt="이현준 GitHub"/></a></td>
+      <td align="left">이현준 (팀원)</br>Back-end, UI/UX 설계, 문서화</td>  
+  </tr>
+	<tr>
+		<td align="center"><a href="https://github.com/SDpardres"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/143976588?v=4" alt="최호연 GitHub"/></a></td>
+		<td align="left">최호연 (팀원)</br>Back-end, QA</td>
+	</tr>
 </table>
 
-<br>
+<br />
 
 ## Background
 
@@ -47,85 +70,64 @@ Quoridouble - 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Qu
 
 ### 기존 Quoridor 앱의 문제점
 
-- 앱의 수가 매우 적음
+- 출시된 앱의 수가 매우 적음
 - 조작감 등 UX가 좋지 않음
-- PvP(Player vs Player) 기능 부재
+- AI와 PvP(Player vs Player) 기능이 하나의 앱에 동시에 탑재가 되어 있지 않음
 
 ### 개선 목표
 
-- 강화학습 AI 구현
+- RL Game Agent 구현
 - PvP 기능 구현
 - 사용자 경험(UX) 개선
 
 <br>
 
-## Objectives
+## Timeline
 
-### 1. 선행 연구 (8월)
+### 선행 연구 (8월)
 
-- Depth Limited Alpha-Beta Pruning 알고리즘을 활용한 5✕5 Mini 버전 프로토타입 개발 (Python 구현)
-- AI 에이전트의 기본 로직 확립
+- Depth Limited Alpha-Beta Pruning 알고리즘을 활용한 5✕5 Mini 버전 ProtoType 개발 (Python 구현)
+- RL Game Agent의 기본 로직 확립
+- UI/UX 설계
 
-### 2. 앱 개발 (9~10월)
+### Application 개발 (9~10월)
 
-- Flutter를 사용하여 크로스 플랫폼 앱 개발
-- AI 에이전트를 Dart 언어로 포팅
-- UI/UX 구현(개선점; 조작 및 벽 설치 등) 및 AI 2-way Game 구현
+- Flutter를 사용하여 Cross Platform Application 개발
+- RL Game Agent를 Dart 언어로 포팅
+- UI/UX 구현 및 AI 2-way Game 구현
 
-### 3. 최적화 연구 (10월)
+### 최적화 연구 (10월)
 
-- Quoridor AI 에이전트 성능 향상을 위한 길찾기 알고리즘 비교 연구 (한국실천공학교육학회 교육매체개발 및 아이디어 경진대회 동상 수상)
+- Quoridor AI 에이전트 성능 향상을 위한 길찾기 알고리즘 비교 연구 (한국실천공학교육학회, 2024)
 - 프로그래밍 언어별 성능 분석
 
-### 4. 서버 구현 (11월)
+### Back-end 구현 (11월)
 
-- AI 에이전트를 C++로 포팅 및 최적화
-- WebSocket으로 서버-앱 간 통신 구현(실시간 PvP 2-way Game)
+- Socket.IO 기반의 BE-Application 간 실시간 통신 구현(실시간 PvP 2-way Game)
 
-<br>
+### RL Game Agent 재설계 및 구현 (12월~)
 
-## Technology Used
+- Monte-Carlo Tree Search 알고리즘 기반으로 재설계
+- Back-end와 Shared Library 기반으로 결합
 
-### Application
+### Android 출시 전 작업 (12월~)
 
-Flutter
+- PvP 기능 일시적 제거 (AI 선출시 목표)
+- Application 리펙토링 및 최적화
+- Google AdMob 추가
+- 출시를 위한 Android Native 작업
 
-### Backend
-
-Spring Boot
-
-### Database
-
-MariaDB, MongoDB
-
-### DevOps
-
-Docker, NGINX, AWS Lightsail
-
-### RL Game Agent
-
-Depth-Limited Alpha-Beta Pruning, Path-Finding Algorithm
-
-<br>
-
-## Technical Flowchart
-
-![Technical Flowchart](docs/images/Technical-Flowchart.png)
-
-<br>
+<br />
 
 ## Study for Optimization
 
-> Quoridor AI 에이전트의 성능 향상을 위한 길찾기 알고리즘 비교 연구 (한국실천공학교육학회) <br> [GitHub Link](https://github.com/RegistryHJ/quoridor-pathfind), [Competition Paper Link](https://1drv.ms/b/s!Aiuea30kcZTlh9QuE58l6tLuY61Ivg?e=8lhQ4r)
+> **[Quoridor-Pathfind](https://github.com/RegistryHJ/quoridor-pathfind)** <br />
+> Quoridor AI 강화학습 에이전트의 성능 향상을 위한 길찾기 알고리즘 비교 연구 <br />
+> 2024 교육매체개발 및 아이디어 경진대회 교육매체개발 부문 동상 (한국실천공학교육학회) <br />
+> 한국실천공학교육학회 2024 종합학술발표대회 논문집 교육장비개발부문 논문 게재 (PP. 243~244) <br />
 
-<br>
+<br />
 
-## Presentation
-
-[Final Presentation Materials](https://1drv.ms/p/s!Aiuea30kcZTlh9Qn89KA65sKioHqVg?e=wGtTO0)
-
-<br>
-
----
+## <br />
 
 Copyright © 2024 KibleLab

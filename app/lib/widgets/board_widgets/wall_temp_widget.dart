@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class WallTemp extends StatelessWidget {
+class WallTempWidget extends StatelessWidget {
   final String wallTemp;
   final double cellSize;
   final double spacing;
   final double touchMargin;
   final VoidCallback onTap;
 
-  const WallTemp({
+  const WallTempWidget({
     super.key,
     required this.wallTemp,
     required this.cellSize,

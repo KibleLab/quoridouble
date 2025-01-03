@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-class BoardInteraction extends StatefulWidget {
+class BoardInteractionWidget extends StatefulWidget {
   final String tempWall;
-  final double screenWidth;
+  final double boardSize;
+  final double boardBoarder;
+  final double spacing;
   final Offset? startPoint;
   final Offset? endPoint;
 
@@ -16,10 +18,12 @@ class BoardInteraction extends StatefulWidget {
   final Function(Offset startPoint, Offset endPoint) setWallTemp;
   final Function resetPoint;
 
-  const BoardInteraction({
+  const BoardInteractionWidget({
     super.key,
     required this.tempWall,
-    required this.screenWidth,
+    required this.boardSize,
+    required this.boardBoarder,
+    required this.spacing,
     required this.startPoint,
     required this.endPoint,
     required this.emptyTempWall,
@@ -35,7 +39,7 @@ class BoardInteraction extends StatefulWidget {
   BoardInteractionState createState() => BoardInteractionState();
 }
 
-class BoardInteractionState extends State<BoardInteraction> {
+class BoardInteractionState extends State<BoardInteractionWidget> {
   Offset? restrictedEnd;
 
   // restrictedEnd 계산 함수
@@ -69,9 +73,11 @@ class BoardInteractionState extends State<BoardInteraction> {
       onPanUpdate: (details) {
         if (widget.startPoint != null &&
             details.localPosition.dx >= 0 &&
-            details.localPosition.dx <= widget.screenWidth - 36 &&
+            details.localPosition.dx <=
+                widget.boardSize - 2 * (widget.spacing + widget.boardBoarder) &&
             details.localPosition.dy >= 0 &&
-            details.localPosition.dy <= widget.screenWidth - 36 &&
+            details.localPosition.dy <=
+                widget.boardSize - 2 * (widget.spacing + widget.boardBoarder) &&
             widget.userWallCount > 0) {
           double distance =
               (widget.startPoint! - details.localPosition).distance;
