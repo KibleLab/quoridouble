@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <springProperty scope="context" name="profile" source="spring.profiles.active"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%green(%d{yyyy-MM-dd HH:mm:ss.SSS}) %cyan(%thread) %highlight([%level]) %magenta(${PID:- }) %cyan(%logger{36}) %yellow(%X{method}) %X{requestURI} %gray(%X{scheme} %X{remoteAddr} %X{protocol} %X{userAgent}) %n  → %msg %n</pattern>
+    </encoder>
+  </appender>
+  
+  <appender name="TRACE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}/${profile}/traces/trace-%d{HH}.log</fileNamePattern>
+      <maxHistory>31</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread [%level] ${PID:- } %logger{36} %X{method} %X{requestURI} %X{scheme} %X{remoteAddr} %X{userAgent} %X{protocol} %n  → %msg %n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}/${profile}/debugs/debug-%d{HH}.log</fileNamePattern>
+      <maxHistory>31</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread [%level] ${PID:- } %logger{36} %X{method} %X{requestURI} %X{scheme} %X{remoteAddr} %X{userAgent} %X{protocol} %n  → %msg %n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}/${profile}/infos/info-%d{HH}.log</fileNamePattern>
+      <maxHistory>31</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread [%level] ${PID:- } %logger{36} %X{method} %X{requestURI} %X{scheme} %X{remoteAddr} %X{userAgent} %X{protocol} %n  → %msg %n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}/${profile}/warns/warn-%d{HH}.log</fileNamePattern>
+      <maxHistory>31</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread [%level] ${PID:- } %logger{36} %X{method} %X{requestURI} %X{scheme} %X{remoteAddr} %X{userAgent} %X{protocol} %n  → %msg %n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/%d{yyyy-MM-dd}/${profile}/errors/error-%d{HH}.log</fileNamePattern>
+      <maxHistory>31</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread [%level] ${PID:- } %logger{36} %X{method} %X{requestURI} %X{scheme} %X{remoteAddr} %X{userAgent} (%X{protocol}) %n  → %msg %n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+
+  <root>
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="TRACE_FILE"/>
+    <appender-ref ref="DEBUG_FILE"/>
+    <appender-ref ref="INFO_FILE"/>
+    <appender-ref ref="WARN_FILE"/>
+    <appender-ref ref="ERROR_FILE"/>
+  </root>
+
+</configuration>
