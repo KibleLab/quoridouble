@@ -100,8 +100,6 @@ chmod +x ./envs.sh
 Select an option (1-3):
 ```
 
-<br>
-
----
+## <br />
 
 Copyright © 2024 KibleLab
