@@ -1,0 +1,9 @@
+# IDE
+.vscode
+.idea
+
+# Cache
+.cache
+
+# Build
+build
