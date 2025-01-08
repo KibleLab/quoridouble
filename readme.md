@@ -15,7 +15,7 @@
 <img src="https://img.shields.io/badge/Gradle-181717?style=flat-square&logo=gradle" />
 <img src="https://img.shields.io/badge/Java-181717?style=flat-square&logo=java" />
 
-**RL Engine** [`@release/rl-engine`](https://github.com/KibleLab/quoridouble/@release/rl-engine) <br />
+**RL Engine** [`@release/rl-engine`](https://github.com/KibleLab/quoridouble/tree/@release/rl-engine) <br />
 <img src="https://img.shields.io/badge/CMake-181717?style=flat-square&logo=cmake" />
 <img src="https://img.shields.io/badge/C++-181717?style=flat-square&logo=cplusplus" />
 
