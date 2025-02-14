@@ -4,10 +4,10 @@
 
 <br />
 
-**Application** [`@release/app`](https://github.com/KibleLab/quoridouble/tree/@release/app) <br />
+**Application** `(출시 이후 내부 정책에 따라 소스코드 비공개)`<br />
 <img src="https://img.shields.io/badge/Flutter-181717?style=flat-square&logo=flutter" />
 <img src="https://img.shields.io/badge/Socket.IO Client-181717?style=flat-square&logo=Socket.io" />
-<img src="https://img.shields.io/badge/Dart-181717?style=flat-square&logo=Dart" />
+<img src="https://img.shields.io/badge/Dart-181717?style=flat-square&logo=Dart" /> <br />
 
 **Back-end** [`@release/be`](https://github.com/KibleLab/quoridouble/tree/@release/be) <br />
 <img src="https://img.shields.io/badge/Spring Boot-181717?style=flat-square&logo=springboot" />
@@ -21,6 +21,8 @@
 
 <br />
 
+**앱 다운로드:** <br />
+[<img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" />](https://play.google.com/store/apps/details?id=xyz.quoridouble)
 
 <br />
 
@@ -108,17 +110,27 @@ Quoridouble - 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Qu
 
 - Socket.IO 기반의 BE-Application 간 실시간 통신 구현(실시간 PvP 2-way Game)
 
-### RL Game Agent 재설계 및 구현 (12월~)
-
-- Monte-Carlo Tree Search 알고리즘 기반으로 재설계
-- Back-end와 Shared Library 기반으로 결합
-
-### Android 출시 전 작업 (12월~)
+### Android 출시 전 작업 (12월)
 
 - PvP 기능 일시적 제거 (AI 선출시 목표)
 - Application 리펙토링 및 최적화
 - Google AdMob 추가
 - 출시를 위한 Android Native 작업
+
+### RL Game Agent 재설계 및 구현 (12월~)
+
+- Monte-Carlo Tree Search 알고리즘 기반으로 재설계
+- Back-end와 Shared Library 기반으로 결합
+
+### Android 출시 작업 (1월)
+
+- Google Play Console에서 내부/비공개 테스트
+- 사전 출시 보고서를 기반으로 출시를 위한 코드 최적화
+
+### Android 출시 (2월)
+
+- Google Play에 정식 출시
+- 사용자 피드백을 바탕으로 UI/UX 개선
 
 <br />
 
