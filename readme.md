@@ -26,16 +26,6 @@
 
 <br />
 
-<table border="1">
-	<tr>
-		<td align="center">
-			<video src="https://github.com/user-attachments/assets/d843d772-89ed-49a9-95de-a449f0b022f3"  controls autoplay>
-		</td>
-	</tr>
-</table>
-
-<br />
-
 ## Overview
 
 ### 프로젝트명
