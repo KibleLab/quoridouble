@@ -65,7 +65,6 @@ Quoridouble - 강화학습 기반 AI와 PvP 대전, 개선된 UX가 구현된 Qu
 
 ### 기존 Quoridor 앱의 문제점
 
-- 출시된 앱의 수가 매우 적음
 - 조작감 등 UX가 좋지 않음
 - AI와 PvP(Player vs Player) 기능이 하나의 앱에 동시에 탑재가 되어 있지 않음
 
